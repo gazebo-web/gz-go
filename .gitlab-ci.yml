@@ -2,14 +2,15 @@ image: golang:1.13.5
 
 variables:
   PKG_NAME: gitlab.com/ignitionrobotics/web/ign-go.git
+  PKG_DIR: $GOPATH/src/$(dirname $PKG_NAME)
   MYSQL_DATABASE: "root"
   MYSQL_ROOT_PASSWORD: "root"
 
 before_script:
   - go version
-  - mkdir -p $GOPATH/src/$(dirname $PKG_NAME)
-  - ln -svf $CI_PROJECT_DIR $GOPATH/src/$PKG_NAME
-  - cd $GOPATH/src/$PKG_NAME
+  - mkdir -p $PKG_DIR
+  - mount -o bind $CI_PROJECT_DIR $PKG_DIR
+  - cd $PKG_DIR
   - go get
 
 stages:
