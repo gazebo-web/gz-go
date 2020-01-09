@@ -66,7 +66,7 @@ func TestDoAt(t *testing.T) {
 	s.DoAt(func() {
 		b = true
 		wg.Done()
-	}, time.Now().Add(time.Second * 3))
+	}, time.Now().Add(time.Second*3))
 
 	wg.Wait()
 
