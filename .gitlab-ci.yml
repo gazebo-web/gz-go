@@ -1,0 +1,55 @@
+services:
+  - mysql:5.7
+
+image: golang:1.13.5
+
+variables:
+  PKG_NAME: gitlab.com/ignitionrobotics/web/ign-go
+  MYSQL_DATABASE: "root"
+  MYSQL_ROOT_PASSWORD: "root"
+
+before_script:
+  - mkdir -p $GOPATH/src/$(dirname $PKG_NAME)
+  - ln -svf $CI_PROJECT_DIR $GOPATH/src/$PKG_NAME
+  - cd $GOPATH/src/$PKG_NAME
+  - go get -u github.com/golang/lint/golint
+  - go version
+  - go get
+
+stages:
+  - install
+  - format
+  - lint
+  - test
+  - build
+
+install:
+  stage: install
+
+
+format:
+  stage: format
+  script:
+    - go fmt $(go list ./... | grep -v /vendor/)
+
+lint:
+  stage: lint
+
+
+vet:
+  stage: test
+  script:
+    - go vet $(go list ./... | grep -v /vendor/)
+
+
+coverage:
+  stage: test
+  script:
+    - bash coverage.sh
+    - bash <(curl -s https://codecov.io/bash)
+
+
+build:
+  stage: build
+  script:
+    - go build
