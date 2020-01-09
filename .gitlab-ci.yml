@@ -8,9 +8,6 @@ variables:
 
 before_script:
   - go version
-  - mkdir -p $PKG_DIR
-  - mount -o bind `pwd` $PKG_DIR
-  - cd $PKG_DIR
   - go get
 
 stages:
