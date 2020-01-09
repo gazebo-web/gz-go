@@ -17,15 +17,10 @@ before_script:
   - go get
 
 stages:
-  - install
   - format
   - lint
   - test
   - build
-
-install:
-  stage: install
-
 
 format:
   stage: format
