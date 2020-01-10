@@ -9,7 +9,13 @@ before_script:
   - go get
   - go get -u golang.org/x/lint
   - pwd
+  - echo $GOPATH
   - export PATH=$PATH:$GOPATH/bin
+
+cache:
+  key: ${CI_COMMIT_REF_SLUG}
+  paths:
+    - $GOPATH/pkg/mod
 
 stages:
   - formatting
