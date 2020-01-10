@@ -9,7 +9,7 @@ before_script:
   - go version
   - mkdir -p -v $GOPATH/src/$PKG_NAME
   - mv -f "$(pwd)" $GOPATH/src/$PKG_NAME
-  - cd $PKG_DIR
+  - cd $GOPATH/src/$PKG_NAME
   - go get
   - go get -u golang.org/x/lint
 
