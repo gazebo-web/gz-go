@@ -2,14 +2,13 @@ image: golang:1.13.5
 
 variables:
   PKG_NAME: gitlab.com/ignitionrobotics/web/ign-go.git
-  PKG_DIR: $GOPATH/src/$PKG_NAME
   MYSQL_DATABASE: "root"
   MYSQL_ROOT_PASSWORD: "root"
 
 before_script:
   - go version
-  - mkdir -p $PKG_DIR
-  - mv -f . $PKG_DIR
+  - mkdir -p -v $PKG_DIR
+  - mv -f . $GOPATH/src/$PKG_NAME
   - cd $PKG_DIR
   - go get
   - go get -u golang.org/x/lint
