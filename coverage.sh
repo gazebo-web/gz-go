@@ -4,13 +4,9 @@ set -e
 
 # http://stackoverflow.com/a/21142256/2055281
 
-echo "mode: atomic" > coverage.tx
-
-for d in $(go list ./...); do
-    go test -race "$(go list ./... | grep -v /vendor/)" -coverprofile=profile.out -covermode=atomic $d
-    if [ -f profile.out ]; then
-        echo "$(pwd)"
-        cat profile.out | grep -v "mode: " >> coverage.tx
-        rm profile.out
-    fi
+PKG_LIST=$(go list ./... | grep -v /vendor/)
+for package in ${PKG_LIST}; do
+    go test -covermode=count -coverprofile "cover/${package##*/}.cov" "$package" ;
 done
+tail -q -n +2 cover/*.cov >> cover/coverage.cov
+go tool cover -func=cover/coverage.cov

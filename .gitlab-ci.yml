@@ -32,7 +32,29 @@ vet:
   stage: test
   script:
     - go vet $(go list ./... | grep -v /vendor/)
+  services:
+    - mysql:5.7
 
+test:
+  stage: test
+  script:
+    - go test
+  services:
+    - mysql:5.7
+
+race:
+  stage: test
+  script:
+    - go test -race $(go list ./... | grep -v /vendor/)
+  services:
+    - mysql:5.7
+
+memsanitize:
+  stage: test
+  script:
+    - go test -msan $(go list ./... | grep -v /vendor/)
+  services:
+    - mysql:5.7
 
 coverage:
   stage: test
