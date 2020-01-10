@@ -1,8 +1,6 @@
 image: golang:1.13.5
 
 variables:
-  PKG_NAME: gitlab.com/ignitionrobotics/web/ign-go.git
-  PKG_DIR: $GOPATH/src/$(dirname $PKG_NAME)
   MYSQL_DATABASE: "root"
   MYSQL_ROOT_PASSWORD: "root"
 
@@ -10,54 +8,55 @@ before_script:
   - go version
   - go get
   - go get -u golang.org/x/lint
+  - export PATH=$PATH:$GOPATH/bin
 
 stages:
-  - format
-  - lint
-  - test
-  - build
+  - formatting
+  - linting
+  - testing
+  - building
 
 format:
-  stage: format
+  stage: formatting
   script:
     - go fmt $(go list ./... | grep -v /vendor/)
 
 lint:
-  stage: lint
+  stage: linting
   script:
-    - lint=$(golint $(go list ./...) | grep -v ".pb.go") && if [[ ! -z $lint ]]; then echo $lint && exit 1; fi
+    - golint -set_exit_status $(go list ./... | grep -v /vendor/)
 
 
 vet:
-  stage: test
+  stage: testing
   script:
     - go vet $(go list ./... | grep -v /vendor/)
   services:
     - mysql:5.7
 
 test:
-  stage: test
+  stage: testing
   script:
-    - go test
+    - go test $(go list ./... | grep -v /vendor/)
   services:
     - mysql:5.7
 
 race:
-  stage: test
+  stage: testing
   script:
     - go test -race $(go list ./... | grep -v /vendor/)
   services:
     - mysql:5.7
 
-memsanitize:
-  stage: test
+memory_sanitize:
+  stage: testing
   script:
     - go test -msan $(go list ./... | grep -v /vendor/)
   services:
     - mysql:5.7
 
 coverage:
-  stage: test
+  stage: testing
   script:
     - bash coverage.sh
     - bash <(curl -s https://codecov.io/bash)
@@ -66,6 +65,6 @@ coverage:
 
 
 build:
-  stage: build
+  stage: building
   script:
     - go build
