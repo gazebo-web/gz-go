@@ -9,7 +9,7 @@ variables:
 before_script:
   - go version
   - go get
-  - go get -u github.com/x/lint/golint
+  - go get -u golang.org/x/lint
 
 stages:
   - format
