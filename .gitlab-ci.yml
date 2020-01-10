@@ -8,7 +8,7 @@ variables:
 before_script:
   - go version
   - mkdir -p -v $GOPATH/src/$PKG_NAME
-  - mv -f "$(pwd)" $GOPATH/src/$PKG_NAME
+  - mv -f "$(pwd)/*" $GOPATH/src/$PKG_NAME
   - cd $GOPATH/src/$PKG_NAME
   - go get
   - go get -u golang.org/x/lint
@@ -16,7 +16,11 @@ before_script:
 cache:
   key: ${CI_COMMIT_REF_SLUG}
   paths:
-    - $GOPATH/pkg/mod
+    - /apt-cache
+    - /go/src/github.com
+    - /go/src/golang.org
+    - /go/src/google.golang.org
+    - /go/src/gopkg.in
 
 stages:
   - formatting
@@ -31,6 +35,8 @@ format:
 
 lint:
   stage: linting
+  before_script:
+    - export PATH=${GOPATH}/bin:$PATH
   script:
     - golint -set_exit_status $(go list ./... | grep -v /vendor/)
 
@@ -53,13 +59,6 @@ race:
   stage: testing
   script:
     - go test -race $(go list ./... | grep -v /vendor/)
-  services:
-    - mysql:5.7
-
-memory_sanitize:
-  stage: testing
-  script:
-    - go test -msan $(go list ./... | grep -v /vendor/)
   services:
     - mysql:5.7
 
