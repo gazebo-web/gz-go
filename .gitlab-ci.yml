@@ -8,6 +8,7 @@ before_script:
   - go version
   - go get
   - go get -u golang.org/x/lint
+  - pwd
   - export PATH=$PATH:$GOPATH/bin
 
 stages:
