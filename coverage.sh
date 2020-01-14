@@ -2,15 +2,15 @@
 
 set -e
 
+# http://stackoverflow.com/a/21142256/2055281
+
 echo "mode: atomic" > coverage.tx
 
-PKG_LIST=$(go list ./... | grep -v /vendor/)
-for package in ${PKG_LIST}; do
-  touch "./coverage/${package##*/}.out"
-  go test -covermode=atomic -coverprofile "./coverage/${package##*/}.out" "$package" ;
-  if [ -f "./coverage/${package##*/}.out" ]; then
-      echo "$(pwd)"
-      cat "./coverage/${package##*/}.out" | grep -v "mode: " >> coverage.tx
-      rm "./coverage/${package##*/}.out"
-  fi
+for d in $(go list ./...); do
+    go test  -coverprofile=profile.out -covermode=atomic $d
+    if [ -f profile.out ]; then
+        echo "$(pwd)"
+        cat profile.out | grep -v "mode: " >> coverage.tx
+        rm profile.out
+    fi
 done
