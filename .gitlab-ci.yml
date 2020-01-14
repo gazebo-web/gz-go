@@ -15,7 +15,7 @@ before_script:
 cache:
   key: ${CI_COMMIT_REF_SLUG}
   paths:
-    - /go/pkg/
+    - /go/pkg/*
 
 stages:
   - formatting
