@@ -32,11 +32,12 @@ lint:
   image: registry.gitlab.com/gitlab-org/gitlab-build-images:golangci-lint-alpine
   stage: linting
   before_script:
-    - mkdir -p $GOPATH/src/golang.org/x \
-      && git clone https://github.com/golang/lint.git $GOPATH/src/golang.org/x/lint \
-      && go get -u golang.org/x/lint/golint
+    - mkdir -p $GOPATH/src/golang.org/x
+    - git clone https://github.com/golang/lint.git $GOPATH/src/golang.org/x/lint
+    - go get -u golang.org/x/lint/golint
   script:
     - golint -set_exit_status $(go list ./... | grep -v /vendor/)
+  allow_failure: true
 
 
 vet:
