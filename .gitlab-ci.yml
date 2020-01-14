@@ -67,7 +67,6 @@ coverage:
   services:
     - mysql:5.7
 
-
 build:
   stage: building
   script:
