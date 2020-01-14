@@ -64,6 +64,7 @@ coverage:
   script:
     - bash coverage.sh
     - bash <(curl -s https://codecov.io/bash)
+    - go test $(go list ./... | grep -v /vendor/) -v -coverprofile .testCoverage.txt
   services:
     - mysql:5.7
 
