@@ -5,6 +5,15 @@
 </div>
 
 ## Getting started
+### Using Go CLI
+```
+go get gitlab.com/ignitionrobotics/web/ign-go.git
+```
+
+### Using Git
+```
+git clone https://gitlab.com/ignitionrobotics/web/ign-go
+```
 
 ## Installing
 
