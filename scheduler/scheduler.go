@@ -1,7 +1,7 @@
 package scheduler
 
 import (
-	"bitbucket.org/ignitionrobotics/ign-go"
+	"gitlab.com/ignitionrobotics/web/ign-go"
 	sch "github.com/prprprus/scheduler"
 	"sync"
 	"time"
