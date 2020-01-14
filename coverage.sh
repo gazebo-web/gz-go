@@ -2,11 +2,14 @@
 
 set -e
 
-# http://stackoverflow.com/a/21142256/2055281
+echo "mode: atomic" > coverage.tx
 
 PKG_LIST=$(go list ./... | grep -v /vendor/)
 for package in ${PKG_LIST}; do
-    go test -covermode=count -coverprofile "cover/${package##*/}.cov" "$package" ;
+    go test -covermode=atomic -coverprofile "coverage/${package##*/}.out" "$package" ;
+    if [ -f "coverage/${package##*/}.out" ]; then
+        echo "$(pwd)"
+        cat "coverage/${package##*/}.out" | grep -v "mode: " >> coverage.tx
+        rm "coverage/${package##*/}.out"
+    fi
 done
-tail -q -n +2 cover/*.cov >> cover/coverage.cov
-go tool cover -func=cover/coverage.cov
