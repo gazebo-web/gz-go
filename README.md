@@ -12,15 +12,6 @@ Ignition GO provides a set of features to help with web server development. It i
 - A thread-safe concurrent queue based on [enriquebris/goconcurrentqueue](https://github.com/enriquebris/goconcurrentqueue) package.
 - A scheduler to set jobs to be executed at certain date, based on [prprprus/scheduler](https://github.com/prprprus/scheduler) and forked into [ignitionrobotics/web/scheduler](https://gitlab.com/ignitionrobotics/web/scheduler).
 - A custom logger based on the default log package but including a [rollbar](https://github.com/rollbar/rollbar-go) implementation.
-### Using Go CLI
-```
-go get gitlab.com/ignitionrobotics/web/ign-go.git
-```
-
-### Using Git
-```
-git clone https://gitlab.com/ignitionrobotics/web/ign-go
-```
 
 ## Usage
 
@@ -48,18 +39,18 @@ func example() {
 ```
 
 ## Installing
-Install dependencies using go modules.
-```bash
-$ go get
+### Using Go CLI
+```
+go get gitlab.com/ignitionrobotics/web/ign-go.git
 ```
 
 ## Contribute
-There are many ways to contribute to Ignition GO.
+**There are many ways to contribute to Ignition GO.**
 - Reviewing the source code changes.
 - Report new bugs.
 - Suggest new packages that we should consider including.
 
-### Environment variables
+## Environment variables
 - **IGN_SSL_CERT**: Path to an SSL certificate file. This is used for local SSL testing and development.
 - **IGN_SSL_KEY**: Path to an SSL key. THis is used for local SSL testing and development
 - **IGN_DB_USERNAME**: Username for the database connection.
