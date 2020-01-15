@@ -15,6 +15,42 @@ Ignition GO provides a set of features to help with web server development. It i
 
 ## Usage
 
+### Routes
+```go
+ign.Routes{
+    ign.Route{
+        Name:        "Route example",
+        Description: "Route description example",
+        URI:         "/example",
+        Headers:     nil,
+        Methods:     ign.Methods{
+            ign.Method{
+                Type:        "GET",
+                Description: "Get all the examples",
+                Handlers:    ign.FormatHandlers{
+                    ign.FormatHandler{
+                        Extension: "",
+                        Handler:   ign.JSONResult(/* Your method handler in here */),
+                    },
+                },
+            },
+        },
+        SecureMethods: ign.SecureMethods{
+            ign.Method{
+                Type:        "POST",
+                Description: "Creates a new example",
+                Handlers:    ign.FormatHandlers{
+                    ign.FormatHandler{
+                        Extension: "",
+                        Handler:   ign.JSONResult(/* Your secure method handler in here */),
+                    },
+                },
+            },
+        },
+    },
+}
+```
+
 ### Queue
 ```go
 func main() {
