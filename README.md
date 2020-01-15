@@ -12,6 +12,7 @@ Ignition GO provides a set of features to help with web server development. It i
 - A thread-safe concurrent queue based on [enriquebris/goconcurrentqueue](https://github.com/enriquebris/goconcurrentqueue) package.
 - A scheduler to set jobs to be executed at certain date, based on [prprprus/scheduler](https://github.com/prprprus/scheduler) and forked into [ignitionrobotics/web/scheduler](https://gitlab.com/ignitionrobotics/web/scheduler).
 - A custom logger based on the default log package but including a [rollbar](https://github.com/rollbar/rollbar-go) implementation.
+- An error handler with a list of default and custom error messages.
 
 ## Usage
 
