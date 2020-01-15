@@ -22,7 +22,7 @@ ign.Routes{
         Name:        "Route example",
         Description: "Route description example",
         URI:         "/example",
-        Headers:     nil,
+        Headers:     ign.AuthHeadersRequired,
         Methods:     ign.Methods{
             ign.Method{
                 Type:        "GET",
