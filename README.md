@@ -22,14 +22,42 @@ go get gitlab.com/ignitionrobotics/web/ign-go.git
 git clone https://gitlab.com/ignitionrobotics/web/ign-go
 ```
 
-### How to use it?
-```go
+## Usage
 
+### Queue
+```go
+func main() {
+	queue := ign.NewQueue()
+	queue.Enqueue("Value")
+	if v, err := queue.DequeueOrWaitForNextElement(); err == nil {
+		fmt.Println(v)
+	}
+}
+```
+
+### Scheduler
+```go
+func main() {
+	s := scheduler.GetInstance()
+	s.DoAt(example, time.Now().Add(5*time.Second))
+}
+
+func example() {
+	fmt.Println("Scheduled task")
+}
 ```
 
 ## Installing
+Install dependencies using go modules.
+```bash
+$ go get
+```
 
 ## Contribute
+There are many ways to contribute to Ignition GO.
+- Reviewing the source code changes.
+- Report new bugs.
+- Suggest new packages that we should consider including.
 
 ### Environment variables
 - **IGN_SSL_CERT**: Path to an SSL certificate file. This is used for local SSL testing and development.
@@ -47,7 +75,3 @@ git clone https://gitlab.com/ignitionrobotics/web/ign-go
 - **IGN_ROLLBAR_ENV**: (optional) Rollbar environment string, such as "staging" or "production".
 - **IGN_ROLLBAR_ROOT**: (optional) Path to the application code root, not including the final slash. Such as bitbucket.org/ignitionrobotics/ign-fuelserver
 - **IGN_LOGGER_LOG_STDOUT**: (optional) Controls whether or not logs will be also sent to stdout/err. If missing, a false value will be used.
-
-## Documentation
-
-## Building
