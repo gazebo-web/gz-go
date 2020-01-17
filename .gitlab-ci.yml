@@ -37,7 +37,6 @@ lint:
   script:
     - golint -set_exit_status $(go list ./... | grep -v /vendor/)
 
-
 vet:
   stage: testing
   script:
@@ -62,9 +61,9 @@ race:
 coverage:
   stage: testing
   script:
-    # - bash coverage.sh
-    # - bash <(curl -s https://codecov.io/bash)
-    - go test $(go list ./... | grep -v /vendor/) -v -coverprofile .test_coverage.txt
+    - go test -covermode=atomic -coverprofile=coverage.tx
+    - go tool cover -func=coverage.tx
+    - bash <(curl -s https://codecov.io/bash)
   services:
     - mysql:5.7
 
