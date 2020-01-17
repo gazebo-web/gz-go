@@ -1,0 +1,8 @@
+.out
+coverage.tx
+.env.bash
+.env
+.idea/
+vendor/
+# Default ignored files
+.idea/workspace.xml
