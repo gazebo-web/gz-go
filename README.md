@@ -5,12 +5,12 @@
 </div>
 
 ## Getting started
-Ignition Go provides a set of features to help with web server development. It is a superset of tools that were chosen to solve different problems in [fuelserver](https://gitlab.com/ignitionrobotics/web/fuelserver) and [cloudsim](https://gitlab.com/ignitionrobotics/web/cloudsim) packages.
+Ignition Go provides a set of features to help with web server development. It is a set of tools that were chosen to solve different problems in [fuelserver](https://gitlab.com/ignitionrobotics/web/fuelserver) and [cloudsim](https://gitlab.com/ignitionrobotics/web/cloudsim) packages.
 
 ### Features
-- A custom router based on [gorilla/mux](https://github.com/gorilla/mux) package.
-- A thread-safe concurrent queue based on [enriquebris/goconcurrentqueue](https://github.com/enriquebris/goconcurrentqueue) package.
-- A scheduler to set jobs to be executed at certain date, based on [prprprus/scheduler](https://github.com/prprprus/scheduler) and forked into [ignitionrobotics/web/scheduler](https://gitlab.com/ignitionrobotics/web/scheduler).
+- A custom router based on the [gorilla/mux](https://github.com/gorilla/mux) package.
+- A thread-safe concurrent queue based on the [enriquebris/goconcurrentqueue](https://github.com/enriquebris/goconcurrentqueue) package.
+- A scheduler to set jobs to be executed at certain dates, based on the [ignitionrobotics/web/scheduler](https://gitlab.com/ignitionrobotics/web/scheduler) package.
 - A custom logger based on the default log package but including a [rollbar](https://github.com/rollbar/rollbar-go) implementation.
 - An error handler with a list of default and custom error messages.
 
