@@ -1,11 +1,11 @@
 <div align="center">
   <img src="./assets/logo.png" width="200" alt="Ignition Robotics" />
   <h1>Ignition Robotics</h1>
-  <p>Ignition GO is a general purpose golang library that encapsulates a set of common functionality for a webserver.</p>
+  <p>Ignition Go is a general purpose golang library that encapsulates a set of common functionalities for a webserver.</p>
 </div>
 
 ## Getting started
-Ignition GO provides a set of features to help with web server development. It is a superset of tools that were chosen to solve different problems in [fuelserver](https://gitlab.com/ignitionrobotics/web/fuelserver) and [cloudsim](https://gitlab.com/ignitionrobotics/web/cloudsim) packages.
+Ignition Go provides a set of features to help with web server development. It is a superset of tools that were chosen to solve different problems in [fuelserver](https://gitlab.com/ignitionrobotics/web/fuelserver) and [cloudsim](https://gitlab.com/ignitionrobotics/web/cloudsim) packages.
 
 ### Features
 - A custom router based on [gorilla/mux](https://github.com/gorilla/mux) package.
@@ -82,7 +82,7 @@ go get gitlab.com/ignitionrobotics/web/ign-go.git
 ```
 
 ## Contribute
-**There are many ways to contribute to Ignition GO.**
+**There are many ways to contribute to Ignition Go.**
 - Reviewing the source code changes.
 - Report new bugs.
 - Suggest new packages that we should consider including.
