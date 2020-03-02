@@ -2,7 +2,7 @@ package scheduler
 
 import (
 	"gitlab.com/ignitionrobotics/web/ign-go"
-	sch "github.com/prprprus/scheduler"
+	sch "gitlab.com/ignitionrobotics/web/scheduler"
 	"sync"
 	"time"
 )
