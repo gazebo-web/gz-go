@@ -29,6 +29,7 @@ require (
 	github.com/satori/go.uuid v1.1.1-0.20180103003558-063359185d32
 	github.com/smartystreets/goconvey v1.6.4 // indirect
 	github.com/stretchr/testify v1.2.2
+	gitlab.com/ignitionrobotics/web/scheduler v0.5.0 // indirect
 	golang.org/x/crypto v0.0.0-20191206172530-e9b2fee46413
 	golang.org/x/sync v0.0.0-20190911185100-cd5d95a43a6e // indirect
 	google.golang.org/appengine v1.1.0 // indirect
