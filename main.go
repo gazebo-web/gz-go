@@ -232,6 +232,63 @@ func ReadRollbarLogVerbosityEnvVar() int {
 	return int(val)
 }
 
+// NewDatabaseConfigFromEnvVars returns a DatabaseConfig object from the following env vars:
+// - IGN_DB_USERNAME
+// - IGN_DB_PASSWORD
+// - IGN_DB_ADDRESS
+// - IGN_DB_NAME
+// - IGN_DB_MAX_OPEN_CONNS - (Optional) You run the risk of getting a 'too many connections' error if this is not set.
+func NewDatabaseConfigFromEnvVars() (DatabaseConfig, error) {
+	dbConfig := DatabaseConfig{}
+	var err error
+
+	// Get the database username
+	if dbConfig.UserName, err = ReadEnvVar("IGN_DB_USERNAME"); err != nil {
+		errMsg := "Missing IGN_DB_USERNAME env variable. Database connection will not work"
+		return dbConfig, errors.New(errMsg)
+	}
+
+	// Get the database password
+	if dbConfig.Password, err = ReadEnvVar("IGN_DB_PASSWORD"); err != nil {
+		errMsg := "Missing IGN_DB_PASSWORD env variable. Database connection will not work"
+		return dbConfig, errors.New(errMsg)
+	}
+
+	// Get the database address
+	if dbConfig.Address, err = ReadEnvVar("IGN_DB_ADDRESS"); err != nil {
+		errMsg := "Missing IGN_DB_ADDRESS env variable. Database connection will not work"
+		return dbConfig, errors.New(errMsg)
+	}
+
+	// Get the database name
+	if dbConfig.Name, err = ReadEnvVar("IGN_DB_NAME"); err != nil {
+		errMsg := "Missing IGN_DB_NAME env variable. Database connection will not work"
+		return dbConfig, errors.New(errMsg)
+	}
+
+	// Get the database max open conns
+	var maxStr string
+	if maxStr, err = ReadEnvVar("IGN_DB_MAX_OPEN_CONNS"); err != nil {
+		log.Printf("Missing IGN_DB_MAX_OPEN_CONNS env variable." +
+			"Database max open connections will be set to unlimited," +
+			"with the risk of getting 'too many connections' error.")
+		dbConfig.MaxOpenConns = 0
+	} else {
+		var i int64
+		i, err = strconv.ParseInt(maxStr, 10, 32)
+		if err != nil || i <= 0 {
+			log.Printf("Error parsing IGN_DB_MAX_OPEN_CONNS env variable." +
+				"Database max open connections will be set to unlimited," +
+				"with the risk of getting 'too many connections' error.")
+			dbConfig.MaxOpenConns = 0
+		} else {
+			dbConfig.MaxOpenConns = int(i)
+		}
+	}
+
+	return dbConfig, nil
+}
+
 // readPropertiesFromEnvVars configures the server based on env vars.
 func (s *Server) readPropertiesFromEnvVars() error {
 	var err error
@@ -272,28 +329,8 @@ func (s *Server) readPropertiesFromEnvVars() error {
 		log.Printf("Missing optional IGN_GA_CAT_PREFIX env variable.")
 	}
 
-	// Get the database username
-	if s.DbConfig.UserName, err = ReadEnvVar("IGN_DB_USERNAME"); err != nil {
-		log.Printf("Missing IGN_DB_USERNAME env variable. " +
-			"Database connection will not work")
-	}
-
-	// Get the database password
-	if s.DbConfig.Password, err = ReadEnvVar("IGN_DB_PASSWORD"); err != nil {
-		log.Printf("Missing IGN_DB_PASSWORD env variable." +
-			"Database connection will not work")
-	}
-
-	// Get the database address
-	if s.DbConfig.Address, err = ReadEnvVar("IGN_DB_ADDRESS"); err != nil {
-		log.Printf("Missing IGN_DB_ADDRESS env variable." +
-			"Database connection will not work")
-	}
-
-	// Get the database name
-	if s.DbConfig.Name, err = ReadEnvVar("IGN_DB_NAME"); err != nil {
-		log.Printf("Missing IGN_DB_NAME env variable." +
-			"Database connection will not work")
+	if s.DbConfig, err = NewDatabaseConfigFromEnvVars(); err != nil {
+		log.Printf(err.Error())
 	}
 
 	// Get whether to enable database logging
@@ -310,26 +347,6 @@ func (s *Server) readPropertiesFromEnvVars() error {
 	s.LogToStd = ReadStdLogEnvVar()
 	s.LogVerbosity = ReadLogVerbosityEnvVar()
 	s.RollbarLogVerbosity = ReadRollbarLogVerbosityEnvVar()
-
-	// Get the database max open conns
-	var maxStr string
-	if maxStr, err = ReadEnvVar("IGN_DB_MAX_OPEN_CONNS"); err != nil {
-		log.Printf("Missing IGN_DB_MAX_OPEN_CONNS env variable." +
-			"Database max open connections will be set to unlimited," +
-			"with the risk of getting 'too many connections' error.")
-		s.DbConfig.MaxOpenConns = 0
-	} else {
-		var i int64
-		i, err = strconv.ParseInt(maxStr, 10, 32)
-		if err != nil || i <= 0 {
-			log.Printf("Error parsing IGN_DB_MAX_OPEN_CONNS env variable." +
-				"Database max open connections will be set to unlimited," +
-				"with the risk of getting 'too many connections' error.")
-			s.DbConfig.MaxOpenConns = 0
-		} else {
-			s.DbConfig.MaxOpenConns = int(i)
-		}
-	}
 
 	return nil
 }
