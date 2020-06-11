@@ -3,12 +3,10 @@ package ign
 // Import this file's dependencies
 import (
 	"errors"
-	"flag"
 	"fmt"
 	"github.com/gorilla/mux"
 	"github.com/jinzhu/gorm"
 	"github.com/rollbar/rollbar-go"
-	"io/ioutil"
 	"log"
 	"net/http"
 	"os"
@@ -16,6 +14,7 @@ import (
 	"path"
 	"runtime"
 	"strconv"
+	"strings"
 	"time"
 
 	// Needed by dbInit
@@ -120,28 +119,12 @@ func Init(auth0RSAPublicKey string, dbNameSuffix string) (server *Server, err er
 
 	gServer = server
 
-	server.IsTest = flag.Lookup("test.v") != nil
+	server.IsTest = strings.HasSuffix(os.Args[0], ".test")
 
 	if server.IsTest {
-		// Parse verbose setting, and adjust logging accordingly
-		if !flag.Parsed() {
-			flag.Parse()
-		}
-
-		v := flag.Lookup("test.v")
-		isTestVerbose := v.Value.String() == "true"
-
-		// Disable logging if needed
-		if !isTestVerbose {
-			log.SetFlags(0)
-			log.SetOutput(ioutil.Discard)
-		}
-
 		// Let's use a separate DB name if under test mode.
 		server.DbConfig.Name = server.DbConfig.Name + "_test"
-		if isTestVerbose {
-			server.DbConfig.EnableLog = true
-		}
+		server.DbConfig.EnableLog = true
 	}
 
 	server.DbConfig.Name = server.DbConfig.Name + dbNameSuffix
