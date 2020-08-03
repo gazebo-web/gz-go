@@ -7,6 +7,7 @@ import (
 	"github.com/gorilla/mux"
 	"github.com/jinzhu/gorm"
 	"github.com/rollbar/rollbar-go"
+	"gitlab.com/ignitionrobotics/web/ign-go/monitoring"
 	"log"
 	"net/http"
 	"os"
@@ -30,6 +31,13 @@ type Server struct {
 	UsersDb *gorm.DB
 
 	Router *mux.Router
+
+	// monitoring contains an optional monitoring provider used to
+	// keep track of server metrics. The metrics are defined by the provider.
+	// If set, the server will automatically add monitoring middleware when
+	// configuring routes and expose an endpoint to allow the monitoring system
+	// to scrape metric data.
+	monitoring monitoring.Provider
 
 	// Port used for non-secure requests
 	HTTPPort string
@@ -105,20 +113,22 @@ var gServer *Server
 // Init initialize this package.
 // Note: This method does not configure the Server's Router. You will later
 // need to configure the router and set it to the server.
-func Init(auth0RSAPublicKey string, dbNameSuffix string) (server *Server, err error) {
+func Init(auth0RSAPublicKey string, dbNameSuffix string, monitoring monitoring.Provider) (server *Server, err error) {
 
 	// Configure and setup rollbar.
 	// Do this first so that the logging connection is established.
 	rollbarConfigure()
 
 	server = &Server{
-		HTTPPort: ":8000",
-		SSLport:  ":4430",
+		HTTPPort:   ":8000",
+		SSLport:    ":4430",
+		monitoring: monitoring,
 	}
 	server.readPropertiesFromEnvVars()
 
 	gServer = server
 
+	// Testing
 	server.IsTest = strings.HasSuffix(os.Args[0], ".test")
 
 	if server.IsTest {
@@ -147,10 +157,12 @@ func Init(auth0RSAPublicKey string, dbNameSuffix string) (server *Server, err er
 
 // ConfigureRouterWithRoutes takes a given mux.Router and configures it with a set of
 // declared routes. The router is configured with default middlewares.
+// If a monitoring provider was set on the server, the router will include an additional middleware
+// to track server metrics and add a monitoring route defined by the provider.
 // If the router is a mux subrouter gotten by PathPrefix().Subrouter() then you need to
 // pass the pathPrefix as argument here too (eg. "/2.0/")
 func (s *Server) ConfigureRouterWithRoutes(pathPrefix string, router *mux.Router, routes Routes) {
-	rc := NewRouterConfigurer(router)
+	rc := NewRouterConfigurer(router, s.monitoring)
 	rc.SetAuthHandlers(
 		CreateJWTOptionalMiddleware(s),
 		CreateJWTRequiredMiddleware(s),
@@ -159,7 +171,14 @@ func (s *Server) ConfigureRouterWithRoutes(pathPrefix string, router *mux.Router
 }
 
 // SetRouter sets the main mux.Router to the server.
+// If a monitoring provider has been defined, this will also configure
+// the router to include routes for the monitoring service.
 func (s *Server) SetRouter(router *mux.Router) *Server {
+	if s.monitoring != nil {
+		subrouter := router.Path("/").Subrouter()
+		s.ConfigureRouterWithRoutes("/", subrouter, Routes{s.getMetricsRoute()})
+	}
+
 	s.Router = router
 	return s
 }
@@ -518,5 +537,27 @@ func rollbarConfigure() {
 		rollbar.SetServerHost(hostname)
 	} else {
 		rollbar.SetServerHost("error reading hostname")
+	}
+}
+
+// generateMetricsRoute is an internal method to generate a metrics route.
+// This route is called by the monitoring system to scrape server metric data.
+func (s *Server) getMetricsRoute() Route {
+	return Route{
+		Name:        "Metrics",
+		Description: "Provides server metrics for monitoring systems.",
+		URI:         s.monitoring.MetricsRoute(),
+		Methods: Methods{
+			Method{
+				Type:        "GET",
+				Description: "Get server metrics.",
+				Handlers: FormatHandlers{
+					FormatHandler{
+						Extension: "",
+						Handler:   s.monitoring.MetricsHandler(),
+					},
+				},
+			},
+		},
 	}
 }
