@@ -6,3 +6,5 @@ coverage.tx
 vendor/
 # Default ignored files
 .idea/workspace.xml
+*.swp
+*.orig
