@@ -13,6 +13,7 @@ import (
 	"log"
 	"net/http"
 	"reflect"
+	"strings"
 	"time"
 )
 
@@ -67,7 +68,7 @@ type basicHandlerWithResult func(w http.ResponseWriter, r *http.Request) (interf
 // IsSQLTxError checks if the given error is a sqlTx error.
 // Note: we need to do that by testing its error message.
 func IsSQLTxError(err error) bool {
-	return err.Error() == "sql: Transaction has already been committed or rolled back"
+	return err != nil && strings.ToLower(err.Error()) == "sql: transaction has already been committed or rolled back"
 }
 
 // dbTransactionWrapper handles opening and closing of a DB Transaction.

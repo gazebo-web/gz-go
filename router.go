@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/codegangsta/negroni"
 	"github.com/gorilla/mux"
+	"gitlab.com/ignitionrobotics/web/ign-go/monitoring"
 	"net/http"
 	"regexp"
 	"sort"
@@ -38,14 +39,17 @@ type RouterConfigurer struct {
 	// private field to keep a reference to JWT middlewares
 	authOptMiddleware negroni.HandlerFunc
 	authReqMiddleware negroni.HandlerFunc
+	// monitoring provides a middleware to keep track of server request metrics.
+	monitoring monitoring.Provider
 }
 
 // NewRouterConfigurer creates a new RouterConfigurer, used to
 // configure a mux.Router with routes declarations.
-func NewRouterConfigurer(r *mux.Router) *RouterConfigurer {
+func NewRouterConfigurer(r *mux.Router, monitoring monitoring.Provider) *RouterConfigurer {
 	rc := &RouterConfigurer{
-		Router:  r,
-		corsMap: make(map[string]int, 0),
+		Router:     r,
+		corsMap:    make(map[string]int, 0),
+		monitoring: monitoring,
 	}
 	return rc
 }
@@ -79,8 +83,7 @@ func (rc *RouterConfigurer) ConfigureRouter(pathPrefix string, routes Routes) *R
 		// Process unsecure routes
 		for _, method := range route.Methods {
 			for _, formatHandler := range method.Handlers {
-				rc.registerRouteHandler(routeIndex,
-					method.Type, false, formatHandler)
+				rc.registerRouteHandler(routeIndex, method.Type, false, formatHandler)
 				rc.registerRouteInOptionsHandler(pathPrefix, routeIndex, formatHandler)
 			}
 		}
@@ -88,8 +91,7 @@ func (rc *RouterConfigurer) ConfigureRouter(pathPrefix string, routes Routes) *R
 		// Process secure routes
 		for _, method := range route.SecureMethods {
 			for _, formatHandler := range method.Handlers {
-				rc.registerRouteHandler(routeIndex,
-					method.Type, true, formatHandler)
+				rc.registerRouteHandler(routeIndex, method.Type, true, formatHandler)
 				rc.registerRouteInOptionsHandler(pathPrefix, routeIndex, formatHandler)
 			}
 		}
@@ -153,8 +155,15 @@ func (rc *RouterConfigurer) registerRouteHandler(routeIndex int, methodType stri
 	// PrintStack is set to false to avoid sending stacktrace to client.
 	recovery.PrintStack = false
 
-	// Configure middlewares chain
-	middlewares := negroni.New(
+	// Configure middleware chain
+	middlewares := negroni.New()
+	// Add monitoring middleware if monitoring provider is present.
+	// It must be the first middleware in the chain
+	if rc.monitoring != nil {
+		middlewares = middlewares.With(rc.monitoring.Middleware())
+	}
+	// Add default middlewares
+	middlewares = middlewares.With(
 		recovery,
 		negroni.HandlerFunc(requireDBMiddleware),
 		negroni.HandlerFunc(addCORSheadersMiddleware),
