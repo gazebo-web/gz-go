@@ -175,7 +175,7 @@ func (s *Server) ConfigureRouterWithRoutes(pathPrefix string, router *mux.Router
 // the router to include routes for the monitoring service.
 func (s *Server) SetRouter(router *mux.Router) *Server {
 	if s.monitoring != nil {
-		subrouter := router.Path("/").Subrouter()
+		subrouter := router.PathPrefix("/").Subrouter()
 		s.ConfigureRouterWithRoutes("/", subrouter, Routes{s.getMetricsRoute()})
 	}
 
