@@ -129,7 +129,7 @@ func Init(auth0RSAPublicKey string, dbNameSuffix string, monitoring monitoring.P
 	gServer = server
 
 	// Testing
-	server.IsTest = strings.HasSuffix(os.Args[0], ".test")
+	server.IsTest = strings.Contains(strings.ToLower(os.Args[0]), "test")
 
 	if server.IsTest {
 		// Let's use a separate DB name if under test mode.
