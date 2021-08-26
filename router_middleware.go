@@ -9,6 +9,7 @@ import (
 	"github.com/golang/protobuf/proto"
 	"github.com/jinzhu/gorm"
 	"github.com/jpillora/go-ogle-analytics"
+	"github.com/mssola/user_agent"
 	"github.com/satori/go.uuid"
 	"log"
 	"net/http"
@@ -38,6 +39,21 @@ type ProtoResult HandlerWithResult
 // JSONResult provides JSON serialization for handler results
 func JSONResult(handler HandlerWithResult) TypeJSONResult {
 	return TypeJSONResult{"", handler, true}
+}
+
+// IsBotHandler decides which handler to use whether the request was made by a
+// bot or a user.
+func IsBotHandler(botHandler http.Handler, userHandler http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		var handler http.Handler
+		ua := user_agent.New(r.Header.Get("User-Agent"))
+		if (ua.Bot()) {
+			handler = botHandler
+		} else {
+			handler = userHandler
+		}
+		handler.ServeHTTP(w, r)
+	})
 }
 
 // JSONResultNoTx provides JSON serialization for handler results
