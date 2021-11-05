@@ -63,7 +63,7 @@ func (c *httpClient) callJSON(ctx context.Context, method, endpoint string, in, 
 		return err
 	}
 
-	body, err = io.ReadAll(res.Body)
+	body, err = ioutil.ReadAll(res.Body)
 	if err != nil {
 		return err
 	}
