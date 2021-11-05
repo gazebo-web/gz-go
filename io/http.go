@@ -19,7 +19,8 @@ type httpClient struct {
 	baseURL *url.URL
 }
 
-// Call calls a method to a given endpoint using an HTTP
+// Call calls a method to a given endpoint using an HTTP request.
+// It parses the request and the response to different formats defined by the format argument.
 func (c *httpClient) Call(ctx context.Context, method, endpoint string, format encoders.Format, in, out encoders.Serializer) error {
 	if in == nil || out == nil {
 		return ErrNilValuesIO
