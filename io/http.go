@@ -5,7 +5,7 @@ import (
 	"context"
 	"errors"
 	"gitlab.com/ignitionrobotics/web/ign-go/encoders"
-	"io"
+	"io/ioutil"
 	"net/http"
 	"net/url"
 	"reflect"
