@@ -2,7 +2,6 @@ package io
 
 import (
 	"context"
-	"encoding/json"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"gitlab.com/ignitionrobotics/web/ign-go/encoders"
@@ -18,44 +17,27 @@ type inputTest struct {
 	Data string `json:"data"`
 }
 
-func (in *inputTest) ToJSON() ([]byte, error) {
-	return json.Marshal(in)
-}
-
-func (in *inputTest) FromJSON(data []byte) error {
-	return json.Unmarshal(data, in)
-}
-
 type outputTest struct {
 	Result string `json:"result"`
-}
-
-func (out *outputTest) ToJSON() ([]byte, error) {
-	return json.Marshal(out)
-}
-
-func (out *outputTest) FromJSON(data []byte) error {
-	return json.Unmarshal(data, out)
 }
 
 func TestHTTPClient_CallWithIOErrors(t *testing.T) {
 	u, err := url.Parse("http://localhost")
 	require.NoError(t, err)
 
-	c := NewClientHTTP(ClientOptions{
-		Timeout: 10 * time.Second,
-		URL:     u,
-	})
+	d := NewDialerHTTP(u, time.Second)
 
-	err = c.Call(context.Background(), http.MethodPost, "/test", encoders.FormatJSON, nil, nil)
+	c := NewClient(d, encoders.JSON)
+
+	err = c.Call(context.Background(), "GET /", nil, nil)
 	assert.Error(t, err)
 	assert.Equal(t, ErrNilValuesIO, err)
 
-	err = c.Call(context.Background(), http.MethodPost, "/test", encoders.FormatJSON, &inputTest{}, nil)
+	err = c.Call(context.Background(), "GET /", &inputTest{}, nil)
 	assert.Error(t, err)
 	assert.Equal(t, ErrNilValuesIO, err)
 
-	err = c.Call(context.Background(), http.MethodPost, "/test", encoders.FormatJSON, nil, &outputTest{})
+	err = c.Call(context.Background(), "GET /", nil, &outputTest{})
 	assert.Error(t, err)
 	assert.Equal(t, ErrNilValuesIO, err)
 }
@@ -70,14 +52,14 @@ func TestHttpClient_Call(t *testing.T) {
 			return
 		}
 
-		if err = in.FromJSON(body); err != nil {
+		if err = encoders.JSON.Unmarshal(body, &in); err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}
 
 		out := outputTest{Result: in.Data}
 
-		body, err = out.ToJSON()
+		body, err = encoders.JSON.Marshal(out)
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
@@ -95,15 +77,14 @@ func TestHttpClient_Call(t *testing.T) {
 	u, err := url.ParseRequestURI(server.URL)
 	require.NoError(t, err)
 
-	c := NewClientHTTP(ClientOptions{
-		Timeout: 10 * time.Second,
-		URL:     u,
-	})
+	d := NewDialerHTTP(u, time.Second)
+
+	c := NewClient(d, encoders.JSON)
 
 	in := inputTest{Data: "test"}
 	var out outputTest
 
-	require.NoError(t, c.Call(context.Background(), http.MethodPost, "/test", encoders.FormatJSON, &in, &out))
+	require.NoError(t, c.Call(context.Background(), "POST /test", &in, &out))
 
 	assert.Equal(t, "test", out.Result)
 }

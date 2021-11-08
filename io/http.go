@@ -4,86 +4,72 @@ import (
 	"bytes"
 	"context"
 	"errors"
-	"gitlab.com/ignitionrobotics/web/ign-go/encoders"
 	"io/ioutil"
 	"net/http"
 	"net/url"
-	"reflect"
+	"strings"
+	"time"
 )
 
-// httpClient is an implementation of Client using an HTTP transport layer.
-type httpClient struct {
-	// client is the underlying HTTP client.
+// httpDialer is a Dialer implementation using HTTP as transport layer.
+type httpDialer struct {
+	// client is the HTTP client used to create requests and receive responses from a certain web server.
 	client *http.Client
+
 	// baseURL is the base URL where all the requests should be routed to.
 	baseURL *url.URL
 }
 
-// Call calls a method to a given endpoint using an HTTP request.
-// It parses the request and the response to different formats defined by the format argument.
-func (c *httpClient) Call(ctx context.Context, method, endpoint string, format encoders.Format, in, out encoders.Serializer) error {
-	if in == nil || out == nil {
-		return ErrNilValuesIO
-	}
-	if reflect.ValueOf(out).Kind() != reflect.Ptr {
-		return ErrOutputMustBePointer
-	}
+// Dial establishes a connection with a certain endpoint sending the given slice of bytes as input,
+// it returns the response's body as response
+func (h httpDialer) Dial(ctx context.Context, endpoint string, in []byte) ([]byte, error) {
+	method, path := h.resolveEndpoint(endpoint)
 
-	var err error
-	switch format {
-	case encoders.FormatJSON:
-		err = c.callJSON(ctx, method, endpoint, in, out)
-	}
+	u, err := h.baseURL.Parse(path)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
-	return nil
-}
-
-// callJSON is a helper function of Call used for JSON-specific HTTP requests.
-func (c *httpClient) callJSON(ctx context.Context, method, endpoint string, in, out encoders.JSON) error {
-	body, err := in.ToJSON()
-	if err != nil {
-		return err
-	}
-	buff := bytes.NewBuffer(body)
-
-	u, err := c.baseURL.Parse(endpoint)
-	if err != nil {
-		return err
-	}
+	buff := bytes.NewBuffer(in)
 	req, err := http.NewRequestWithContext(ctx, method, u.String(), buff)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
-	res, err := c.client.Do(req)
+	res, err := h.client.Do(req)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
-	body, err = ioutil.ReadAll(res.Body)
+	var out []byte
+	out, err = ioutil.ReadAll(res.Body)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	if res.StatusCode < 200 || res.StatusCode > 299 {
-		return errors.New(string(body))
+		return nil, errors.New(string(out))
 	}
 
-	if err = out.FromJSON(body); err != nil {
-		return err
-	}
-	return nil
+	return out, nil
 }
 
-// NewClientHTTP initializes a new Client implementation using HTTP as transport layer.
-func NewClientHTTP(opts ClientOptions) Client {
-	return &httpClient{
-		client: &http.Client{
-			Timeout: opts.Timeout,
-		},
-		baseURL: opts.URL,
+// resolveEndpoint resolves if the given endpoint is a valid endpoint
+func (h httpDialer) resolveEndpoint(endpoint string) (method string, path string) {
+	values := strings.Split(endpoint, " ")
+	if len(values) != 2 {
+		return http.MethodGet, "/"
+	}
+	method = values[0]
+	path = values[1]
+
+	return http.MethodGet, "/"
+}
+
+// NewDialerHTTP initializes a new HTTP Dialer.
+func NewDialerHTTP(baseURL *url.URL, timeout time.Duration) Dialer {
+	return &httpDialer{
+		baseURL: baseURL,
+		client:  &http.Client{Timeout: timeout},
 	}
 }
