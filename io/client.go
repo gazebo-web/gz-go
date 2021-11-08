@@ -5,14 +5,7 @@ import (
 	"errors"
 	"gitlab.com/ignitionrobotics/web/ign-go/encoders"
 	"reflect"
-	"time"
 )
-
-// ClientOptions is used to define Client settings such as Timeout and the URL.
-type ClientOptions struct {
-	// Timeout is the max amount of time that an HTTP client can wait until it decides to cancel a request.
-	Timeout time.Duration
-}
 
 var (
 	// ErrNilValuesIO is returned when either the input or the output are nil.
