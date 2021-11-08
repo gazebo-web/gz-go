@@ -21,7 +21,7 @@ type httpDialer struct {
 }
 
 // Dial establishes a connection with a certain endpoint sending the given slice of bytes as input,
-// it returns the response's body as response
+// it returns the response's body as a slice of bytes.
 func (h httpDialer) Dial(ctx context.Context, endpoint string, in []byte) ([]byte, error) {
 	method, path := h.resolveEndpoint(endpoint)
 
@@ -63,7 +63,7 @@ func (h httpDialer) resolveEndpoint(endpoint string) (method string, path string
 	method = values[0]
 	path = values[1]
 
-	return http.MethodGet, "/"
+	return method, path
 }
 
 // NewDialerHTTP initializes a new HTTP Dialer.
