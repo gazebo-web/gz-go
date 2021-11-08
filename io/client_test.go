@@ -46,6 +46,9 @@ func TestHttpClient_Call(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		var in inputTest
 
+		assert.Equal(t, http.MethodPost, r.Method)
+		assert.Equal(t, "/test", r.URL.Path)
+
 		body, err := ioutil.ReadAll(r.Body)
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -85,6 +88,5 @@ func TestHttpClient_Call(t *testing.T) {
 	var out outputTest
 
 	require.NoError(t, c.Call(context.Background(), "POST /test", &in, &out))
-
 	assert.Equal(t, "test", out.Result)
 }
