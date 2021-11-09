@@ -17,11 +17,11 @@ var (
 
 // Client is a generic wrapper for creating API clients with different encodings and transport layers
 type Client struct {
-	// dialer holds a transport layer implementation used to dial to a certain endpoint.
-	dialer Dialer
+	// caller holds a transport layer implementation used to call to a certain endpoint.
+	caller Caller
 
-	// serializer holds a encoders.Serializer implementation to encode/decode to/from a specific format.
-	serializer encoders.Serializer
+	// marshaller holds a encoders.Marshaller implementation to encode/decode to/from a specific format.
+	marshaller encoders.Marshaller
 }
 
 // Call calls the given endpoint with the given input as payload. If there's a response back from the endpoint, it will be
@@ -34,17 +34,17 @@ func (c *Client) Call(ctx context.Context, endpoint string, in, out interface{})
 		return ErrOutputMustBePointer
 	}
 
-	body, err := c.serializer.Marshal(in)
+	body, err := c.marshaller.Marshal(in)
 	if err != nil {
 		return err
 	}
 
-	body, err = c.dialer.Dial(ctx, endpoint, body)
+	body, err = c.caller.Call(ctx, endpoint, body)
 	if err != nil {
 		return err
 	}
 
-	err = c.serializer.Unmarshal(body, out)
+	err = c.marshaller.Unmarshal(body, out)
 	if err != nil {
 		return err
 	}
@@ -52,10 +52,10 @@ func (c *Client) Call(ctx context.Context, endpoint string, in, out interface{})
 	return nil
 }
 
-// NewClient initializes a new Client using the given Dialer and encoders.Serializer.
-func NewClient(dialer Dialer, serializer encoders.Serializer) Client {
+// NewClient initializes a new Client using the given Caller and encoders.Marshaller.
+func NewClient(caller Caller, serializer encoders.Marshaller) Client {
 	return Client{
-		dialer:     dialer,
-		serializer: serializer,
+		caller:     caller,
+		marshaller: serializer,
 	}
 }

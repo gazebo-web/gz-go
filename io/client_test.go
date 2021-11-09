@@ -25,7 +25,7 @@ func TestHTTPClient_CallWithIOErrors(t *testing.T) {
 	u, err := url.Parse("http://localhost")
 	require.NoError(t, err)
 
-	d := NewDialerHTTP(u, map[string]EndpointHTTP{
+	d := NewCallerHTTP(u, map[string]EndpointHTTP{
 		"TestEndpoint": {
 			Method: "GET",
 			Path:   "/test",
@@ -85,7 +85,7 @@ func TestHttpClient_Call(t *testing.T) {
 	u, err := url.ParseRequestURI(server.URL)
 	require.NoError(t, err)
 
-	d := NewDialerHTTP(u, map[string]EndpointHTTP{
+	d := NewCallerHTTP(u, map[string]EndpointHTTP{
 		"CreateTest": {
 			Method: "POST",
 			Path:   "/test",

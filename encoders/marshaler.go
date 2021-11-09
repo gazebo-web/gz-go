@@ -1,7 +1,7 @@
 package encoders
 
-// Serializer serializes and deserializes data to/from specific formats.
-type Serializer interface {
+// Marshaller serializes and deserializes data to/from specific formats.
+type Marshaller interface {
 	// Marshal serializes the given data structure to a certain format and returns the representation in bytes.
 	Marshal(v interface{}) ([]byte, error)
 

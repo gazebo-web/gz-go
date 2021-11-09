@@ -10,21 +10,21 @@ import (
 	"time"
 )
 
-// httpDialer is a Dialer implementation using HTTP as transport layer.
-type httpDialer struct {
+// httpCaller is a Caller implementation using HTTP as transport layer.
+type httpCaller struct {
 	// client is the HTTP client used to create requests and receive responses from a certain web server.
 	client *http.Client
 
 	// baseURL is the base URL where all the requests should be routed to.
 	baseURL *url.URL
 
-	// endpoints contains a set of HTTP endpoints that this dialer can communicate with.
+	// endpoints contains a set of HTTP endpoints that this caller can communicate with.
 	endpoints map[string]EndpointHTTP
 }
 
-// Dial establishes a connection with a certain endpoint sending the given slice of bytes as input,
+// Call establishes a connection with a certain endpoint sending the given slice of bytes as input,
 // it returns the response's body as a slice of bytes.
-func (h httpDialer) Dial(ctx context.Context, endpoint string, in []byte) ([]byte, error) {
+func (h *httpCaller) Call(ctx context.Context, endpoint string, in []byte) ([]byte, error) {
 	e := h.resolveEndpoint(endpoint)
 
 	u, err := h.baseURL.Parse(e.Path)
@@ -57,7 +57,7 @@ func (h httpDialer) Dial(ctx context.Context, endpoint string, in []byte) ([]byt
 }
 
 // resolveEndpoint resolves if the given endpoint is a valid endpoint
-func (h httpDialer) resolveEndpoint(endpoint string) EndpointHTTP {
+func (h *httpCaller) resolveEndpoint(endpoint string) EndpointHTTP {
 	e, ok := h.endpoints[endpoint]
 	if !ok {
 		return defaultEndpointHTTP
@@ -80,9 +80,9 @@ type EndpointHTTP struct {
 	Path string
 }
 
-// NewDialerHTTP initializes a new HTTP Dialer.
-func NewDialerHTTP(baseURL *url.URL, endpoints map[string]EndpointHTTP, timeout time.Duration) Dialer {
-	return &httpDialer{
+// NewCallerHTTP initializes a new HTTP Caller.
+func NewCallerHTTP(baseURL *url.URL, endpoints map[string]EndpointHTTP, timeout time.Duration) Caller {
+	return &httpCaller{
 		baseURL:   baseURL,
 		endpoints: endpoints,
 		client:    &http.Client{Timeout: timeout},
