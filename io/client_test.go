@@ -25,19 +25,24 @@ func TestHTTPClient_CallWithIOErrors(t *testing.T) {
 	u, err := url.Parse("http://localhost")
 	require.NoError(t, err)
 
-	d := NewDialerHTTP(u, time.Second)
+	d := NewDialerHTTP(u, map[string]EndpointHTTP{
+		"TestEndpoint": {
+			Method: "GET",
+			Path:   "/test",
+		},
+	}, time.Second)
 
 	c := NewClient(d, encoders.JSON)
 
-	err = c.Call(context.Background(), "GET /", nil, nil)
+	err = c.Call(context.Background(), "TestEndpoint", nil, nil)
 	assert.Error(t, err)
 	assert.Equal(t, ErrNilValuesIO, err)
 
-	err = c.Call(context.Background(), "GET /", &inputTest{}, nil)
+	err = c.Call(context.Background(), "TestEndpoint", &inputTest{}, nil)
 	assert.Error(t, err)
 	assert.Equal(t, ErrNilValuesIO, err)
 
-	err = c.Call(context.Background(), "GET /", nil, &outputTest{})
+	err = c.Call(context.Background(), "TestEndpoint", nil, &outputTest{})
 	assert.Error(t, err)
 	assert.Equal(t, ErrNilValuesIO, err)
 }
@@ -80,13 +85,18 @@ func TestHttpClient_Call(t *testing.T) {
 	u, err := url.ParseRequestURI(server.URL)
 	require.NoError(t, err)
 
-	d := NewDialerHTTP(u, time.Second)
+	d := NewDialerHTTP(u, map[string]EndpointHTTP{
+		"CreateTest": {
+			Method: "POST",
+			Path:   "/test",
+		},
+	}, time.Second)
 
 	c := NewClient(d, encoders.JSON)
 
 	in := inputTest{Data: "test"}
 	var out outputTest
 
-	require.NoError(t, c.Call(context.Background(), "POST /test", &in, &out))
+	require.NoError(t, c.Call(context.Background(), "CreateTest", &in, &out))
 	assert.Equal(t, "test", out.Result)
 }

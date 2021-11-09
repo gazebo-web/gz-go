@@ -7,7 +7,6 @@ import (
 	"io/ioutil"
 	"net/http"
 	"net/url"
-	"strings"
 	"time"
 )
 
@@ -18,20 +17,23 @@ type httpDialer struct {
 
 	// baseURL is the base URL where all the requests should be routed to.
 	baseURL *url.URL
+
+	// endpoints contains a set of HTTP endpoints that this dialer can communicate with.
+	endpoints map[string]EndpointHTTP
 }
 
 // Dial establishes a connection with a certain endpoint sending the given slice of bytes as input,
 // it returns the response's body as a slice of bytes.
 func (h httpDialer) Dial(ctx context.Context, endpoint string, in []byte) ([]byte, error) {
-	method, path := h.resolveEndpoint(endpoint)
+	e := h.resolveEndpoint(endpoint)
 
-	u, err := h.baseURL.Parse(path)
+	u, err := h.baseURL.Parse(e.Path)
 	if err != nil {
 		return nil, err
 	}
 
 	buff := bytes.NewBuffer(in)
-	req, err := http.NewRequestWithContext(ctx, method, u.String(), buff)
+	req, err := http.NewRequestWithContext(ctx, e.Method, u.String(), buff)
 	if err != nil {
 		return nil, err
 	}
@@ -55,21 +57,34 @@ func (h httpDialer) Dial(ctx context.Context, endpoint string, in []byte) ([]byt
 }
 
 // resolveEndpoint resolves if the given endpoint is a valid endpoint
-func (h httpDialer) resolveEndpoint(endpoint string) (method string, path string) {
-	values := strings.Split(endpoint, " ")
-	if len(values) != 2 {
-		return http.MethodGet, "/"
+func (h httpDialer) resolveEndpoint(endpoint string) EndpointHTTP {
+	e, ok := h.endpoints[endpoint]
+	if !ok {
+		return defaultEndpointHTTP
 	}
-	method = values[0]
-	path = values[1]
+	return e
+}
 
-	return method, path
+// defaultEndpointHTTP is a default endpoint returned when no HTTP endpoint has been found.
+var defaultEndpointHTTP = EndpointHTTP{
+	Method: http.MethodGet,
+	Path:   "/",
+}
+
+// EndpointHTTP represents an HTTP endpoint.
+type EndpointHTTP struct {
+	// Method is the HTTP verb supported by this endpoint.
+	Method string
+	// Path is the relative path where this endpoint is located.
+	// Example: /example/test
+	Path string
 }
 
 // NewDialerHTTP initializes a new HTTP Dialer.
-func NewDialerHTTP(baseURL *url.URL, timeout time.Duration) Dialer {
+func NewDialerHTTP(baseURL *url.URL, endpoints map[string]EndpointHTTP, timeout time.Duration) Dialer {
 	return &httpDialer{
-		baseURL: baseURL,
-		client:  &http.Client{Timeout: timeout},
+		baseURL:   baseURL,
+		endpoints: endpoints,
+		client:    &http.Client{Timeout: timeout},
 	}
 }
