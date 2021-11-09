@@ -1,4 +1,4 @@
-package io
+package net
 
 import (
 	"bytes"
