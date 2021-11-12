@@ -38,6 +38,9 @@ func (h *httpCaller) Call(ctx context.Context, endpoint string, in []byte) ([]by
 		return nil, err
 	}
 
+	req.Header.Add("Content-Type", e.ContentType)
+	req.Header.Add("Accept", e.ContentType)
+
 	res, err := h.client.Do(req)
 	if err != nil {
 		return nil, err
@@ -78,6 +81,8 @@ type EndpointHTTP struct {
 	// Path is the relative path where this endpoint is located.
 	// Example: /example/test
 	Path string
+	// ContentType is the content type that this endpoint uses.
+	ContentType string
 }
 
 // NewCallerHTTP initializes a new HTTP Caller.

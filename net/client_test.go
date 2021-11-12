@@ -53,6 +53,8 @@ func TestHttpClient_Call(t *testing.T) {
 
 		assert.Equal(t, http.MethodPost, r.Method)
 		assert.Equal(t, "/test", r.URL.Path)
+		assert.Equal(t, "application/json", r.Header.Get("Content-Type"))
+		assert.Equal(t, "application/json", r.Header.Get("Accept"))
 
 		body, err := ioutil.ReadAll(r.Body)
 		if err != nil {
@@ -87,8 +89,9 @@ func TestHttpClient_Call(t *testing.T) {
 
 	d := NewCallerHTTP(u, map[string]EndpointHTTP{
 		"CreateTest": {
-			Method: "POST",
-			Path:   "/test",
+			Method:      "POST",
+			Path:        "/test",
+			ContentType: "application/json",
 		},
 	}, time.Second)
 
