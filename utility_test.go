@@ -35,4 +35,7 @@ func TestIsError(t *testing.T) {
 	target := errors.New("test")
 	err := errors.New("this is a test error")
 	assert.True(t, IsError(err, target))
+
+	err = errors.New("another error")
+	assert.False(t, IsError(err, target))
 }
