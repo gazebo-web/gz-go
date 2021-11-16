@@ -7,6 +7,7 @@ import (
 	"io/ioutil"
 	"net/http"
 	"net/url"
+	"strings"
 	"time"
 )
 
@@ -50,7 +51,7 @@ func (h *httpCaller) Call(ctx context.Context, endpoint string, in []byte) ([]by
 	}
 
 	if res.StatusCode < 200 || res.StatusCode > 299 {
-		return nil, errors.New(string(out))
+		return nil, errors.New(strings.TrimRight(string(out), "\r\n"))
 	}
 
 	return out, nil
