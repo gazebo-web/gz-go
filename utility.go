@@ -240,3 +240,8 @@ func ParseHTMLTemplate(templateFilename string, data interface{}) (string, error
 	}
 	return buf.String(), nil
 }
+
+// IsError returns true when err is the target error.
+func IsError(err error, target error) bool {
+	return strings.Contains(err.Error(), target.Error())
+}

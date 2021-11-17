@@ -1,6 +1,7 @@
 package ign
 
 import (
+	"errors"
 	"github.com/stretchr/testify/assert"
 	"strings"
 	"testing"
@@ -28,4 +29,13 @@ func TestStrToSlice(t *testing.T) {
 		}
 		assert.True(t, SameElements(i.exp, got), "Didn't get expected string slice exp:[%s] got:[%s]", i.exp, got)
 	}
+}
+
+func TestIsError(t *testing.T) {
+	target := errors.New("test")
+	err := errors.New("this is a test error")
+	assert.True(t, IsError(err, target))
+
+	err = errors.New("another error")
+	assert.False(t, IsError(err, target))
 }
