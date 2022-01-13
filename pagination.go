@@ -2,7 +2,7 @@ package ign
 
 import (
 	"fmt"
-	"github.com/jinzhu/gorm"
+	"gorm.io/gorm"
 	"net/http"
 	"net/url"
 	"strconv"
@@ -129,14 +129,14 @@ func computeLastPage(page *PaginationResult) int64 {
 // Returns a PaginationResult describing the returned page.
 func PaginateQuery(q *gorm.DB, result interface{}, p PaginationRequest) (*PaginationResult, error) {
 	q = q.Limit(int(p.PerPage))
-	q = q.Offset((Max(p.Page, 1) - 1) * p.PerPage)
+	q = q.Offset(int((Max(p.Page, 1) - 1) * p.PerPage))
 	q = q.Find(result)
 	if err := q.Error; err != nil {
 		return nil, err
 	}
 	q = q.Limit(-1)
 	q = q.Offset(-1)
-	count := 0
+	var count int64
 	if err := q.Count(&count).Error; err != nil {
 		return nil, err
 	}
@@ -145,7 +145,7 @@ func PaginateQuery(q *gorm.DB, result interface{}, p PaginationRequest) (*Pagina
 	r.Page = p.Page
 	r.PerPage = p.PerPage
 	r.URL = p.URL
-	r.QueryCount = int64(count)
+	r.QueryCount = count
 
 	lastPage := computeLastPage(&r)
 	// A page is considered "found" if it is within the range of valid pages,

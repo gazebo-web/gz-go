@@ -2,10 +2,10 @@ package ign
 
 import (
 	"github.com/gorilla/mux"
-	"github.com/jinzhu/gorm"
 	"github.com/stretchr/testify/suite"
 	"gitlab.com/ignitionrobotics/web/ign-go/monitoring"
 	"gitlab.com/ignitionrobotics/web/ign-go/monitoring/prometheus"
+	"gorm.io/gorm"
 	"net/http"
 	"net/http/httptest"
 	"testing"

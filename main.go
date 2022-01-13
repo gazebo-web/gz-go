@@ -5,9 +5,10 @@ import (
 	"errors"
 	"fmt"
 	"github.com/gorilla/mux"
-	"github.com/jinzhu/gorm"
 	"github.com/rollbar/rollbar-go"
 	"gitlab.com/ignitionrobotics/web/ign-go/monitoring"
+	"gorm.io/driver/mysql"
+	"gorm.io/gorm"
 	"log"
 	"net/http"
 	"os"
@@ -17,9 +18,6 @@ import (
 	"strconv"
 	"strings"
 	"time"
-
-	// Needed by dbInit
-	_ "github.com/go-sql-driver/mysql"
 )
 
 // Server encapsulates information needed by a downstream application
@@ -394,7 +392,7 @@ func (s *Server) initTests() {
 }
 
 // connectDb is called to establish a db connection. The target database is created if it doesn't exist.
-func connectDb(driver, url string, cfg *DatabaseConfig) (db *gorm.DB, err error) {
+func connectDb(driver, dsn string, cfg *DatabaseConfig) (db *gorm.DB, err error) {
 
 	// Queries
 	queryCreate := fmt.Sprintf("CREATE DATABASE %s", cfg.Name)
@@ -404,36 +402,37 @@ func connectDb(driver, url string, cfg *DatabaseConfig) (db *gorm.DB, err error)
 	errUseDb := fmt.Sprintf("[ERROR] Unable to use the %s database", cfg.Name)
 
 	// Open db connection
-	db, err = gorm.Open(driver, url)
-
+	db, err = gorm.Open(mysql.Open(dsn))
 	if err != nil {
 		return nil, errors.New("[ERROR] Unable to connect to the database system")
 	}
 
 	// Execute db creation
-	_, err = db.DB().Exec(queryCreate)
-
 	// If the step before does not throw any errors, it means that the database was successfully created
 	// In the other hand, if it throws an error, it means that the database already exists
-	if err == nil {
-		log.Printf("[SUCCESS] Database %s was successfully created. Trying to connect once again...\n", cfg.Name)
+	if db.Exec(queryCreate).Error == nil {
+		log.Printf("[SUCCESS] Database %s was successfully created. Connecting again...\n", cfg.Name)
 	}
 
 	// We have ensured that the database was created, let's use it.
-	_, err = db.DB().Exec(queryUse)
-
 	// If there was an error, it means that the database is not available
-	if err != nil {
+	if db.Exec(queryUse).Error != nil {
 		return nil, errors.New(errUseDb)
 	}
 
 	// Close and reopen the DB to the correct database.
-	db.Close()
-	url = fmt.Sprintf("%s:%s@tcp(%s)/%s?charset=utf8&parseTime=True&loc=UTC",
-		cfg.UserName, cfg.Password, cfg.Address, cfg.Name)
-	db, _ = gorm.Open(driver, url)
+	sqlDb, err := db.DB()
+	if err != nil {
+		return nil, errors.New(errUseDb)
+	}
+	if err = sqlDb.Close(); err != nil {
+		return nil, errors.New(errUseDb)
+	}
 
-	return db, err
+	dsn = fmt.Sprintf("%s:%s@tcp(%s)/%s?charset=utf8&parseTime=True&loc=UTC",
+		cfg.UserName, cfg.Password, cfg.Address, cfg.Name)
+
+	return gorm.Open(mysql.Open(dsn))
 }
 
 // InitDbWithCfg initialize the database connection based on the given cfg.
