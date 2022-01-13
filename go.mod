@@ -7,7 +7,6 @@ require (
 	github.com/aws/aws-sdk-go v1.31.8
 	github.com/codegangsta/negroni v1.0.0
 	github.com/dgrijalva/jwt-go v3.2.0+incompatible
-	github.com/go-sql-driver/mysql v1.6.0
 	github.com/golang/protobuf v1.4.2
 	github.com/gorilla/mux v1.7.4
 	github.com/jpillora/go-ogle-analytics v0.0.0-20161213085824-14b04e0594ef
