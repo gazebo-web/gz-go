@@ -1,4 +1,4 @@
-image: golang:1.13.5
+image: golang:1.17
 
 variables:
   PKG_NAME: gitlab.com/ignitionrobotics/web/ign-go.git
