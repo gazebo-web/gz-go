@@ -39,6 +39,12 @@ func (h *httpCaller) Call(ctx context.Context, endpoint string, in []byte) ([]by
 		return nil, err
 	}
 
+	for k, values := range e.Headers {
+		for _, v := range values {
+			req.Header.Add(k, v)
+		}
+	}
+
 	res, err := h.client.Do(req)
 	if err != nil {
 		return nil, err
@@ -79,6 +85,8 @@ type EndpointHTTP struct {
 	// Path is the relative path where this endpoint is located.
 	// Example: /example/test
 	Path string
+	// Headers contains a map of predefined HTTP headers that should be sent with this endpoint.
+	Headers http.Header
 }
 
 // NewCallerHTTP initializes a new HTTP Caller.

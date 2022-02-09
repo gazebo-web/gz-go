@@ -65,6 +65,10 @@ func TestHttpClient_Call(t *testing.T) {
 			return
 		}
 
+		values := r.Header.Values("test")
+		assert.Equal(t, "hello", values[0])
+		assert.Equal(t, "world", values[1])
+
 		out := outputTest{Result: in.Data}
 
 		body, err = encoders.JSON.Marshal(out)
@@ -89,6 +93,9 @@ func TestHttpClient_Call(t *testing.T) {
 		"CreateTest": {
 			Method: "POST",
 			Path:   "/test",
+			Headers: map[string][]string{
+				"test": {"hello", "world"},
+			},
 		},
 	}, time.Second)
 
