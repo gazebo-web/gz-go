@@ -87,7 +87,7 @@ func HTTP(handler http.Handler, port uint) Option {
 // GRPC initializes a new GRPC server in the server.
 // Multiples GRPC servers use the same ListenerTCP. ListenerTCP is required if this Option is passed.
 // A set of gRPC options is passed as a function in order to inject custom middlewares to the gRPC server.
-// DefaultOptions contains a set of basic middlewares to use in any application, but we encourage you to create or extend
+// DefaultServerOptionsGRPC contains a set of basic middlewares to use in any application, but we encourage you to create or extend
 // your own opts function.
 func GRPC(register func(s grpc.ServiceRegistrar), opts func() []grpc.ServerOption) Option {
 	return func(s *Server) *Server {
@@ -98,9 +98,9 @@ func GRPC(register func(s grpc.ServiceRegistrar), opts func() []grpc.ServerOptio
 	}
 }
 
-// DefaultOptions is a predefined set of gRPC server options that can be used by any Server when calling the GRPC function.
+// DefaultServerOptionsGRPC is a predefined set of gRPC server options that can be used by any Server when calling the GRPC function.
 // We encourage you to create or extend your own opts function taking this one as a starting point.
-func DefaultOptions() []grpc.ServerOption {
+func DefaultServerOptionsGRPC() []grpc.ServerOption {
 	return []grpc.ServerOption{
 		grpc.StreamInterceptor(
 			grpc_middleware.ChainStreamServer(
@@ -141,8 +141,8 @@ func ListenerTCP(port uint) Option {
 	}
 }
 
-// New initializes a new server.
-func New(opts ...Option) *Server {
+// NewServer initializes a new server.
+func NewServer(opts ...Option) *Server {
 	var s Server
 	for _, o := range opts {
 		o(&s)
