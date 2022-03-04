@@ -15,8 +15,8 @@ import (
 	"time"
 )
 
-// Server is web server to listen for incoming requests. It supports different type of transport mechanism used through Ignition Robotics projects.
-// It currently supports HTTP and GRPC servers.
+// Server is a web server to listen to incoming requests. It supports different types of transport mechanisms used through Ignition Robotics projects.
+// It currently supports HTTP and gRPC servers.
 type Server struct {
 	// httpServer holds a group of HTTP servers. All these servers will be listening to different ports.
 	httpServers []*http.Server
@@ -60,7 +60,6 @@ func (s *Server) Close() {
 	for _, srv := range s.httpServers {
 		ctx, cancel := context.WithTimeout(context.Background(), time.Minute)
 		if err := srv.Shutdown(ctx); err != nil {
-			cancel()
 			log.Println("Failed to shutdown HTTP server:", err)
 		}
 		cancel()
@@ -84,9 +83,9 @@ func HTTP(handler http.Handler, port uint) Option {
 	}
 }
 
-// GRPC initializes a new GRPC server in the server.
-// Multiples GRPC servers use the same ListenerTCP. ListenerTCP is required if this Option is passed.
-// A set of gRPC options is passed as a function in order to inject custom middlewares to the gRPC server.
+// GRPC initializes and adds a new gRPC server to the Server.
+// Multiple gRPC servers use the same ListenerTCP. ListenerTCP is required if this Option is passed.
+// A set of gRPC options are passed as a function in order to inject custom middlewares to the gRPC server.
 // DefaultServerOptionsGRPC contains a set of basic middlewares to use in any application, but we encourage you to create or extend
 // your own opts function.
 func GRPC(register func(s grpc.ServiceRegistrar), opts func() []grpc.ServerOption) Option {
