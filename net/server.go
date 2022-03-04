@@ -2,6 +2,7 @@ package net
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	grpc_middleware "github.com/grpc-ecosystem/go-grpc-middleware"
 	grpc_recovery "github.com/grpc-ecosystem/go-grpc-middleware/recovery"
@@ -20,10 +21,11 @@ import (
 type Server struct {
 	// httpServer holds a group of HTTP servers. All these servers will be listening to different ports.
 	httpServers []*http.Server
-	// listener holds a reference to a TCP listener for GRPC servers. All gRPC servers will use this listener to listen for incoming requests.
-	listener net.Listener
 	// grpcServers holds a group of gRPC servers. All these servers will be listening in the same port.
 	grpcServers []*grpc.Server
+	// listener holds a reference to a TCP listener for gRPC servers.
+	// All gRPC servers will use this listener to listen for incoming requests.
+	listener net.Listener
 }
 
 // ListenAndServe starts listening for incoming requests for the different HTTP and gRPC servers.
@@ -43,6 +45,10 @@ func (s *Server) ListenAndServe() <-chan error {
 	}
 
 	// Start gRPC servers
+	if s.grpcServers != nil && len(s.grpcServers) > 0 && s.listener == nil {
+		errs <- errors.New("a listener must be provided to the Server through an Option to support gRPC")
+		return errs
+	}
 	for _, srv := range s.grpcServers {
 		go func(srv *grpc.Server, listener net.Listener, errs chan<- error) {
 			if err := srv.Serve(listener); err != nil {
@@ -69,7 +75,7 @@ func (s *Server) Close() {
 	}
 }
 
-// Option defines a configuration option for the server.
+// Option contains logic that can be passed to a server in its initializer to modify it.
 type Option func(*Server) *Server
 
 // HTTP initializes a new HTTP server to serve endpoints defined in handler on a certain port.
@@ -79,6 +85,7 @@ func HTTP(handler http.Handler, port uint) Option {
 			Handler: handler,
 			Addr:    fmt.Sprintf(":%d", port),
 		})
+
 		return s
 	}
 }
@@ -93,6 +100,7 @@ func GRPC(register func(s grpc.ServiceRegistrar), opts func() []grpc.ServerOptio
 		grpcServer := newGRPC(opts)
 		register(grpcServer)
 		s.grpcServers = append(s.grpcServers, grpcServer)
+
 		return s
 	}
 }
@@ -146,11 +154,12 @@ func NewServer(opts ...Option) *Server {
 	for _, o := range opts {
 		o(&s)
 	}
+
 	return &s
 }
 
-// ServiceRegister holds a method to register a gRPC service to a gRPC server.
-type ServiceRegister interface {
+// ServiceRegistrator registers a gRPC service in a gRPC server.
+type ServiceRegistrator interface {
 	// Register registers the current service into the given server.
 	Register(s grpc.ServiceRegistrar)
 }
