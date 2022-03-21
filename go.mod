@@ -8,6 +8,7 @@ require (
 	github.com/codegangsta/negroni v1.0.0
 	github.com/denisenkom/go-mssqldb v0.0.0-20191128021309-1d7a30a10f73 // indirect
 	github.com/dgrijalva/jwt-go v3.2.0+incompatible
+	github.com/fatih/structtag v1.2.0
 	github.com/go-chi/chi v1.5.4
 	github.com/go-chi/render v1.0.1
 	github.com/go-sql-driver/mysql v1.5.0

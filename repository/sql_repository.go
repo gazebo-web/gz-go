@@ -2,7 +2,7 @@ package repository
 
 import (
 	"github.com/jinzhu/gorm"
-	"gitlab.com/ignitionrobotics/web/cloudsim/pkg/utils/reflect"
+	"gitlab.com/ignitionrobotics/web/ign-go/reflect"
 )
 
 // NewRepositorySQL initializes a new Repository implementation for SQL databases.
