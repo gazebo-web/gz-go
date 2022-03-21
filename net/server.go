@@ -95,7 +95,7 @@ func HTTP(handler http.Handler, port uint) Option {
 // A set of gRPC options are passed as a function in order to inject custom middlewares to the gRPC server.
 // DefaultServerOptionsGRPC contains a set of basic middlewares to use in any application, but we encourage you to create or extend
 // your own opts function.
-func GRPC(register func(s grpc.ServiceRegistrar), opts func() []grpc.ServerOption) Option {
+func GRPC(register func(s grpc.ServiceRegistrar), opts []grpc.ServerOption) Option {
 	return func(s *Server) *Server {
 		grpcServer := newGRPC(opts)
 		register(grpcServer)
@@ -129,9 +129,9 @@ func DefaultServerOptionsGRPC() []grpc.ServerOption {
 }
 
 // newGRPC initializes a new gRPC server and uses the options received from calling opts().
-func newGRPC(opts func() []grpc.ServerOption) *grpc.Server {
+func newGRPC(opts []grpc.ServerOption) *grpc.Server {
 	return grpc.NewServer(
-		opts()...,
+		opts...,
 	)
 }
 
