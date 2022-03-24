@@ -23,6 +23,10 @@ type Test struct {
 	Value int    `json:"value"`
 }
 
+func (t Test) GetID() uint {
+	return t.ID
+}
+
 func (t Test) TableName() string {
 	return "test"
 }
