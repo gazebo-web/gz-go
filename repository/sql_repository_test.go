@@ -18,7 +18,7 @@ type RepositoryTestSuite struct {
 }
 
 type Test struct {
-	gorm.Model
+	ModelSQL
 	Name  string `json:"name"`
 	Value int    `json:"value"`
 }
@@ -182,4 +182,28 @@ func (suite *RepositoryTestSuite) TestDelete() {
 
 	// Deleting is idempotent, deleting twice should not return an error.
 	suite.Assert().NoError(suite.Repository.Delete(filter))
+}
+
+func (suite *RepositoryTestSuite) TestFirstOrCreate() {
+	var test Test
+	suite.Require().NoError(suite.Repository.FirstOrCreate(&test, Filter{
+		Template: "value = ?",
+		Values:   []interface{}{1},
+	}))
+
+	suite.Assert().Equal(uint(1), test.ID)
+	suite.Assert().Equal("Test1", test.Name)
+
+	test = Test{
+		Name:  "Test4",
+		Value: 4,
+	}
+
+	suite.Require().NoError(suite.Repository.FirstOrCreate(&test, Filter{
+		Template: "value = ?",
+		Values:   []interface{}{4},
+	}))
+
+	suite.Assert().Equal(uint(4), test.ID)
+	suite.Assert().Equal("Test4", test.Name)
 }

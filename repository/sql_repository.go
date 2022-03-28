@@ -99,6 +99,13 @@ func (r *repositorySQL) Delete(filters ...Filter) error {
 	return nil
 }
 
+// FirstOrCreate inserts a new entry if the given filters don't find any existing record.
+func (r *repositorySQL) FirstOrCreate(entity Model, filters ...Filter) error {
+	q := r.startQuery()
+	q = r.setQueryFilters(q, filters)
+	return q.FirstOrCreate(entity).Error
+}
+
 // startQuery inits a gorm query for this repository's model. Multiple filters are ANDd together.
 func (r *repositorySQL) startQuery() *gorm.DB {
 	return r.DB.Model(r.Model())
