@@ -15,6 +15,8 @@ var (
 
 // Repository holds methods to CRUD an entity on a certain persistence layer.
 type Repository interface {
+	// FirstOrCreate inserts a new entry if the given filters don't find any existing record.
+	FirstOrCreate(entity Model, filters ...Filter) error
 	// Create inserts a single entry.
 	//	entity: The entry to insert.
 	Create(entity Model) (Model, error)
