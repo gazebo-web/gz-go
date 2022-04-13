@@ -15,6 +15,9 @@ var (
 
 // Repository holds methods to CRUD an entity on a certain persistence layer.
 type Repository interface {
+	// FirstOrCreate inserts a new entry if the given filters don't find any existing record.
+	//	entity: must be a pointer to a Model implementation. Results will be saved in this argument if the record exists.
+	FirstOrCreate(entity Model, filters ...Filter) error
 	// Create inserts a single entry.
 	//	entity: The entry to insert.
 	Create(entity Model) (Model, error)
@@ -28,7 +31,7 @@ type Repository interface {
 	// 	filters: filter entries by field value.
 	Find(output interface{}, offset, limit *int, filters ...Filter) error
 	// FindOne filters entries and stores the first filtered entry in output.
-	// output must be a pointer to a Model implementation.
+	//	output: must be a pointer to a Model implementation.
 	FindOne(output Model, filters ...Filter) error
 	// Update updates all model entries that match the provided filters with the given data.
 	//	data: must be a map[string]interface{}
