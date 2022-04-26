@@ -3,6 +3,7 @@ package net
 import (
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
+	"github.com/go-chi/render"
 	"net/http"
 )
 
@@ -12,6 +13,7 @@ var DefaultMiddlewares = []Middleware{
 	middleware.RealIP,
 	middleware.Logger,
 	middleware.Recoverer,
+	render.SetContentType(render.ContentTypeJSON),
 }
 
 // Middleware is function that gets executed before each HTTP handler.
