@@ -4,7 +4,7 @@ import (
 	"context"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
-	"gitlab.com/ignitionrobotics/web/ign-go/encoders"
+	"gitlab.com/ignitionrobotics/web/ign-go/v5/encoders"
 	"io/ioutil"
 	"net/http"
 	"net/http/httptest"
