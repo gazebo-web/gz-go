@@ -3,7 +3,7 @@ package net
 import (
 	"context"
 	"errors"
-	"gitlab.com/ignitionrobotics/web/ign-go/encoders"
+	"gitlab.com/ignitionrobotics/web/ign-go/v5/encoders"
 	"reflect"
 )
 

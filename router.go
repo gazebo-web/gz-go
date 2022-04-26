@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"github.com/codegangsta/negroni"
 	"github.com/gorilla/mux"
-	"gitlab.com/ignitionrobotics/web/ign-go/monitoring"
+	"gitlab.com/ignitionrobotics/web/ign-go/v5/monitoring"
 	"net/http"
 	"regexp"
 	"sort"

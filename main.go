@@ -7,7 +7,7 @@ import (
 	"github.com/gorilla/mux"
 	"github.com/jinzhu/gorm"
 	"github.com/rollbar/rollbar-go"
-	"gitlab.com/ignitionrobotics/web/ign-go/monitoring"
+	"gitlab.com/ignitionrobotics/web/ign-go/v5/monitoring"
 	"log"
 	"net/http"
 	"os"
