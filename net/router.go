@@ -10,8 +10,7 @@ import (
 var DefaultMiddlewares = []Middleware{
 	middleware.RequestID,
 	middleware.RealIP,
-	// TODO: Uncomment this line when solving issue with health-checks.
-	//middleware.Logger,
+	middleware.Logger,
 	middleware.Recoverer,
 }
 
