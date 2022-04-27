@@ -2,7 +2,9 @@ package net
 
 import (
 	"github.com/stretchr/testify/suite"
+	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/connectivity"
 	"google.golang.org/grpc/status"
 	"testing"
 )
@@ -47,4 +49,17 @@ func (suite *GRPCTestSuite) TestGRPCCallSuccessful() {
 	// Status with a non-OK code should be false
 	err = status.Error(codes.DeadlineExceeded, "deadline exceeded")
 	suite.Assert().False(GRPCCallSuccessful(err))
+}
+
+func (suite *GRPCTestSuite) TestListenAndServerAndConnectToGRPCServer() {
+	server := grpc.NewServer()
+
+	listener := ListenAndServeGRPC(server)
+	defer server.Stop()
+
+	conn, err := ConnectToGRPCServer(listener)
+	suite.Require().NoError(err)
+
+	suite.Assert().Equal(connectivity.Ready, conn.GetState())
+
 }
