@@ -61,5 +61,4 @@ func (suite *GRPCTestSuite) TestListenAndServerAndConnectToGRPCServer() {
 	suite.Require().NoError(err)
 
 	suite.Assert().Equal(connectivity.Ready, conn.GetState())
-
 }
