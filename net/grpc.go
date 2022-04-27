@@ -1,9 +1,24 @@
 package net
 
 import (
+	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
+	"google.golang.org/grpc/test/bufconn"
+	"log"
 )
+
+// ListenAndServeGRPC receives a configured gRPC server and starts listening. This function does not block.
+// You should have called the appropriate gRPC server configuration function before calling this.
+// After calling this function, you should call `server.Stop()` when done with the server.
+func ListenAndServeGRPC(server *grpc.Server) {
+	go func() {
+		listener := bufconn.Listen(1024 * 1024)
+		if err := server.Serve(listener); err != nil {
+			log.Fatalln("Failed while serving gRPC server:", err)
+		}
+	}()
+}
 
 // GRPCCallOK processes a gRPC response error to verify that a gRPC call returned an OK status.
 // The actual contents of the error are ignored. Only the call status error is checked.
