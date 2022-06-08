@@ -207,3 +207,22 @@ func (suite *RepositoryTestSuite) TestFirstOrCreate() {
 	suite.Assert().Equal(uint(4), test.ID)
 	suite.Assert().Equal("Test4", test.Name)
 }
+
+func (suite *RepositoryTestSuite) TestLast() {
+	// Create an extra entity
+	test3 := Test{
+		Name:  "Test3",
+		Value: 3,
+	}
+	created, err := suite.Repository.Create(&test3)
+	suite.Require().NoError(err)
+
+	var out Test
+	err = suite.Repository.Last(&out, Filter{
+		Template: "name = ?",
+		Values:   []interface{}{"Test3"},
+	})
+	suite.Assert().NoError(err)
+
+	suite.Assert().Equal(created.GetID(), out.GetID())
+}

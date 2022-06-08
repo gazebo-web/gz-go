@@ -76,6 +76,18 @@ func (r *repositorySQL) FindOne(output Model, filters ...Filter) error {
 	return q.Error
 }
 
+// Last gets the last record ordered by primary key desc.
+//	output: must be a pointer to a Model implementation.
+func (r *repositorySQL) Last(output Model, filters ...Filter) error {
+	if len(filters) == 0 {
+		return ErrNoFilter
+	}
+	q := r.startQuery()
+	q = r.setQueryFilters(q, filters)
+	q = q.Last(output)
+	return q.Error
+}
+
 // Update updates all model entries that match the provided filters with the given data.
 //	data: must be a map[string]interface{}
 //  filters: filter entries that should be updated.

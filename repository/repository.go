@@ -33,6 +33,9 @@ type Repository interface {
 	// FindOne filters entries and stores the first filtered entry in output.
 	//	output: must be a pointer to a Model implementation.
 	FindOne(output Model, filters ...Filter) error
+	// Last gets the last record ordered by primary key desc.
+	//	output: must be a pointer to a Model implementation.
+	Last(output Model, filters ...Filter) error
 	// Update updates all model entries that match the provided filters with the given data.
 	//	data: must be a map[string]interface{}
 	//	filters: selection criteria for entries that should be updated.
