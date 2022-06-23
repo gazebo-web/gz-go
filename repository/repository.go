@@ -43,6 +43,9 @@ type Repository interface {
 	// Delete removes all the model entries that match filters.
 	//	filters: selection criteria for entries that should be deleted.
 	Delete(filters ...Filter) error
+	// Count counts all the model entries that match filters.
+	//	filters: selection criteria for entries that should be considered when counting entries.
+	Count(filters ...Filter) (uint64, error)
 	// Model returns this repository's model.
 	Model() Model
 }

@@ -226,3 +226,19 @@ func (suite *RepositoryTestSuite) TestLast() {
 
 	suite.Assert().Equal(created.GetID(), out.GetID())
 }
+
+func (suite *RepositoryTestSuite) TestCount() {
+	count, err := suite.Repository.Count(Filter{
+		Template: "name = ?",
+		Values:   []interface{}{"Test3"},
+	})
+	suite.Assert().NoError(err)
+	suite.Assert().Equal(uint64(1), count)
+
+	count, err = suite.Repository.Count(Filter{
+		Template: "name LIKE ?",
+		Values:   []interface{}{"Test%"},
+	})
+	suite.Assert().NoError(err)
+	suite.Assert().Equal(uint64(3), count)
+}
