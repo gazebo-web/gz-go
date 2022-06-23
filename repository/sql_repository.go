@@ -119,6 +119,18 @@ func (r *repositorySQL) FirstOrCreate(entity Model, filters ...Filter) error {
 	return q.FirstOrCreate(entity).Error
 }
 
+// Count counts all the model entries that match filters.
+//	filters: selection criteria for entries that should be considered when counting entries.
+func (r *repositorySQL) Count(filters ...Filter) (uint64, error) {
+	var count uint64
+	q := r.startQuery()
+	q = r.setQueryFilters(q, filters)
+	if err := q.Count(&count).Error; err != nil {
+		return 0, err
+	}
+	return count, nil
+}
+
 // startQuery inits a gorm query for this repository's model. Multiple filters are ANDd together.
 func (r *repositorySQL) startQuery() *gorm.DB {
 	return r.DB.Model(r.Model())
