@@ -1,4 +1,4 @@
-image: golang:1.13.5
+image: golang:1.16
 
 variables:
   PKG_NAME: gitlab.com/ignitionrobotics/web/ign-go/v5
@@ -19,7 +19,6 @@ cache:
 
 stages:
   - formatting
-  - linting
   - testing
   - building
 
@@ -29,7 +28,7 @@ format:
     - go fmt $(go list ./... | grep -v /vendor/)
 
 lint:
-  stage: linting
+  stage: formatting
   before_script:
     - mkdir -p $GOPATH/src/golang.org/x
     - git clone https://github.com/golang/lint.git $GOPATH/src/golang.org/x/lint
@@ -38,11 +37,9 @@ lint:
     - golint -set_exit_status $(go list ./... | grep -v /vendor/)
 
 vet:
-  stage: testing
+  stage: formatting
   script:
     - go vet $(go list ./... | grep -v /vendor/)
-  services:
-    - mysql:5.7
 
 test:
   stage: testing
@@ -66,8 +63,3 @@ coverage:
     - bash <(curl -s https://codecov.io/bash)
   services:
     - mysql:5.7
-
-build:
-  stage: building
-  script:
-    - go build
