@@ -17,6 +17,15 @@ func TestGenerateLinkHeader(t *testing.T) {
 	assert.Equal(t, "<https://gazebosim.org>; rel=\"test\"", generateLinkHeader(u, "test"))
 }
 
+func TestReadRequest_NoQueryParams(t *testing.T) {
+	u, err := url.Parse("https://gazebosim.org")
+	require.NoError(t, err)
+
+	req := ReadRequest(&http.Request{URL: u})
+	assert.Equal(t, uint64(1), req.Page, "Must default to 1")
+	assert.Equal(t, uint64(30), req.PageSize, "Must default to 30")
+}
+
 func TestReadRequest_WithPage(t *testing.T) {
 	u, err := url.Parse("https://gazebosim.org/?page=3")
 	require.NoError(t, err)
