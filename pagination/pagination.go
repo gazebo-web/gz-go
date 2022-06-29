@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"net/url"
 	"strconv"
+	"strings"
 )
 
 const (
@@ -158,8 +159,6 @@ func generateLinkHeader(u *url.URL, rel string) string {
 func WriteResponse(w http.ResponseWriter, res PagingResponse) error {
 	w.Header().Set(headerTotalCount, strconv.Itoa(int(res.TotalCount)))
 	headers := res.ToPagingLinks().ToLinkHeaders()
-	for _, h := range headers {
-		w.Header().Add(headerLink, h)
-	}
+	w.Header().Set(headerLink, strings.Join(headers, ", "))
 	return nil
 }

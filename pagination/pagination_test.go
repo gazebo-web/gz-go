@@ -7,6 +7,7 @@ import (
 	"net/http/httptest"
 	"net/url"
 	"strconv"
+	"strings"
 	"testing"
 )
 
@@ -154,7 +155,7 @@ func TestPaginationResponseHTTP(t *testing.T) {
 	count, err := strconv.Atoi(rr.Header().Get("X-Total-Count"))
 	require.NoError(t, err)
 	assert.Equal(t, res.TotalCount, uint64(count))
-	assert.Equal(t, res.ToPagingLinks().ToLinkHeaders(), rr.Header().Values("Link"))
+	assert.Equal(t, strings.Join(res.ToPagingLinks().ToLinkHeaders(), ", "), rr.Header().Get("Link"))
 }
 
 func TestLastPage(t *testing.T) {
