@@ -31,6 +31,11 @@ func IsPodSucceeded(pod *api.Pod) bool {
 	return pod != nil && pod.Status.Phase == api.PodSucceeded
 }
 
+// IsPodFailed returns true if a pod is in the Failed state; false otherwise.
+func IsPodFailed(pod *api.Pod) bool {
+	return pod != nil && pod.Status.Phase == api.PodFailed
+}
+
 // isPodReady returns true if a pod is ready; false otherwise.
 // Copied from: https://github.com/kubernetes/kubernetes/blob/master/pkg/api/pod/util.go#L237
 func isPodReady(pod *api.Pod) bool {
