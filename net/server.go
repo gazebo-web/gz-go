@@ -105,26 +105,50 @@ func GRPC(register func(s grpc.ServiceRegistrar), opts []grpc.ServerOption) Opti
 	}
 }
 
+// DefaultStreamInterceptorsGRPC defines the base streams interceptors we usually use for our gRPC servers.
+func DefaultStreamInterceptorsGRPC() []grpc.StreamServerInterceptor {
+	return []grpc.StreamServerInterceptor{
+		grpc_ctxtags.StreamServerInterceptor(),
+		grpc_opentracing.StreamServerInterceptor(),
+		grpc_recovery.StreamServerInterceptor(),
+		grpc_validator.StreamServerInterceptor(),
+	}
+}
+
+// GenerateStreamServerInterceptorsChainWithBase appends the given interceptors to the base interceptors defined in DefaultStreamInterceptorsGRPC.
+func GenerateStreamServerInterceptorsChainWithBase(interceptors ...grpc.StreamServerInterceptor) grpc.StreamServerInterceptor {
+	base := DefaultStreamInterceptorsGRPC()
+	return grpc_middleware.ChainStreamServer(append(base, interceptors...)...)
+}
+
+// DefaultUnaryInterceptorsGRPC defines the base streams interceptors we usually use for our gRPC servers.
+func DefaultUnaryInterceptorsGRPC() []grpc.UnaryServerInterceptor {
+	return []grpc.UnaryServerInterceptor{
+		grpc_ctxtags.UnaryServerInterceptor(),
+		grpc_opentracing.UnaryServerInterceptor(),
+		grpc_recovery.UnaryServerInterceptor(),
+		grpc_validator.UnaryServerInterceptor(),
+	}
+}
+
+// GenerateUnaryServerInterceptorsChainWithBase appends the given interceptors to the base interceptors defined in DefaultUnaryInterceptorsGRPC.
+func GenerateUnaryServerInterceptorsChainWithBase(interceptors ...grpc.UnaryServerInterceptor) grpc.UnaryServerInterceptor {
+	base := DefaultUnaryInterceptorsGRPC()
+	return grpc_middleware.ChainUnaryServer(append(base, interceptors...)...)
+}
+
 // DefaultServerOptionsGRPC is a predefined set of gRPC server options that can be used by any Server when calling the GRPC function.
 // We encourage you to create or extend your own opts function taking this one as a starting point.
 func DefaultServerOptionsGRPC() []grpc.ServerOption {
+	return NewServerOptionsGRPC(nil, nil)
+}
+
+// NewServerOptionsGRPC initializes a new set of ServerOption with the given streams and unaries interceptors.
+// Calling this function already uses
+func NewServerOptionsGRPC(streams []grpc.StreamServerInterceptor, unaries []grpc.UnaryServerInterceptor) []grpc.ServerOption {
 	return []grpc.ServerOption{
-		grpc.StreamInterceptor(
-			grpc_middleware.ChainStreamServer(
-				grpc_ctxtags.StreamServerInterceptor(),
-				grpc_opentracing.StreamServerInterceptor(),
-				grpc_recovery.StreamServerInterceptor(),
-				grpc_validator.StreamServerInterceptor(),
-			),
-		),
-		grpc.UnaryInterceptor(
-			grpc_middleware.ChainUnaryServer(
-				grpc_ctxtags.UnaryServerInterceptor(),
-				grpc_opentracing.UnaryServerInterceptor(),
-				grpc_recovery.UnaryServerInterceptor(),
-				grpc_validator.UnaryServerInterceptor(),
-			),
-		),
+		grpc.StreamInterceptor(GenerateStreamServerInterceptorsChainWithBase(streams...)),
+		grpc.UnaryInterceptor(GenerateUnaryServerInterceptorsChainWithBase(unaries...)),
 	}
 }
 

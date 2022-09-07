@@ -6,11 +6,11 @@ import (
 	"github.com/auth0/go-jwt-middleware"
 	"github.com/codegangsta/negroni"
 	"github.com/dgrijalva/jwt-go"
-	"github.com/golang/protobuf/proto"
 	"github.com/jinzhu/gorm"
 	"github.com/jpillora/go-ogle-analytics"
 	"github.com/mssola/user_agent"
 	"github.com/satori/go.uuid"
+	"google.golang.org/protobuf/proto"
 	"log"
 	"net/http"
 	"reflect"
@@ -47,7 +47,7 @@ func IsBotHandler(botHandler http.Handler, userHandler http.Handler) http.Handle
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		var handler http.Handler
 		ua := user_agent.New(r.Header.Get("User-Agent"))
-		if (ua.Bot()) {
+		if ua.Bot() {
 			handler = botHandler
 		} else {
 			handler = userHandler
