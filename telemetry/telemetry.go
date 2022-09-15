@@ -37,14 +37,15 @@ func NewJaegerTracerProviderCollector(service, url, environment string) (trace.T
 // NewJaegerTracerProviderAgent initializes a new Open Telemetry tracer provider for Jaeger using a Jaeger Agent.
 //
 //	service: Describes the service that will be exporting traces into Jaeger. Usually contains the service name.
-//	url: Contains the endpoint where to publish traces to. For Jaeger, it's the collector's endpoint.
+//	host: Contains the address where to publish traces to. For Jaeger, it's the agent's endpoint.
+//	port: Contains the port used alongside host to publish traces to. For Jaeger, it's the agent's port.
 //	environment: Used to identify the environment that a certain service is publishing traces from. Defaults to "development".
-func NewJaegerTracerProviderAgent(service, url, port, environment string) (trace.TracerProvider, error) {
+func NewJaegerTracerProviderAgent(service, host, port, environment string) (trace.TracerProvider, error) {
 	// Define where traces will be exported to.
 	// This block defines the endpoint to collect traces.
 	exporter, err := jaegerExporter.New(
 		jaegerExporter.WithAgentEndpoint(
-			jaegerExporter.WithAgentHost(url),
+			jaegerExporter.WithAgentHost(host),
 			jaegerExporter.WithAgentPort(port),
 		),
 	)
