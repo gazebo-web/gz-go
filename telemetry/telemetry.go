@@ -14,11 +14,12 @@ import (
 	"google.golang.org/grpc"
 )
 
-// NewJaegerTracerProvider initializes a new Open Telemetry tracer provider for Jaeger.
-// 	service: Describes the service that will be exporting traces into Jaeger. Usually contains the service name.
+// NewJaegerTracerProviderCollector initializes a new Open Telemetry tracer provider for Jaeger using a Jaeger Collector.
+//
+//	service: Describes the service that will be exporting traces into Jaeger. Usually contains the service name.
 //	url: Contains the endpoint where to publish traces to. For Jaeger, it's the collector's endpoint.
 //	environment: Used to identify the environment that a certain service is publishing traces from. Defaults to "development".
-func NewJaegerTracerProvider(service, url, environment string) (trace.TracerProvider, error) {
+func NewJaegerTracerProviderCollector(service, url, environment string) (trace.TracerProvider, error) {
 	// Define where traces will be exported to.
 	// This block defines the endpoint to collect traces.
 	exporter, err := jaegerExporter.New(
@@ -30,6 +31,32 @@ func NewJaegerTracerProvider(service, url, environment string) (trace.TracerProv
 		return nil, err
 	}
 
+	return newJaegerTracerProvider(service, environment, exporter)
+}
+
+// NewJaegerTracerProviderAgent initializes a new Open Telemetry tracer provider for Jaeger using a Jaeger Agent.
+//
+//	service: Describes the service that will be exporting traces into Jaeger. Usually contains the service name.
+//	url: Contains the endpoint where to publish traces to. For Jaeger, it's the collector's endpoint.
+//	environment: Used to identify the environment that a certain service is publishing traces from. Defaults to "development".
+func NewJaegerTracerProviderAgent(service, url, port, environment string) (trace.TracerProvider, error) {
+	// Define where traces will be exported to.
+	// This block defines the endpoint to collect traces.
+	exporter, err := jaegerExporter.New(
+		jaegerExporter.WithAgentEndpoint(
+			jaegerExporter.WithAgentHost(url),
+			jaegerExporter.WithAgentPort(port),
+		),
+	)
+	if err != nil {
+		return nil, err
+	}
+
+	return newJaegerTracerProvider(service, environment, exporter)
+}
+
+// newJaegerTracerProvider initializes a generic tracer provider with the given jaeger exporter.
+func newJaegerTracerProvider(service string, environment string, exporter *jaegerExporter.Exporter) (trace.TracerProvider, error) {
 	// Set a default environment if no environment is provided.
 	if environment == "" {
 		environment = "development"
