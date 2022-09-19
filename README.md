@@ -78,7 +78,7 @@ func example() {
 ## Installing
 ### Using Go CLI
 ```
-go get gitlab.com/ignitionrobotics/web/ign-go/v5
+go get gitlab.com/ignitionrobotics/web/ign-go/v6
 ```
 
 ## Contribute
