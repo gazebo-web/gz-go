@@ -1,13 +1,13 @@
 package telemetry
 
 import (
+	"errors"
 	"github.com/caarlos0/env/v6"
 	"go.opentelemetry.io/otel/propagation"
 	"go.opentelemetry.io/otel/trace"
 )
 
 // TracingConfig defines configuration values to customize how Tracing is initialized for different services.
-// All the environment variables specified in this structure are prepend with the TRACING_ prefix.
 type TracingConfig struct {
 	// Service contains the service name that will be used when generating traces. It's usually the name of the service
 	// that's using this library.
@@ -36,6 +36,7 @@ type TracingConfig struct {
 }
 
 // ParseTracingConfig parses TracingConfig from environment variables.
+// All the environment variables specified in TracingConfig are prepend with the TRACING_ prefix.
 func ParseTracingConfig() (TracingConfig, error) {
 	var cfg TracingConfig
 	if err := env.Parse(&cfg, env.Options{
@@ -46,8 +47,8 @@ func ParseTracingConfig() (TracingConfig, error) {
 	return cfg, nil
 }
 
-// InitializeTracing initializes tracing defined by TracingConfig. If TracingConfig.Enabled is set to false, it returns
-// nil values.
+// InitializeTracing initializes the components use for exporting traces in a project using the config defined by TracingConfig.
+// If TracingConfig.Enabled is set to false, it returns nil values.
 func InitializeTracing(cfg TracingConfig) (propagation.TextMapPropagator, trace.TracerProvider, error) {
 	if !cfg.Enabled {
 		return nil, nil, nil
@@ -58,9 +59,11 @@ func InitializeTracing(cfg TracingConfig) (propagation.TextMapPropagator, trace.
 	var err error
 	switch cfg.ExportingStrategy {
 	case "collector":
-		tracerProvider, err = NewJaegerTracerProviderAgent(cfg.Service, cfg.AgentHost, cfg.AgentPort, cfg.Environment)
-	case "agent":
 		tracerProvider, err = NewJaegerTracerProviderCollector(cfg.Service, cfg.CollectorURL, cfg.Environment)
+	case "agent":
+		tracerProvider, err = NewJaegerTracerProviderAgent(cfg.Service, cfg.AgentHost, cfg.AgentPort, cfg.Environment)
+	default:
+		return nil, nil, errors.New("invalid exporting strategy")
 	}
 
 	if err != nil {
