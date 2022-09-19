@@ -36,7 +36,7 @@ func (suite *RepositoryTestSuite) SetupSuite() {
 	suite.Require().NoError(err)
 	suite.db = db
 
-	suite.Repository = NewRepositorySQL(suite.db, &Test{})
+	suite.Repository = NewRepository(suite.db, &Test{})
 }
 
 func (suite *RepositoryTestSuite) SetupTest() {
@@ -117,11 +117,8 @@ func (suite *RepositoryTestSuite) TestFind() {
 	var t []Test
 
 	// Finding multiple records should not fail.
-	err := suite.Repository.Find(&t, nil, nil, Filter{
-		Template: "name IN (?)",
-		Values:   []interface{}{[]string{"Test1", "Test2"}},
-	})
-	suite.Assert().NoError(err)
+	err := suite.Repository.Find(&t, Where("name IN (?)", []string{"Test1", "Test2"}))
+	suite.Require().NoError(err)
 
 	suite.Assert().Len(t, 2)
 }
