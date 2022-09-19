@@ -47,7 +47,7 @@ func ParseTracingConfig() (TracingConfig, error) {
 	return cfg, nil
 }
 
-// InitializeTracing initializes the components use for exporting traces in a project using the config defined by TracingConfig.
+// InitializeTracing initializes the components used for exporting traces in a project using the config defined by TracingConfig.
 // If TracingConfig.Enabled is set to false, it returns nil values.
 func InitializeTracing(cfg TracingConfig) (propagation.TextMapPropagator, trace.TracerProvider, error) {
 	if !cfg.Enabled {
