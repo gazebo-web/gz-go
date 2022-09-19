@@ -5,8 +5,8 @@ import (
 	"gitlab.com/ignitionrobotics/web/ign-go/v5/reflect"
 )
 
-// NewRepositorySQL initializes a new Repository implementation for SQL databases.
-func NewRepositorySQL(db *gorm.DB, entity Model) Repository {
+// NewRepository initializes a new Repository implementation for SQL databases.
+func NewRepository(db *gorm.DB, entity Model) Repository {
 	return &repositorySQL{
 		DB:     db,
 		entity: entity,
@@ -17,6 +17,16 @@ func NewRepositorySQL(db *gorm.DB, entity Model) Repository {
 type repositorySQL struct {
 	DB     *gorm.DB
 	entity Model
+}
+
+// Ensure that repositorySQL implements the Repository interface.
+var _ Repository = (*repositorySQL)(nil)
+
+// applyOptions applies operation options to a database query.
+func (r *repositorySQL) applyOptions(q *gorm.DB, opts ...Option) {
+	for _, opt := range opts {
+		opt.(SQLOption)(q)
+	}
 }
 
 // Create inserts a single entry.
@@ -46,16 +56,9 @@ func (r *repositorySQL) CreateBulk(entities []Model) ([]Model, error) {
 //	offset: defines the number of results to skip before loading values to output.
 //	limit: defines the maximum number of entries to return. A nil value returns infinite results.
 // 	filters: filter entries by field value.
-func (r *repositorySQL) Find(output interface{}, offset, limit *int, filters ...Filter) error {
+func (r *repositorySQL) Find(output interface{}, options ...Option) error {
 	q := r.startQuery()
-	if limit != nil {
-		q = q.Limit(*limit)
-		if offset != nil {
-			q = q.Offset(*offset)
-		}
-	}
-
-	q = r.setQueryFilters(q, filters)
+	r.applyOptions(q, options...)
 	q = q.Find(output)
 	err := q.Error
 	if err != nil {
