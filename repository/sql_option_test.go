@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"github.com/jinzhu/gorm"
 	"github.com/stretchr/testify/suite"
-	utilsgorm "gitlab.com/ignitionrobotics/web/ign-go/v5/database/gorm"
+	utilsgorm "gitlab.com/ignitionrobotics/web/ign-go/v6/database/gorm"
 	"testing"
 )
 

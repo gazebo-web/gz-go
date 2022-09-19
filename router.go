@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"github.com/codegangsta/negroni"
 	"github.com/gorilla/mux"
-	"gitlab.com/ignitionrobotics/web/ign-go/v5/monitoring"
+	"gitlab.com/ignitionrobotics/web/ign-go/v6/monitoring"
 	"net/http"
 	"regexp"
 	"sort"
@@ -104,7 +104,7 @@ func (rc *RouterConfigurer) ConfigureRouter(pathPrefix string, routes Routes) *R
 	return rc
 }
 
-/////////////////////////////////////////////////
+// ///////////////////////////////////////////////
 
 // Internal method that registers the route (with its format)
 // into the router's corsMap, for later use by the OPTIONS handler.
@@ -228,7 +228,7 @@ func (rc *RouterConfigurer) globalOptionsHandler(w http.ResponseWriter, r *http.
 	reportJSONError(w, r, err)
 }
 
-/////////////////////////////////////////////////
+// ///////////////////////////////////////////////
 // sortRE is an internal []string wrapper type used to sort by
 // the number of "[^/]+" string occurrences found in a regex (ie. count).
 // If the same count is found then the larger string will take precedence.

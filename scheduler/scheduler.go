@@ -1,7 +1,7 @@
 package scheduler
 
 import (
-	"gitlab.com/ignitionrobotics/web/ign-go/v5"
+	"gitlab.com/ignitionrobotics/web/ign-go/v6"
 	sch "gitlab.com/ignitionrobotics/web/scheduler"
 	"sync"
 	"time"

@@ -1,4 +1,4 @@
-module gitlab.com/ignitionrobotics/web/ign-go/v5
+module gitlab.com/ignitionrobotics/web/ign-go/v6
 
 go 1.19
 

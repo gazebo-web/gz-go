@@ -7,7 +7,7 @@ import (
 	"github.com/gorilla/mux"
 	"github.com/jinzhu/gorm"
 	"github.com/rollbar/rollbar-go"
-	"gitlab.com/ignitionrobotics/web/ign-go/v5/monitoring"
+	"gitlab.com/ignitionrobotics/web/ign-go/v6/monitoring"
 	"log"
 	"net/http"
 	"os"
@@ -24,10 +24,10 @@ import (
 
 // Server encapsulates information needed by a downstream application
 type Server struct {
-	/// Global database interface
+	// / Global database interface
 	Db *gorm.DB
 
-	/// Global database to the user database interface
+	// / Global database to the user database interface
 	UsersDb *gorm.DB
 
 	Router *mux.Router
@@ -57,7 +57,7 @@ type Server struct {
 	// IsTest is true when tests are running.
 	IsTest bool
 
-	/// Auth0 public key used for token validation
+	// / Auth0 public key used for token validation
 	auth0RsaPublickey string
 	// PEM Key string generated from the auth0RsaPublickey value
 	pemKeyString string
@@ -380,7 +380,7 @@ func (s *Server) Run() {
 	rollbar.Wait()
 }
 
-/////////////////////////////////////////////////
+// ///////////////////////////////////////////////
 // Private functions
 
 // initTests is run as the last step of init() and only when `go test` was run.

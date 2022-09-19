@@ -5,7 +5,7 @@ import (
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"github.com/urfave/negroni"
-	"gitlab.com/ignitionrobotics/web/ign-go/v5/monitoring"
+	"gitlab.com/ignitionrobotics/web/ign-go/v6/monitoring"
 	"net/http"
 	"regexp"
 	"strconv"
