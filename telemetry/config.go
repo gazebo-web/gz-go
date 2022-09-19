@@ -14,7 +14,7 @@ type TracingConfig struct {
 	Service string `env:"SERVICE,notEmpty"`
 
 	// Environment defines the environment where tracing is being performed is running on. Defaults to staging.
-	Environment string `env:"ENVIRONMENT" envDefault:"staging"`
+	Environment string `env:"ENVIRONMENT" envDefault:"development"`
 
 	// Enabled is set to true when tracing should be enabled for the current service.
 	Enabled bool `env:"ENABLED" envDefault:"false"`
