@@ -13,21 +13,21 @@ type TracingConfig struct {
 	// that's using this library.
 	Service string `env:"SERVICE,notEmpty"`
 
-	// Environment defines the environment where tracing is being performed is running on. Defaults to staging.
+	// Environment defines the environment being traced. Defaults to staging.
 	Environment string `env:"ENVIRONMENT" envDefault:"development"`
 
-	// Enabled is set to true when tracing should be enabled for the current service.
+	// Enabled defines if tracing should be enabled.
 	Enabled bool `env:"ENABLED" envDefault:"false"`
 
-	// ExportingStrategy contains the name of the strategy that is being used for exporting tracing. Defaults to collector.
-	// Available values: collector, agent.
+	// ExportingStrategy contains the name of the strategy used to export traces. Defaults to collector.
+	// Possible values: collector, agent.
 	ExportingStrategy string `env:"EXPORTING_STRATEGY" envDefault:"collector"`
 
-	// CollectorURL defines the URL where traces should be sent to. If Enabled is true, this value
+	// CollectorURL defines the URL traces should be sent to. If Enabled is true, this value
 	// must be set.
 	CollectorURL string `env:"COLLECTOR_URL" envDefault:"http://localhost:14268/api/traces"`
 
-	// AgentHost defines the address where this service should send traces to. If Enabled is true, this value
+	// AgentHost defines the address this service should send traces to. If Enabled is true, this value
 	// must be set.
 	AgentHost string `env:"AGENT_HOST" envDefault:"localhost"`
 
