@@ -1,9 +1,20 @@
 package encoders
 
-import "encoding/json"
+import (
+	"encoding/json"
+	"io"
+)
+
+var _ Marshaller = (*jsonEncoder)(nil)
+var _ WriterEncoder = (*jsonEncoder)(nil)
 
 // jsonEncoder implements Marshaller for the JSON format.
 type jsonEncoder struct{}
+
+// Write writes the JSON encoding of v to w.
+func (jsonEncoder) Write(w io.Writer, v interface{}) error {
+	return json.NewEncoder(w).Encode(v)
+}
 
 // Marshal returns the JSON encoding of v.
 func (jsonEncoder) Marshal(v interface{}) ([]byte, error) {
@@ -18,4 +29,4 @@ func (jsonEncoder) Unmarshal(data []byte, v interface{}) error {
 }
 
 // JSON holds a json encoder instance implementing Marshaller.
-var JSON Marshaller = &jsonEncoder{}
+var JSON = &jsonEncoder{}

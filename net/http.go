@@ -4,6 +4,9 @@ import (
 	"bytes"
 	"context"
 	"errors"
+	"gitlab.com/ignitionrobotics/web/ign-go/v6/encoders"
+	"gitlab.com/ignitionrobotics/web/ign-go/v6/telemetry"
+	"go.opentelemetry.io/otel/codes"
 	"io/ioutil"
 	"net/http"
 	"net/url"
@@ -88,4 +91,18 @@ func NewCallerHTTP(baseURL *url.URL, endpoints map[string]EndpointHTTP, timeout 
 		endpoints: endpoints,
 		client:    &http.Client{Timeout: timeout},
 	}
+}
+
+// WriteHTTP writes the status and the body of an HTTP response.
+// It writes the content of response in w using the given encoders.Marshaller.
+func WriteHTTP(ctx context.Context, w http.ResponseWriter, m encoders.WriterEncoder, response any, status int) error {
+	span := telemetry.NewSpan(ctx)
+	defer span.End()
+	w.WriteHeader(status)
+	if err := m.Write(w, response); err != nil {
+		span.RecordError(err)
+		span.SetStatus(codes.Error, "Failed to write response")
+		return err
+	}
+	return nil
 }

@@ -2,7 +2,9 @@ package telemetry
 
 import (
 	"context"
+	"fmt"
 	grpc_otel "go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc"
+	"go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp"
 	jaegerPropagator "go.opentelemetry.io/contrib/propagators/jaeger"
 	"go.opentelemetry.io/otel/attribute"
 	jaegerExporter "go.opentelemetry.io/otel/exporters/jaeger"
@@ -12,13 +14,15 @@ import (
 	semconv "go.opentelemetry.io/otel/semconv/v1.10.0"
 	"go.opentelemetry.io/otel/trace"
 	"google.golang.org/grpc"
+	"net/http"
 )
 
-// NewJaegerTracerProvider initializes a new Open Telemetry tracer provider for Jaeger.
-// 	service: Describes the service that will be exporting traces into Jaeger. Usually contains the service name.
+// NewJaegerTracerProviderCollector initializes a new Open Telemetry tracer provider for Jaeger using a Jaeger Collector.
+//
+//	service: Describes the service that will be exporting traces into Jaeger. Usually contains the service name.
 //	url: Contains the endpoint where to publish traces to. For Jaeger, it's the collector's endpoint.
 //	environment: Used to identify the environment that a certain service is publishing traces from. Defaults to "development".
-func NewJaegerTracerProvider(service, url, environment string) (trace.TracerProvider, error) {
+func NewJaegerTracerProviderCollector(service, url, environment string) (trace.TracerProvider, error) {
 	// Define where traces will be exported to.
 	// This block defines the endpoint to collect traces.
 	exporter, err := jaegerExporter.New(
@@ -30,6 +34,33 @@ func NewJaegerTracerProvider(service, url, environment string) (trace.TracerProv
 		return nil, err
 	}
 
+	return newJaegerTracerProvider(service, environment, exporter)
+}
+
+// NewJaegerTracerProviderAgent initializes a new Open Telemetry tracer provider for Jaeger using a Jaeger Agent.
+//
+//	service: Describes the service that will be exporting traces into Jaeger. Usually contains the service name.
+//	host: Contains the address where to publish traces to. For Jaeger, it's the agent's endpoint.
+//	port: Contains the port used alongside host to publish traces to. For Jaeger, it's the agent's port.
+//	environment: Used to identify the environment that a certain service is publishing traces from. Defaults to "development".
+func NewJaegerTracerProviderAgent(service, host, port, environment string) (trace.TracerProvider, error) {
+	// Define where traces will be exported to.
+	// This block defines the endpoint to collect traces.
+	exporter, err := jaegerExporter.New(
+		jaegerExporter.WithAgentEndpoint(
+			jaegerExporter.WithAgentHost(host),
+			jaegerExporter.WithAgentPort(port),
+		),
+	)
+	if err != nil {
+		return nil, err
+	}
+
+	return newJaegerTracerProvider(service, environment, exporter)
+}
+
+// newJaegerTracerProvider initializes a generic tracer provider with the given jaeger exporter.
+func newJaegerTracerProvider(service string, environment string, exporter *jaegerExporter.Exporter) (trace.TracerProvider, error) {
 	// Set a default environment if no environment is provided.
 	if environment == "" {
 		environment = "development"
@@ -127,4 +158,28 @@ func AppendServerInterceptors(unaries []grpc.UnaryServerInterceptor, streams []g
 		unaries = append(unaries, unaryInterceptor)
 	}
 	return unaries, streams
+}
+
+// setupHTTPServerOptions initializes the server options for HTTP handlers.
+func setupHTTPServerOptions(propagator propagation.TextMapPropagator, provider trace.TracerProvider) []otelhttp.Option {
+	if propagator == nil || provider == nil {
+		return nil
+	}
+	return []otelhttp.Option{
+		otelhttp.WithPropagators(propagator),
+		otelhttp.WithTracerProvider(provider),
+		otelhttp.WithSpanNameFormatter(func(op string, r *http.Request) string {
+			return fmt.Sprintf("%s - %s", op, r.URL.RequestURI())
+		}),
+	}
+}
+
+// WrapHandlerHTTP wraps the given handler with OpenTelemetry interceptors for HTTP endpoints.
+// It returns the original handler if propagator or provider are nil.
+func WrapHandlerHTTP(handler http.Handler, spanName string, propagator propagation.TextMapPropagator, provider trace.TracerProvider) http.Handler {
+	opts := setupHTTPServerOptions(propagator, provider)
+	if len(opts) == 0 {
+		return handler
+	}
+	return otelhttp.NewHandler(handler, spanName, opts...)
 }
