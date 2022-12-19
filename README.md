@@ -1,7 +1,7 @@
 <div align="center">
   <img src="./assets/logo.png" width="200" alt="Ignition Robotics" />
-  <h1>Ignition Robotics</h1>
-  <p>Ignition Go is a general purpose golang library that encapsulates a set of common functionalities for a webserver.</p>
+  <h1>Gazebo</h1>
+  <p>Gazebo Go is a general purpose golang library that encapsulates a set of common functionalities for a webserver.</p>
 </div>
 
 ## Getting started
@@ -78,7 +78,7 @@ func example() {
 ## Installing
 ### Using Go CLI
 ```
-go get gitlab.com/ignitionrobotics/web/ign-go/v6
+go get github.com/gazebo-web/gz-go/v6
 ```
 
 ## Contribute

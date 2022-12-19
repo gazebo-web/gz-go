@@ -3,7 +3,6 @@ package gorm
 import (
 	"errors"
 	"github.com/jinzhu/gorm"
-	"gitlab.com/ignitionrobotics/web/ign-go/v6"
 	"log"
 )
 

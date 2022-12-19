@@ -2,9 +2,9 @@ package net
 
 import (
 	"context"
+	"github.com/gazebo-web/gz-go/v6/encoders"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
-	"gitlab.com/ignitionrobotics/web/ign-go/v6/encoders"
 	"io/ioutil"
 	"net/http"
 	"net/http/httptest"

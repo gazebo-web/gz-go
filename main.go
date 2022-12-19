@@ -4,10 +4,10 @@ package ign
 import (
 	"errors"
 	"fmt"
+	"github.com/gazebo-web/gz-go/v6/monitoring"
 	"github.com/gorilla/mux"
 	"github.com/jinzhu/gorm"
 	"github.com/rollbar/rollbar-go"
-	"gitlab.com/ignitionrobotics/web/ign-go/v6/monitoring"
 	"log"
 	"net/http"
 	"os"

@@ -1,11 +1,11 @@
 package ign
 
 import (
+	"github.com/gazebo-web/gz-go/v6/monitoring"
+	"github.com/gazebo-web/gz-go/v6/monitoring/prometheus"
 	"github.com/gorilla/mux"
 	"github.com/jinzhu/gorm"
 	"github.com/stretchr/testify/suite"
-	"gitlab.com/ignitionrobotics/web/ign-go/v6/monitoring"
-	"gitlab.com/ignitionrobotics/web/ign-go/v6/monitoring/prometheus"
 	"net/http"
 	"net/http/httptest"
 	"testing"
