@@ -1,4 +1,4 @@
-package ign
+package gz
 
 // Import this file's dependencies
 import (
