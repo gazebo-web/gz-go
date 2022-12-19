@@ -1,3 +1,9 @@
+name: Gazebo Go project
+on:
+  push:
+    branches: [ $default-branch ]
+  pull_request:
+
 jobs:
   project:
     uses: gazebo-web/actions/.github/workflows/go.yaml@main
