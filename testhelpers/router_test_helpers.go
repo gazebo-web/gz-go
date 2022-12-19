@@ -1,4 +1,4 @@
-package igntest
+package gztest
 
 // Important note: functions in this module should not include
 // references to parent package 'ign', to avoid circular dependencies.

@@ -1,4 +1,4 @@
-package ign
+package gz
 
 // Int returns a pointer to the int value passed in.
 func Int(v int) *int {

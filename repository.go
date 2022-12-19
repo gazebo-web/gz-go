@@ -1,4 +1,4 @@
-package ign
+package gz
 
 // Repository represents a set of methods of a generic repository.
 // It is based in the Repository pattern, and allows to a system to change the underlying data structure
