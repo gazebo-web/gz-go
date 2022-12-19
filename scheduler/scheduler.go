@@ -1,6 +1,7 @@
 package scheduler
 
 import (
+	"github.com/gazebo-web/gz-go/v6"
 	sch "gitlab.com/ignitionrobotics/web/scheduler"
 	"sync"
 	"time"
@@ -22,10 +23,10 @@ var once sync.Once
 var scheduler *Scheduler
 
 // initializeScheduler instantiate the singleton
-func initializeScheduler() *ign.ErrMsg {
+func initializeScheduler() *gz.ErrMsg {
 	s, err := sch.NewScheduler(1000)
 	if err != nil {
-		return ign.NewErrorMessage(ign.ErrorScheduler)
+		return gz.NewErrorMessage(gz.ErrorScheduler)
 	}
 	scheduler = &Scheduler{
 		Scheduler: s,

@@ -122,8 +122,8 @@ func dbTransactionWrapper(handler HandlerWithResult) basicHandlerWithResult {
 	}
 }
 
-// handlerToHandlerWithResult converts an ign.Handler to an
-// ign.HandlerWithResult.
+// handlerToHandlerWithResult converts an gz.Handler to an
+// gz.HandlerWithResult.
 func handlerToHandlerWithResult(handler Handler) HandlerWithResult {
 	return func(tx *gorm.DB, w http.ResponseWriter, r *http.Request) (interface{}, *ErrMsg) {
 		err := handler(tx, w, r)
