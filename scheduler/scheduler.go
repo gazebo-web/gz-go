@@ -1,6 +1,7 @@
 package scheduler
 
 import (
+	"github.com/gazebo-web/gz-go/v6"
 	sch "gitlab.com/ignitionrobotics/web/scheduler"
 	"sync"
 	"time"
