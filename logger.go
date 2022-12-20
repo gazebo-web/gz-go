@@ -1,4 +1,4 @@
-package ign
+package gz
 
 import (
 	"context"
@@ -213,7 +213,7 @@ func (l *ignLogger) Info(interfaces ...interface{}) {
 // string
 // map[string]interface{}
 // int
-// ign.ErrMsg
+// gz.ErrMsg
 func (l *ignLogger) Warning(interfaces ...interface{}) {
 	if l.verbosity < VerbosityWarning {
 		return
@@ -281,7 +281,7 @@ func (l *ignLogger) shouldSendToRollbar(msg []interface{}) bool {
 		return false
 	}
 
-	// Lastly, check if the rollbar msg includes an ign.ErrMsg. If yes, then check for
+	// Lastly, check if the rollbar msg includes an gz.ErrMsg. If yes, then check for
 	// blacklisted error codes.
 	if len(msg) > 0 {
 		el := msg[len(msg)-1]

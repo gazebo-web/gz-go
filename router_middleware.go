@@ -1,4 +1,4 @@
-package ign
+package gz
 
 import (
 	"encoding/json"
@@ -122,8 +122,8 @@ func dbTransactionWrapper(handler HandlerWithResult) basicHandlerWithResult {
 	}
 }
 
-// handlerToHandlerWithResult converts an ign.Handler to an
-// ign.HandlerWithResult.
+// handlerToHandlerWithResult converts an gz.Handler to an
+// gz.HandlerWithResult.
 func handlerToHandlerWithResult(handler Handler) HandlerWithResult {
 	return func(tx *gorm.DB, w http.ResponseWriter, r *http.Request) (interface{}, *ErrMsg) {
 		err := handler(tx, w, r)
@@ -352,7 +352,7 @@ func getRequestID(r *http.Request) string {
 	return reqID
 }
 
-/////////////////////////////////////////////////
+// ///////////////////////////////////////////////
 // logger creates a middleware used to output HTTP requests.
 func logger(inner http.Handler, name string) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -378,7 +378,7 @@ func logger(inner http.Handler, name string) http.Handler {
 	})
 }
 
-/////////////////////////////////////////////////
+// ///////////////////////////////////////////////
 // newGaEventTracking creates a new middleware to send events to Google Analytics.
 // Events will be automatically created using route information.
 // This middleware requires IGN_GA_TRACKING_ID and IGN_GA_APP_NAME

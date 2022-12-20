@@ -1,4 +1,4 @@
-package ign
+package gz
 
 import (
 	"github.com/gazebo-web/gz-go/v6/monitoring"

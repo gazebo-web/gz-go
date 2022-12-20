@@ -1,4 +1,4 @@
-package ign
+package gz
 
 import (
 	"fmt"
@@ -65,6 +65,7 @@ func (suite *QueueTestSuite) TestEnqueueWaitForNextElementSingleGR() {
 // TestEnqueueLenMultipleGR enqueues elements concurrently
 //
 // Detailed steps:
+//
 //	1 - Enqueue totalGRs concurrently (from totalGRs different GRs)
 //	2 - Verifies the len, it should be equal to totalGRs
 //	3 - Verifies that all elements from 0 to totalGRs were enqueued
@@ -239,6 +240,7 @@ func (suite *QueueTestSuite) TestRemoveNotFound() {
 // TestRemoveMultipleGRs removes elements concurrently.
 //
 // Detailed steps:
+//
 //	1 - Enqueues totalElementsToEnqueue consecutive elements (0, 1, 2, 3, ... totalElementsToEnqueue - 1)
 //	2 - Hits queue.Remove(1) concurrently from totalElementsToRemove different GRs
 //	3 - Verifies the final len == totalElementsToEnqueue - totalElementsToRemove
@@ -312,6 +314,7 @@ func (suite *QueueTestSuite) TestDequeueSingleGR() {
 // TestDequeueMultipleGRs dequeues elements concurrently
 //
 // Detailed steps:
+//
 //	1 - Enqueues totalElementsToEnqueue consecutive integers
 //	2 - Dequeues totalElementsToDequeue concurrently from totalElementsToDequeue GRs
 //	3 - Verifies the final len, should be equal to totalElementsToEnqueue - totalElementsToDequeue

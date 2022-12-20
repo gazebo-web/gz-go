@@ -1,4 +1,4 @@
-package ign
+package gz
 
 import (
 	"log"

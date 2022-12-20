@@ -18,32 +18,32 @@ Ignition Go provides a set of features to help with web server development. It i
 
 ### Routes
 ```go
-ign.Routes{
-    ign.Route{
+gz.Routes{
+    gz.Route{
         Name:        "Route example",
         Description: "Route description example",
         URI:         "/example",
-        Headers:     ign.AuthHeadersRequired,
-        Methods:     ign.Methods{
-            ign.Method{
+        Headers:     gz.AuthHeadersRequired,
+        Methods:     gz.Methods{
+            gz.Method{
                 Type:        "GET",
                 Description: "Get all the examples",
-                Handlers:    ign.FormatHandlers{
-                    ign.FormatHandler{
+                Handlers:    gz.FormatHandlers{
+                    gz.FormatHandler{
                         Extension: "",
-                        Handler:   ign.JSONResult(/* Your method handler in here */),
+                        Handler:   gz.JSONResult(/* Your method handler in here */),
                     },
                 },
             },
         },
-        SecureMethods: ign.SecureMethods{
-            ign.Method{
+        SecureMethods: gz.SecureMethods{
+            gz.Method{
                 Type:        "POST",
                 Description: "Creates a new example",
-                Handlers:    ign.FormatHandlers{
-                    ign.FormatHandler{
+                Handlers:    gz.FormatHandlers{
+                    gz.FormatHandler{
                         Extension: "",
-                        Handler:   ign.JSONResult(/* Your secure method handler in here */),
+                        Handler:   gz.JSONResult(/* Your secure method handler in here */),
                     },
                 },
             },
@@ -55,7 +55,7 @@ ign.Routes{
 ### Queue
 ```go
 func main() {
-	queue := ign.NewQueue()
+	queue := gz.NewQueue()
 	queue.Enqueue("Value")
 	if v, err := queue.DequeueOrWaitForNextElement(); err == nil {
 		fmt.Println(v)

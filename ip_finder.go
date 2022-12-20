@@ -1,4 +1,4 @@
-package ign
+package gz
 
 // Code originally taken from
 // https://husobee.github.io/golang/ip-address/2015/12/17/remote-ip-go.html
@@ -71,9 +71,9 @@ func isPrivateSubnet(ipAddress net.IP) bool {
 	return false
 }
 
-/////////////////////////////////////////////////
-/// getIPAddress searches, from right to left, for a valid IP address in a
-/// request.
+// ///////////////////////////////////////////////
+// / getIPAddress searches, from right to left, for a valid IP address in a
+// / request.
 func getIPAddress(r *http.Request) string {
 
 	// Search over possible headers.

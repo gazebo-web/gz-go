@@ -1,11 +1,11 @@
-package ign
+package gz
 
 import (
 	"github.com/stretchr/testify/assert"
 	"testing"
 )
 
-/////////////////////////////////////////////////
+// ///////////////////////////////////////////////
 // Test a bad connection to the database
 func TestBadDatabase(t *testing.T) {
 	var server Server
