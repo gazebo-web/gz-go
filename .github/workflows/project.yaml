@@ -6,6 +6,7 @@ on:
 
 jobs:
   go:
-    uses: gazebo-web/actions/.github/workflows/go.yaml@main
+    uses: gazebo-web/actions/.github/workflows/go.yaml@49473b8d8f3cafe6a23b5fd09f39423a3333fc50
     with:
       go-version: '1.19'
+      database: 'mysql'
