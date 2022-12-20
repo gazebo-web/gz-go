@@ -2,6 +2,7 @@ package gorm
 
 import (
 	"errors"
+	"github.com/gazebo-web/gz-go/v6"
 	"github.com/jinzhu/gorm"
 	"log"
 )
