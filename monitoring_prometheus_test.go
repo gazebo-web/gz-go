@@ -1,8 +1,8 @@
 package gz
 
 import (
-	"github.com/gazebo-web/gz-go/v6/monitoring"
-	"github.com/gazebo-web/gz-go/v6/monitoring/prometheus"
+	"github.com/gazebo-web/gz-go/v7/monitoring"
+	"github.com/gazebo-web/gz-go/v7/monitoring/prometheus"
 	"github.com/gorilla/mux"
 	"github.com/jinzhu/gorm"
 	"github.com/stretchr/testify/suite"

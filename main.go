@@ -4,7 +4,7 @@ package gz
 import (
 	"errors"
 	"fmt"
-	"github.com/gazebo-web/gz-go/v6/monitoring"
+	"github.com/gazebo-web/gz-go/v7/monitoring"
 	"github.com/gorilla/mux"
 	"github.com/jinzhu/gorm"
 	"github.com/rollbar/rollbar-go"
