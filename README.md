@@ -1,5 +1,5 @@
 <div align="center">
-  <img src="./assets/logo.png" width="200" alt="Ignition Robotics" />
+  <img src="./assets/logo.png" width="200" alt="Gazebo" />
   <h1>Gazebo Go</h1>
   <p>Gazebo Go is a general purpose golang library that encapsulates a set of common functionalities for a webserver.</p>
 </div>
