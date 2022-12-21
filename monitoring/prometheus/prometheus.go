@@ -1,7 +1,7 @@
 package prometheus
 
 import (
-	"github.com/gazebo-web/gz-go/v6/monitoring"
+	"github.com/gazebo-web/gz-go/v7/monitoring"
 	"github.com/gorilla/mux"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promhttp"

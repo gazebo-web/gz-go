@@ -1,7 +1,7 @@
 package repository
 
 import (
-	"github.com/gazebo-web/gz-go/v6/reflect"
+	"github.com/gazebo-web/gz-go/v7/reflect"
 	"github.com/jinzhu/gorm"
 )
 
