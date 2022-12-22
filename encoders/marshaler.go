@@ -24,7 +24,7 @@ type Marshaller interface {
 
 // Unmarshal allows unmarshalling body into a value of T using the given Marshaller.
 func Unmarshal[T any](ctx context.Context, m Marshaller, body []byte) (T, error) {
-	ctx, span := telemetry.NewChildSpan(ctx, "Unmarshal")
+	_, span := telemetry.NewChildSpan(ctx, "Unmarshal")
 	defer span.End()
 	var value T
 	span.AddEvent("Unmarshalling event")

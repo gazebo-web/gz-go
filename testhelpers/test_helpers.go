@@ -62,6 +62,7 @@ func SendMultipartMethod(testName string, t *testing.T, method, uri string, jwt 
 		part, err := writer.CreateFormFile("file", fd.Path)
 		assert.NoError(t, err, "Could not create FormFile. TestName:[%s]. fd.Path:[%s]", testName, fd.Path)
 		_, err = io.WriteString(part, fd.Contents)
+		assert.NoError(t, err)
 	}
 
 	for key, val := range params {

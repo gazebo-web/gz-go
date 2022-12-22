@@ -238,7 +238,6 @@ func (l *ignLogger) Error(interfaces ...interface{}) {
 	logMsg, msg := processLogInterfaces(l.reqID, interfaces...)
 	if l.RollbarVerbosity >= VerbosityError && l.shouldSendToRollbar(msg) {
 		rollbar.Error(msg...)
-	} else {
 	}
 	if l.logToStd {
 		log.Println(logMsg)

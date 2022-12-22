@@ -124,7 +124,9 @@ func Init(auth0RSAPublicKey string, dbNameSuffix string, monitoring monitoring.P
 		SSLport:    ":4430",
 		monitoring: monitoring,
 	}
-	server.readPropertiesFromEnvVars()
+	if err := server.readPropertiesFromEnvVars(); err != nil {
+		return nil, err
+	}
 
 	gServer = server
 
@@ -322,17 +324,17 @@ func (s *Server) readPropertiesFromEnvVars() error {
 
 	// Read Google Analytics parameters
 	if s.GaTrackingID, err = ReadEnvVar("IGN_GA_TRACKING_ID"); err != nil {
-		log.Printf("Missing IGN_GA_TRACKING_ID env variable. GA will not be enabled")
+		log.Print("Missing IGN_GA_TRACKING_ID env variable. GA will not be enabled")
 	}
 	if s.GaAppName, err = ReadEnvVar("IGN_GA_APP_NAME"); err != nil {
-		log.Printf("Missing IGN_GA_APP_NAME env variable. GA will not be enabled")
+		log.Print("Missing IGN_GA_APP_NAME env variable. GA will not be enabled")
 	}
 	if s.GaCategoryPrefix, err = ReadEnvVar("IGN_GA_CAT_PREFIX"); err != nil {
-		log.Printf("Missing optional IGN_GA_CAT_PREFIX env variable.")
+		log.Print("Missing optional IGN_GA_CAT_PREFIX env variable.")
 	}
 
 	if s.DbConfig, err = NewDatabaseConfigFromEnvVars(); err != nil {
-		log.Printf(err.Error())
+		log.Print(err.Error())
 	}
 
 	// Get whether to enable database logging
@@ -455,7 +457,7 @@ func InitDbWithCfg(cfg *DatabaseConfig) (*gorm.DB, error) {
 		log.Printf("Attempt[%d] to connect to the database failed.\n", i)
 		log.Println(url)
 		log.Println(err)
-		time.Sleep(5)
+		time.Sleep(5 * time.Second)
 	}
 
 	return db, err
