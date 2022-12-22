@@ -97,7 +97,7 @@ func SendMultipartMethod(testName string, t *testing.T, method, uri string, jwt 
 // CreateTmpFolderWithContents creates a tmp folder with the given files and
 // returns the path to the created folder. See type fileDesc above.
 func CreateTmpFolderWithContents(folderName string, files []FileDesc) (string, error) {
-	baseDir, err := io.TempDir("", folderName)
+	baseDir, err := os.MkdirTemp("", folderName)
 	if err != nil {
 		return "", err
 	}
@@ -119,7 +119,9 @@ func CreateTmpFolderWithContents(folderName string, files []FileDesc) (string, e
 		} else {
 			// normal file with given contents
 			f, err := os.Create(fullpath)
-			defer f.Close()
+			defer func(f *os.File) {
+				_ = f.Close()
+			}(f)
 			if err != nil {
 				log.Println("Unable to create [" + fullpath + "]")
 				return "", err
@@ -128,7 +130,7 @@ func CreateTmpFolderWithContents(folderName string, files []FileDesc) (string, e
 				log.Println("Unable to write contents to [" + fullpath + "]")
 				return "", err
 			}
-			f.Sync()
+			_ = f.Sync()
 		}
 	}
 	return baseDir, nil
