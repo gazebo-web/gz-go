@@ -1,6 +1,7 @@
 name: Test
 on:
-  branches: [ $default-branch ]
+  push:
+    branches: [ $default-branch ]
   pull_request:
 
 jobs:
