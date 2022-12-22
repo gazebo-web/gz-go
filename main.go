@@ -124,7 +124,9 @@ func Init(auth0RSAPublicKey string, dbNameSuffix string, monitoring monitoring.P
 		SSLport:    ":4430",
 		monitoring: monitoring,
 	}
-	server.readPropertiesFromEnvVars()
+	if err := server.readPropertiesFromEnvVars(); err != nil {
+		return nil, err
+	}
 
 	gServer = server
 
@@ -311,28 +313,26 @@ func (s *Server) readPropertiesFromEnvVars() error {
 
 	// Get the SSL certificate, if specified.
 	if s.SSLCert, err = ReadEnvVar("IGN_SSL_CERT"); err != nil {
-		log.Printf("Missing IGN_SSL_CERT env variable. " +
-			"Server will not be secure (no https).")
+		log.Println("Missing IGN_SSL_CERT env variable. Server will not be secure (no https).")
 	}
 	// Get the SSL private key, if specified.
 	if s.SSLKey, err = ReadEnvVar("IGN_SSL_KEY"); err != nil {
-		log.Printf("Missing IGN_SSL_KEY env variable. " +
-			"Server will not be secure (no https).")
+		log.Println("Missing IGN_SSL_KEY env variable. Server will not be secure (no https).")
 	}
 
 	// Read Google Analytics parameters
 	if s.GaTrackingID, err = ReadEnvVar("IGN_GA_TRACKING_ID"); err != nil {
-		log.Printf("Missing IGN_GA_TRACKING_ID env variable. GA will not be enabled")
+		log.Println("Missing IGN_GA_TRACKING_ID env variable. GA will not be enabled")
 	}
 	if s.GaAppName, err = ReadEnvVar("IGN_GA_APP_NAME"); err != nil {
-		log.Printf("Missing IGN_GA_APP_NAME env variable. GA will not be enabled")
+		log.Println("Missing IGN_GA_APP_NAME env variable. GA will not be enabled")
 	}
 	if s.GaCategoryPrefix, err = ReadEnvVar("IGN_GA_CAT_PREFIX"); err != nil {
-		log.Printf("Missing optional IGN_GA_CAT_PREFIX env variable.")
+		log.Println("Missing optional IGN_GA_CAT_PREFIX env variable.")
 	}
 
 	if s.DbConfig, err = NewDatabaseConfigFromEnvVars(); err != nil {
-		log.Printf(err.Error())
+		log.Println(err.Error())
 	}
 
 	// Get whether to enable database logging
@@ -455,7 +455,7 @@ func InitDbWithCfg(cfg *DatabaseConfig) (*gorm.DB, error) {
 		log.Printf("Attempt[%d] to connect to the database failed.\n", i)
 		log.Println(url)
 		log.Println(err)
-		time.Sleep(5)
+		time.Sleep(5 * time.Second)
 	}
 
 	return db, err

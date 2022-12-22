@@ -188,7 +188,7 @@ func (fn ProtoResult) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	w.Header().Set("Content-Type", "application/arraybuffer")
-	w.Write(data)
+	_, _ = w.Write(data)
 }
 
 /////////////////////////////////////////////////
