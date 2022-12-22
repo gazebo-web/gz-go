@@ -10,7 +10,6 @@ import (
 	"fmt"
 	"github.com/stretchr/testify/assert"
 	"io"
-	"io/ioutil"
 	"log"
 	"mime/multipart"
 	"net/http"
@@ -87,7 +86,7 @@ func SendMultipartMethod(testName string, t *testing.T, method, uri string, jwt 
 
 	var b []byte
 	var er error
-	b, er = ioutil.ReadAll(respRec.Body)
+	b, er = io.ReadAll(respRec.Body)
 	assert.NoError(t, er, "Failed to read the server response. TestName:[%s]", testName)
 
 	bslice = &b
@@ -98,7 +97,7 @@ func SendMultipartMethod(testName string, t *testing.T, method, uri string, jwt 
 // CreateTmpFolderWithContents creates a tmp folder with the given files and
 // returns the path to the created folder. See type fileDesc above.
 func CreateTmpFolderWithContents(folderName string, files []FileDesc) (string, error) {
-	baseDir, err := ioutil.TempDir("", folderName)
+	baseDir, err := io.TempDir("", folderName)
 	if err != nil {
 		return "", err
 	}
@@ -227,7 +226,7 @@ func AssertRouteMultipleArgsStruct(args RequestArgs, expCode int, contentType st
 
 	// Read the result
 	var er error
-	b, er = ioutil.ReadAll(respRec.Body)
+	b, er = io.ReadAll(respRec.Body)
 	assert.NoError(t, er, "Failed to read the server response")
 	ar.BodyAsBytes = &b
 

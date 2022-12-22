@@ -7,7 +7,6 @@ import (
 	"github.com/gazebo-web/gz-go/v7/encoders"
 	"github.com/gazebo-web/gz-go/v7/telemetry"
 	"go.opentelemetry.io/otel/codes"
-	"io/ioutil"
 	"net/http"
 	"net/url"
 	"strings"
@@ -48,7 +47,7 @@ func (h *httpCaller) Call(ctx context.Context, endpoint string, in []byte) ([]by
 	}
 
 	var out []byte
-	out, err = ioutil.ReadAll(res.Body)
+	out, err = io.ReadAll(res.Body)
 	if err != nil {
 		return nil, err
 	}
