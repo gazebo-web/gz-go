@@ -7,6 +7,7 @@ import (
 	"github.com/gazebo-web/gz-go/v7/encoders"
 	"github.com/gazebo-web/gz-go/v7/telemetry"
 	"go.opentelemetry.io/otel/codes"
+	"io"
 	"net/http"
 	"net/url"
 	"strings"
