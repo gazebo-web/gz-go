@@ -1,4 +1,4 @@
-name: Gazebo Go project
+name: Format
 on:
   push:
     branches: [ $default-branch ]
