@@ -1,9 +1,7 @@
 name: Test
 on:
-  workflow_run:
-    workflows: [Format]
-    types:
-      - completed
+  branches: [ $default-branch ]
+  pull_request:
 
 jobs:
   test:
