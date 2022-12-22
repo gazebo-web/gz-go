@@ -43,8 +43,6 @@ jobs:
           cache: true
 
       - name: Test
-        env:
-
         run: |
           go test -race -covermode=atomic -coverprofile=coverage.tx -v ./...
           go tool cover -func=coverage.tx -o=coverage.out
