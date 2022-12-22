@@ -39,7 +39,7 @@ func OptionsTestHelper(uris []string, routenames []string, t *testing.T) {
 		t.Log("Detected uri:", uri)
 
 		var parsed map[string]interface{}
-		json.Unmarshal(*body, &parsed)
+		_ = json.Unmarshal(*body, &parsed)
 		assert.True(t, ok, "OPTIONS %s request failed", uri)
 		assert.Equal(t, routenames[idx], parsed["name"],
 			"OPTIONS %s request returned invalid name. Exp: [%s], got: [%s]", uri,
