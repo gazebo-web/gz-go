@@ -1,6 +1,6 @@
 <div align="center">
-  <img src="./assets/logo.png" width="200" alt="Ignition Robotics" />
-  <h1>Gazebo</h1>
+  <img src="./assets/logo.png" width="200" alt="Gazebo" />
+  <h1>Gazebo Go</h1>
   <p>Gazebo Go is a general purpose golang library that encapsulates a set of common functionalities for a webserver.</p>
 </div>
 
@@ -78,7 +78,7 @@ func example() {
 ## Installing
 ### Using Go CLI
 ```
-go get github.com/gazebo-web/gz-go/v6
+go get github.com/gazebo-web/gz-go/v7
 ```
 
 ## Contribute

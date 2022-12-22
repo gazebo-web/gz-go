@@ -1,7 +1,7 @@
 package repository
 
 import (
-	utilsgorm "github.com/gazebo-web/gz-go/v6/database/gorm"
+	utilsgorm "github.com/gazebo-web/gz-go/v7/database/gorm"
 	"github.com/jinzhu/gorm"
 	"github.com/stretchr/testify/suite"
 	"testing"

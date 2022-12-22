@@ -2,7 +2,7 @@ package encoders
 
 import (
 	"context"
-	"github.com/gazebo-web/gz-go/v6/telemetry"
+	"github.com/gazebo-web/gz-go/v7/telemetry"
 	"go.opentelemetry.io/otel/codes"
 	"io"
 )

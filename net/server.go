@@ -16,7 +16,7 @@ import (
 	"time"
 )
 
-// Server is a web server to listen to incoming requests. It supports different types of transport mechanisms used through Ignition Robotics projects.
+// Server is a web server to listen to incoming requests. It supports different types of transport mechanisms used through Gazebo projects.
 // It currently supports HTTP and gRPC servers.
 type Server struct {
 	// httpServer holds a group of HTTP servers. All these servers will be listening to different ports.

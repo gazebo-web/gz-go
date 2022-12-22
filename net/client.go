@@ -3,7 +3,7 @@ package net
 import (
 	"context"
 	"errors"
-	"github.com/gazebo-web/gz-go/v6/encoders"
+	"github.com/gazebo-web/gz-go/v7/encoders"
 	"reflect"
 )
 
