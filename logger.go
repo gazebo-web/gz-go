@@ -81,14 +81,6 @@ func (l *defaultLogImpl) Clone(reqID string) Logger {
 
 var emptyLogger *defaultLogImpl
 
-func getEmptyLogger() Logger {
-	if emptyLogger == nil {
-		l := defaultLogImpl{}
-		emptyLogger = &l
-	}
-	return emptyLogger
-}
-
 // ignLogger - internal implementation for the ign logger interface.
 // The ignLogger will log to terminal and also to rollbar, if configured.
 // The ignLogger will prefix all logs with a configured request Id.
