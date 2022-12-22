@@ -76,11 +76,13 @@ func UnzipImpl(reader *zip.Reader, dest string, verbose bool) error {
 			return errors.New("unzip: Unable to open [" + f.Name + "]")
 		}
 
-		defer zipped.Close()
+		defer func() {
+			_ = zipped.Close()
+		}()
 
 		path := filepath.Join(dest, f.Name)
 		if f.FileInfo().IsDir() {
-			os.MkdirAll(path, f.Mode())
+			_ = os.MkdirAll(path, f.Mode())
 			if verbose {
 				fmt.Println("Creating directory", path)
 			}

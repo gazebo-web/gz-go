@@ -120,7 +120,10 @@ func (createReq *AccessTokenCreateRequest) Create(tx *gorm.DB) (*AccessTokenCrea
 	// generate a unique prefix.
 	for i := 0; i < 100; i++ {
 		prefix := make([]byte, 8)
-		_, err = rand.Read(prefix)
+		_, err := rand.Read(prefix)
+		if err != nil {
+			return nil, nil, NewErrorMessage(ErrorUnexpected)
+		}
 		prefixToken = base64.URLEncoding.EncodeToString(prefix)
 		tx.Where("prefix = ?", prefixToken).Find(&accessTokens)
 		if len(accessTokens) <= 0 {
