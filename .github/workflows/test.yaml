@@ -19,7 +19,7 @@ jobs:
         env:
           MYSQL_USER: gazebo
           MYSQL_PASSWORD: 1234
-          MYSQL_DATABASE: gazebo_db
+          MYSQL_DATABASE: gazebo_db_test
           MYSQL_RANDOM_ROOT_PASSWORD: true
         options: --health-cmd="mysqladmin ping" --health-interval=5s --health-timeout=2s --health-retries=3
 
