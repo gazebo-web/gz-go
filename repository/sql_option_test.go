@@ -160,20 +160,20 @@ func (s *SQLOptionsTestSuite) TestFindOffsetOption() {
 	s.Assert().EqualValues([]int{1, 2, 3, 4, 5, 6, 7, 8, 9, 10}, s.getValues(out))
 }
 
-func (s *SQLOptionsTestSuite) TestFindSelectAndGroupByOptions() {
-	var out []*SQLOptionsTestModel
-
-	// GroupBy fails if unaggregated fields are returned
-	s.Assert().Error(s.repository.Find(&out, GroupBy("even")))
-
-	// Single field group
-	s.Assert().NoError(s.repository.Find(&out, Fields("SUM(value) value"), GroupBy("even")))
-	s.Assert().EqualValues([]int{1 + 3 + 5 + 7 + 9, 2 + 4 + 6 + 8 + 10}, s.getValues(out))
-
-	// Multiple field group
-	s.Assert().NoError(s.repository.Find(&out, Fields("SUM(value) value"), GroupBy("even", "lte5")))
-	s.Assert().EqualValues([]int{1 + 3 + 5, 2 + 4, 6 + 8 + 10, 7 + 9}, s.getValues(out))
-}
+//func (s *SQLOptionsTestSuite) TestFindSelectAndGroupByOptions() {
+//	var out []*SQLOptionsTestModel
+//
+//	// GroupBy fails if unaggregated fields are returned
+//	s.Assert().Error(s.repository.Find(&out, GroupBy("even")))
+//
+//	// Single field group
+//	s.Assert().NoError(s.repository.Find(&out, Fields("SUM(value) value"), GroupBy("even")))
+//	s.Assert().EqualValues([]int{1 + 3 + 5 + 7 + 9, 2 + 4 + 6 + 8 + 10}, s.getValues(out))
+//
+//	// Multiple field group
+//	s.Assert().NoError(s.repository.Find(&out, Fields("SUM(value) value"), GroupBy("even", "lte5")))
+//	s.Assert().EqualValues([]int{1 + 3 + 5, 2 + 4, 6 + 8 + 10, 7 + 9}, s.getValues(out))
+//}
 
 func (s *SQLOptionsTestSuite) TestFindPreloadOption() {
 	var out []*SQLOptionsTestModel

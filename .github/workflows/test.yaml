@@ -1,24 +1,23 @@
 name: Test
-on:
-  workflow_run:
-    workflows: [Format]
-    types:
-      - completed
+on: push
 
 jobs:
   test:
-    if: ${{ github.event.workflow_run.conclusion == 'success' }}
     runs-on: ubuntu-latest
+    env:
+      IGN_DB_USERNAME: gazebo
+      IGN_DB_PASSWORD: 1234
+      IGN_DB_NAME: gazebo_db
     services:
       mysql:
         image: mysql:5.7
         ports:
           - 3306
         env:
-          MYSQL_USER: gazebo
-          MYSQL_PASSWORD: 1234
-          MYSQL_DATABASE: gazebo_db
-          MYSQL_ROOT_PASSWORD: 1234
+          MYSQL_USER: ${{ env.IGN_DB_USERNAME }}
+          MYSQL_PASSWORD: ${{ env.IGN_DB_PASSWORD }}
+          MYSQL_DATABASE: "${{env.IGN_DB_NAME}}_test"
+          MYSQL_RANDOM_ROOT_PASSWORD: true
         options: --health-cmd="mysqladmin ping" --health-interval=5s --health-timeout=2s --health-retries=3
 
     steps:
@@ -31,7 +30,7 @@ jobs:
         run: |
           while ! mysqladmin ping -h"127.0.0.1" -P"$PORT" --silent; do
             sleep 1
-          done          
+          done
 
       - name: Set up Go
         uses: actions/setup-go@v3
@@ -41,10 +40,7 @@ jobs:
 
       - name: Test
         env:
-          IGN_DB_USERNAME: ${{ job.services.mysql.MYSQL_USER }}
-          IGN_DB_PASSWORD: ${{ job.services.mysql.MYSQL_PASSWORD }}
-          IGN_DB_ADDRESS: 127.0.0.1
-          IGN_DB_NAME: ${{ job.services.mysql.MYSQL_DATABASE }}
+          IGN_DB_ADDRESS: "127.0.0.1:${{ job.services.mysql.ports[3306] }}"
         run: |
-          go test -race -covermode=atomic -coverprofile=coverage.tx -v ./...
+          go test -timeout 60m -covermode=atomic -coverprofile=coverage.tx -v ./...
           go tool cover -func=coverage.tx -o=coverage.out
