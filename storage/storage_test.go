@@ -39,19 +39,16 @@ type StorageTestSuite struct {
 }
 
 func (suite *StorageTestSuite) TestNewS3Storage() {
-	var storage Storage
-	storage = NewS3()
+	storage := NewS3()
 	suite.Assert().Implements((*Storage)(nil), storage)
 }
 
 func (suite *StorageTestSuite) TestNewGCSStorage() {
-	var storage Storage
-	storage = NewGCS()
+	storage := NewGCS()
 	suite.Assert().Implements((*Storage)(nil), storage)
 }
 
 func (suite *StorageTestSuite) TestNewFilesystemStorage() {
-	var storage Storage
-	storage = newFilesystemStorage("./testdata")
+	storage := newFilesystemStorage("./testdata")
 	suite.Assert().Implements((*Storage)(nil), storage)
 }

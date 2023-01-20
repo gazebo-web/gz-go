@@ -27,8 +27,7 @@ func (suite *FilesystemStorageTestSuite) SetupSuite() {
 }
 
 func (suite *FilesystemStorageTestSuite) TestGetFile_NotFound() {
-	var r Resource
-	r = &testResource{
+	r := &testResource{
 		uuid:    validUUID,
 		kind:    KindModels,
 		owner:   owner,
@@ -42,8 +41,7 @@ func (suite *FilesystemStorageTestSuite) TestGetFile_NotFound() {
 }
 
 func (suite *FilesystemStorageTestSuite) TestGetFile_ResourceInvalidOwner() {
-	var r Resource
-	r = &testResource{
+	r := &testResource{
 		uuid:    "",
 		kind:    "",
 		owner:   "",
@@ -57,8 +55,7 @@ func (suite *FilesystemStorageTestSuite) TestGetFile_ResourceInvalidOwner() {
 }
 
 func (suite *FilesystemStorageTestSuite) TestGetFile_ResourceInvalidKind() {
-	var r Resource
-	r = &testResource{
+	r := &testResource{
 		uuid:    "",
 		kind:    "",
 		owner:   owner,
@@ -71,8 +68,7 @@ func (suite *FilesystemStorageTestSuite) TestGetFile_ResourceInvalidKind() {
 }
 
 func (suite *FilesystemStorageTestSuite) TestGetFile_ResourceInvalidUUID() {
-	var r Resource
-	r = &testResource{
+	r := &testResource{
 		uuid:    "",
 		kind:    KindModels,
 		owner:   owner,
@@ -86,8 +82,7 @@ func (suite *FilesystemStorageTestSuite) TestGetFile_ResourceInvalidUUID() {
 }
 
 func (suite *FilesystemStorageTestSuite) TestGetFile_ResourceInvalidVersion() {
-	var r Resource
-	r = &testResource{
+	r := &testResource{
 		uuid:    validUUID,
 		kind:    KindModels,
 		owner:   owner,
@@ -101,8 +96,7 @@ func (suite *FilesystemStorageTestSuite) TestGetFile_ResourceInvalidVersion() {
 }
 
 func (suite *FilesystemStorageTestSuite) TestGetFile_Exists() {
-	var r Resource
-	r = &testResource{
+	r := &testResource{
 		uuid:    validUUID,
 		kind:    KindModels,
 		owner:   owner,
@@ -116,8 +110,7 @@ func (suite *FilesystemStorageTestSuite) TestGetFile_Exists() {
 
 func (suite *FilesystemStorageTestSuite) TestGetFile_ContentMatchesInRootFolder() {
 
-	var r Resource
-	r = &testResource{
+	r := &testResource{
 		uuid:    validUUID,
 		kind:    KindModels,
 		owner:   owner,
@@ -139,8 +132,7 @@ func (suite *FilesystemStorageTestSuite) TestGetFile_ContentMatchesInRootFolder(
 
 func (suite *FilesystemStorageTestSuite) TestGetFile_ContentMatchesInSubFolder() {
 
-	var r Resource
-	r = &testResource{
+	r := &testResource{
 		uuid:    validUUID,
 		kind:    KindModels,
 		owner:   owner,
