@@ -15,7 +15,7 @@ type fsStorage struct {
 
 // GetFile returns the content of file from a given path.
 func (s *fsStorage) GetFile(resource Resource, path string) ([]byte, error) {
-	if err := ValidateResource(resource); err != nil {
+	if err := validateResource(resource); err != nil {
 		return nil, err
 	}
 

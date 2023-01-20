@@ -25,7 +25,9 @@ type Resource interface {
 	GetVersion() uint64
 }
 
-func ValidateResource(r Resource) error {
+// validateResource validates the given resource, it returns an error if the resource is invalid.
+// This validation step only performs sanity checks, but doesn't apply any business rules.
+func validateResource(r Resource) error {
 	if len(r.GetOwner()) == 0 {
 		return errors.Wrap(ErrResourceInvalidFormat, "missing owner")
 	}
