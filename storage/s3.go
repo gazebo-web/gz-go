@@ -10,16 +10,20 @@ type s3 struct {
 	client *s3api.Client
 }
 
+// Upload the assets found in source to S3.
 func (s *s3) Upload(ctx context.Context, resource Resource, source string) error {
 	//TODO implement me
 	panic("implement me")
 }
 
+// Create prepares the bucket to hold a resource identified by UUID that will be uploaded
+// by owner and it will of the given kind.
 func (s *s3) Create(ctx context.Context, owner string, kind Kind, uuid string) error {
 	//TODO implement me
 	panic("implement me")
 }
 
+// Download downloads a zip version of the given resource from S3.
 func (s *s3) Download(ctx context.Context, resource Resource) (string, error) {
 	//TODO implement me
 	panic("implement me")

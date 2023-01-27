@@ -18,6 +18,8 @@ var (
 	ErrSourceFile            = errors.New("source is a file, should be a folder")
 )
 
+// Kind describes the subfolder where different types of resources will be uploaded for a single
+// owner. Developers can create different resources, but a set of basic kinds are provided in this library.
 type Kind string
 
 const (
@@ -28,9 +30,14 @@ const (
 
 // Resource represents the resource that a user wants to download from a cloud storage.
 type Resource interface {
+	// GetUUID returns the UUID v4 that identifies the current Resource.
 	GetUUID() string
+	// GetKind identifies of what type the current Resource is.
 	GetKind() Kind
+	// GetOwner returns who's the owner of the current Resource.
 	GetOwner() string
+	// GetVersion returns the numeric version of the current Resource. Resources increment their version as new
+	// updates are introduced to them.
 	GetVersion() uint64
 }
 
@@ -52,6 +59,7 @@ func validateResource(r Resource) error {
 	return nil
 }
 
+// validateOwner performs validation to the given owner.
 func validateOwner(owner string) error {
 	if len(owner) == 0 {
 		return errors.Wrap(ErrResourceInvalidFormat, "missing owner")
@@ -59,6 +67,7 @@ func validateOwner(owner string) error {
 	return nil
 }
 
+// validateKind performs validation to the given kind.
 func validateKind(kind Kind) error {
 	if len(kind) == 0 {
 		return errors.Wrap(ErrResourceInvalidFormat, "missing kind")
@@ -66,6 +75,7 @@ func validateKind(kind Kind) error {
 	return nil
 }
 
+// validateUUID performs validation to the given UUID.
 func validateUUID(id string) error {
 	if u, err := uuid.FromString(id); err != nil || u.Version() != uuid.V4 {
 		return errors.Wrap(ErrResourceInvalidFormat, "invalid uuid")
@@ -73,6 +83,7 @@ func validateUUID(id string) error {
 	return nil
 }
 
+// validateVersion performs validation to the given version.
 func validateVersion(v uint64) error {
 	if v == 0 {
 		return errors.Wrap(ErrResourceInvalidFormat, "invalid version, should be greater than 0")
@@ -97,6 +108,8 @@ func getZipLocation(base string, r Resource) string {
 	return filepath.Join(base, r.GetOwner(), string(r.GetKind()), r.GetUUID(), ".zips", filename)
 }
 
+// getRootLocation returns the absolute location of where all the versions of the given uuid and the given kind will be
+// uploaded for the given owner.
 func getRootLocation(base string, owner string, kind Kind, uuid string) string {
 	return filepath.Join(base, owner, string(kind), uuid)
 }
