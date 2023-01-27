@@ -339,11 +339,13 @@ func (suite *FilesystemStorageTestSuite) TestUpload_NotFolder() {
 }
 
 func (suite *FilesystemStorageTestSuite) TestUpload_Empty() {
+
 	// We create the resource in the storage first
 	err := suite.storage.Create(context.Background(), nonExistentResource.GetOwner(), nonExistentResource.GetKind(), nonExistentResource.GetUUID())
 	suite.Require().NoError(err)
 
 	// Folder: ./testdata/example_empty is empty
+	suite.Require().NoError(os.MkdirAll("./testdata/example_empty", os.ModePerm))
 	err = suite.storage.Upload(context.Background(), nonExistentResource, "./testdata/example_empty")
 	suite.Assert().Error(err)
 	suite.Assert().ErrorIs(err, ErrSourceFolderEmpty)
