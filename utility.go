@@ -247,3 +247,75 @@ func ParseHTMLTemplate(templateFilename string, data interface{}) (string, error
 func IsError(err error, target error) bool {
 	return strings.Contains(err.Error(), target.Error())
 }
+
+func IsFolderEmpty(path string) (bool, error) {
+	entries, err := os.ReadDir(path)
+	if err != nil {
+		return true, err
+	}
+	if len(entries) == 0 {
+		return true, nil
+	}
+	return false, nil
+}
+
+func CopyDir(dst, src string) error {
+	entries, err := os.ReadDir(src)
+	if err != nil {
+		return err
+	}
+	var info os.FileInfo
+	if info, err = os.Stat(src); err != nil {
+		return err
+	}
+
+	for _, entry := range entries {
+		name := entry.Name()
+		if entry.IsDir() {
+			if err = os.MkdirAll(filepath.Join(dst, name), info.Mode()); err != nil {
+				return err
+			}
+			err := CopyDir(filepath.Join(dst, name), filepath.Join(src, name))
+			if err != nil {
+				return err
+			}
+		} else {
+			err := CopyFile(filepath.Join(dst, name), filepath.Join(src, name))
+			if err != nil {
+				return err
+			}
+		}
+	}
+	return nil
+}
+
+func CopyFile(dst string, src string) error {
+	// Source file
+	f, err := os.Open(src)
+	if err != nil {
+		return err
+	}
+	defer f.Close()
+
+	// Destination file
+	fd, err := os.Create(dst)
+	if err != nil {
+		return err
+	}
+	defer fd.Close()
+
+	_, err = io.Copy(fd, f)
+	if err != nil {
+		return err
+	}
+	info, err := f.Stat()
+	if err != nil {
+		return err
+	}
+
+	err = fd.Chmod(info.Mode())
+	if err != nil {
+		return err
+	}
+	return nil
+}

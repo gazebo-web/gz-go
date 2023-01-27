@@ -6,6 +6,16 @@ import "context"
 type s3 struct {
 }
 
+func (s *s3) Upload(ctx context.Context, resource Resource, source string) error {
+	//TODO implement me
+	panic("implement me")
+}
+
+func (s *s3) Create(ctx context.Context, owner string, kind Kind, uuid string) error {
+	//TODO implement me
+	panic("implement me")
+}
+
 func (s *s3) Download(ctx context.Context, resource Resource) (string, error) {
 	//TODO implement me
 	panic("implement me")

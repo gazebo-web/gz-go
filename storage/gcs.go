@@ -9,6 +9,16 @@ import "context"
 //	SDK: https://pkg.go.dev/cloud.google.com/go/storage
 type gcs struct{}
 
+func (g *gcs) Upload(ctx context.Context, resource Resource, source string) error {
+	//TODO implement me
+	panic("implement me")
+}
+
+func (g *gcs) Create(ctx context.Context, owner string, kind Kind, uuid string) error {
+	//TODO implement me
+	panic("implement me")
+}
+
 func (g *gcs) Download(ctx context.Context, resource Resource) (string, error) {
 	//TODO implement me
 	panic("implement me")

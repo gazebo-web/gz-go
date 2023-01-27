@@ -3,6 +3,7 @@ package storage
 import (
 	"archive/zip"
 	"context"
+	"github.com/gazebo-web/gz-go/v7"
 	"github.com/pkg/errors"
 	"io"
 	"os"
@@ -13,6 +14,59 @@ import (
 // It can be used with something like AWS EFS storage in EC2 instances.
 type fsStorage struct {
 	basePath string
+}
+
+func (s *fsStorage) Upload(ctx context.Context, resource Resource, src string) error {
+	if err := validateResource(resource); err != nil {
+		return err
+	}
+	var info os.FileInfo
+	var err error
+	if info, err = os.Stat(src); errors.Is(err, os.ErrNotExist) {
+		return errors.Wrap(ErrSourceFolderNotFound, err.Error())
+	}
+	if !info.IsDir() {
+		return ErrSourceFile
+	}
+	empty, err := gz.IsFolderEmpty(src)
+	if err != nil {
+		return errors.Wrap(ErrSourceFolderEmpty, err.Error())
+	}
+	if empty {
+		return ErrSourceFolderEmpty
+	}
+	dst := getLocation(s.basePath, resource, "")
+
+	err = gz.CopyDir(dst, src)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (s *fsStorage) Create(ctx context.Context, owner string, kind Kind, uuid string) error {
+	if err := validateOwner(owner); err != nil {
+		return err
+	}
+	if err := validateKind(kind); err != nil {
+		return err
+	}
+	if err := validateUUID(uuid); err != nil {
+		return err
+	}
+
+	path := getRootLocation(s.basePath, owner, kind, uuid)
+	_, err := os.Stat(path)
+	if err == nil {
+		return ErrResourceAlreadyExists
+	}
+
+	err = os.MkdirAll(path, os.ModePerm)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
 
 // Download returns the path to the zip file that includes the given resource.
@@ -29,11 +83,11 @@ func (s *fsStorage) Download(ctx context.Context, resource Resource) (string, er
 	}
 
 	if info.IsDir() {
-		entries, err := os.ReadDir(path)
+		empty, err := gz.IsFolderEmpty(path)
 		if err != nil {
 			return "", errors.Wrap(ErrEmptyResource, err.Error())
 		}
-		if len(entries) == 0 {
+		if empty {
 			return "", ErrEmptyResource
 		}
 	}
@@ -84,16 +138,16 @@ func (s *fsStorage) zip(ctx context.Context, resource Resource) (string, error) 
 			return err
 		}
 
-		// 3. Create a local file header
+		// Create a local file header
 		header, err := zip.FileInfoHeader(info)
 		if err != nil {
 			return err
 		}
 
-		// set compression
+		// Set compression
 		header.Method = zip.Deflate
 
-		// 4. Set relative path of a file as the header name
+		// Set relative path of a file as the header name
 		header.Name, err = filepath.Rel(filepath.Dir(source), path)
 		if err != nil {
 			return err
@@ -102,7 +156,7 @@ func (s *fsStorage) zip(ctx context.Context, resource Resource) (string, error) 
 			header.Name += "/"
 		}
 
-		// 5. Create writer for the file header and save content of the file
+		// Create writer for the file header and save content of the file
 		headerWriter, err := w.CreateHeader(header)
 		if err != nil {
 			return err
