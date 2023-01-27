@@ -1,10 +1,12 @@
 package storage
 
 import (
+	"archive/zip"
+	"context"
 	"github.com/pkg/errors"
+	"io"
 	"os"
 	"path/filepath"
-	"strconv"
 )
 
 // fsStorage contains the implementation of a storage manager for resources using the host filesystem.
@@ -13,13 +15,39 @@ type fsStorage struct {
 	basePath string
 }
 
+// Download returns the path to the zip file that includes the given resource.
+func (s *fsStorage) Download(ctx context.Context, resource Resource) (string, error) {
+	if err := validateResource(resource); err != nil {
+		return "", err
+	}
+
+	var info os.FileInfo
+	var err error
+	path := getLocation(s.basePath, resource, "")
+	if info, err = os.Stat(path); errors.Is(err, os.ErrNotExist) {
+		return "", errors.Wrap(ErrResourceNotFound, err.Error())
+	}
+
+	if info.IsDir() {
+		entries, err := os.ReadDir(path)
+		if err != nil {
+			return "", errors.Wrap(ErrEmptyResource, err.Error())
+		}
+		if len(entries) == 0 {
+			return "", ErrEmptyResource
+		}
+	}
+
+	return s.zip(ctx, resource)
+}
+
 // GetFile returns the content of file from a given path.
-func (s *fsStorage) GetFile(resource Resource, path string) ([]byte, error) {
+func (s *fsStorage) GetFile(ctx context.Context, resource Resource, path string) ([]byte, error) {
 	if err := validateResource(resource); err != nil {
 		return nil, err
 	}
 
-	path = filepath.Join(s.basePath, resource.GetOwner(), string(resource.GetKind()), resource.GetUUID(), strconv.FormatUint(resource.GetVersion(), 10), path)
+	path = getLocation(s.basePath, resource, path)
 
 	if _, err := os.Stat(path); errors.Is(err, os.ErrNotExist) {
 		return nil, errors.Wrap(ErrResourceNotFound, err.Error())
@@ -31,6 +59,73 @@ func (s *fsStorage) GetFile(resource Resource, path string) ([]byte, error) {
 	}
 
 	return b, nil
+}
+
+// zip compress the given resource to a  zip file. It returns the location to the zip file.
+// If the file was already created, it returns a cached file.
+func (s *fsStorage) zip(ctx context.Context, resource Resource) (string, error) {
+	target := getZipLocation(s.basePath, resource)
+	if _, err := os.Stat(target); errors.Is(err, os.ErrExist) {
+		return target, nil
+	}
+
+	f, err := os.Create(target)
+	if err != nil {
+		return "", err
+	}
+	defer f.Close()
+
+	w := zip.NewWriter(f)
+	defer w.Close()
+
+	source := getLocation(s.basePath, resource, "")
+	err = filepath.Walk(source, func(path string, info os.FileInfo, err error) error {
+		if err != nil {
+			return err
+		}
+
+		// 3. Create a local file header
+		header, err := zip.FileInfoHeader(info)
+		if err != nil {
+			return err
+		}
+
+		// set compression
+		header.Method = zip.Deflate
+
+		// 4. Set relative path of a file as the header name
+		header.Name, err = filepath.Rel(filepath.Dir(source), path)
+		if err != nil {
+			return err
+		}
+		if info.IsDir() {
+			header.Name += "/"
+		}
+
+		// 5. Create writer for the file header and save content of the file
+		headerWriter, err := w.CreateHeader(header)
+		if err != nil {
+			return err
+		}
+
+		if info.IsDir() {
+			return nil
+		}
+
+		f, err := os.Open(path)
+		if err != nil {
+			return err
+		}
+		defer f.Close()
+
+		_, err = io.Copy(headerWriter, f)
+		return err
+	})
+	if err != nil {
+		return "", err
+	}
+
+	return target, nil
 }
 
 // newFilesystemStorage initializes a new Storage implementation using the host FileSystem.

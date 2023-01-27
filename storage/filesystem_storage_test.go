@@ -1,6 +1,7 @@
 package storage
 
 import (
+	"context"
 	"github.com/stretchr/testify/suite"
 	"os"
 	"testing"
@@ -11,6 +12,7 @@ const (
 	owner          = "OpenRobotics"
 	version        = 1
 	invalidVersion = 5
+	basePath       = "./testdata"
 )
 
 type FilesystemStorageTestSuite struct {
@@ -23,7 +25,17 @@ func TestSuiteFilesystemStorage(t *testing.T) {
 }
 
 func (suite *FilesystemStorageTestSuite) SetupSuite() {
-	suite.storage = newFilesystemStorage("./testdata")
+	suite.storage = newFilesystemStorage(basePath)
+}
+
+func (suite *FilesystemStorageTestSuite) TearDownTest() {
+	r := &testResource{
+		uuid:    "e6af5323-db4d-4db3-a402-a8992d6c8d99",
+		kind:    KindModels,
+		owner:   owner,
+		version: 1,
+	}
+	_ = os.Remove(getZipLocation(basePath, r))
 }
 
 func (suite *FilesystemStorageTestSuite) TestGetFile_NotFound() {
@@ -35,7 +47,7 @@ func (suite *FilesystemStorageTestSuite) TestGetFile_NotFound() {
 	}
 
 	var err error
-	_, err = suite.storage.GetFile(r, "")
+	_, err = suite.storage.GetFile(context.Background(), r, "")
 	suite.Assert().Error(err)
 	suite.Assert().ErrorIs(err, ErrResourceNotFound)
 }
@@ -49,7 +61,7 @@ func (suite *FilesystemStorageTestSuite) TestGetFile_ResourceInvalidOwner() {
 	}
 
 	var err error
-	_, err = suite.storage.GetFile(r, "")
+	_, err = suite.storage.GetFile(context.Background(), r, "")
 	suite.Assert().Error(err)
 	suite.Assert().ErrorIs(err, ErrResourceInvalidFormat)
 }
@@ -62,7 +74,7 @@ func (suite *FilesystemStorageTestSuite) TestGetFile_ResourceInvalidKind() {
 		version: 0,
 	}
 	var err error
-	_, err = suite.storage.GetFile(r, "")
+	_, err = suite.storage.GetFile(context.Background(), r, "")
 	suite.Assert().Error(err)
 	suite.Assert().ErrorIs(err, ErrResourceInvalidFormat)
 }
@@ -76,7 +88,7 @@ func (suite *FilesystemStorageTestSuite) TestGetFile_ResourceInvalidUUID() {
 	}
 
 	var err error
-	_, err = suite.storage.GetFile(r, "")
+	_, err = suite.storage.GetFile(context.Background(), r, "")
 	suite.Assert().Error(err)
 	suite.Assert().ErrorIs(err, ErrResourceInvalidFormat)
 }
@@ -90,7 +102,7 @@ func (suite *FilesystemStorageTestSuite) TestGetFile_ResourceInvalidVersion() {
 	}
 
 	var err error
-	_, err = suite.storage.GetFile(r, "")
+	_, err = suite.storage.GetFile(context.Background(), r, "")
 	suite.Assert().Error(err)
 	suite.Assert().ErrorIs(err, ErrResourceInvalidFormat)
 }
@@ -104,11 +116,11 @@ func (suite *FilesystemStorageTestSuite) TestGetFile_Exists() {
 	}
 
 	var err error
-	_, err = suite.storage.GetFile(r, "/model.sdf")
+	_, err = suite.storage.GetFile(context.Background(), r, "/model.sdf")
 	suite.Assert().NoError(err)
 }
 
-func (suite *FilesystemStorageTestSuite) TestGetFile_ContentMatchesInRootFolder() {
+func (suite *FilesystemStorageTestSuite) TestGetFile_ContentMatches() {
 
 	r := &testResource{
 		uuid:    validUUID,
@@ -124,14 +136,13 @@ func (suite *FilesystemStorageTestSuite) TestGetFile_ContentMatchesInRootFolder(
 
 	var b []byte
 	path := "/model.sdf"
-	b, err = suite.storage.GetFile(r, path)
+	b, err = suite.storage.GetFile(context.Background(), r, path)
 	suite.Assert().NoError(err)
 	suite.Assert().NotEmpty(b)
 	suite.Assert().Equal(expected, b)
 }
 
-func (suite *FilesystemStorageTestSuite) TestGetFile_ContentMatchesInSubFolder() {
-
+func (suite *FilesystemStorageTestSuite) TestGetFile_ContentMatchesSubFolder() {
 	r := &testResource{
 		uuid:    validUUID,
 		kind:    KindModels,
@@ -146,8 +157,80 @@ func (suite *FilesystemStorageTestSuite) TestGetFile_ContentMatchesInSubFolder()
 
 	var b []byte
 	path := "/meshes/turtle.dae"
-	b, err = suite.storage.GetFile(r, path)
+	b, err = suite.storage.GetFile(context.Background(), r, path)
 	suite.Assert().NoError(err)
 	suite.Assert().NotEmpty(b)
 	suite.Assert().Equal(expected, b)
+}
+
+func (suite *FilesystemStorageTestSuite) TestDownload_InvalidResource() {
+	r := &testResource{
+		uuid:    "31f64dd2-e867-45a7-9a8c-10d9733de2b3",
+		kind:    KindModels,
+		owner:   owner,
+		version: 0, // Invalid version
+	}
+
+	var err error
+	_, err = suite.storage.Download(context.Background(), r)
+	suite.Assert().Error(err)
+	suite.Assert().ErrorIs(err, ErrResourceInvalidFormat)
+}
+
+func (suite *FilesystemStorageTestSuite) TestDownload_NotFound() {
+	r := &testResource{
+		uuid:    "31f64dd2-e867-45a7-9a8c-10d9733de2b3",
+		kind:    KindModels,
+		owner:   owner,
+		version: 3, // Valid version but doesn't exist
+	}
+
+	var err error
+	_, err = suite.storage.Download(context.Background(), r)
+	suite.Assert().Error(err)
+	suite.Assert().ErrorIs(err, ErrResourceNotFound)
+}
+
+func (suite *FilesystemStorageTestSuite) TestDownload_EmptyFolder() {
+	r := &testResource{
+		uuid:    "31f64dd2-e867-45a7-9a8c-10d9733de2b3",
+		kind:    KindModels,
+		owner:   owner,
+		version: 1,
+	}
+
+	var err error
+	_, err = suite.storage.Download(context.Background(), r)
+	suite.Assert().Error(err)
+	suite.Assert().ErrorIs(err, ErrEmptyResource)
+}
+
+func (suite *FilesystemStorageTestSuite) TestDownload_PathToZip() {
+	r := &testResource{
+		uuid:    "e6af5323-db4d-4db3-a402-a8992d6c8d99",
+		kind:    KindModels,
+		owner:   owner,
+		version: 1,
+	}
+
+	zip, err := suite.storage.Download(context.Background(), r)
+	suite.Assert().NoError(err)
+	suite.Assert().Contains(zip, ".zip")
+}
+
+func (suite *FilesystemStorageTestSuite) TestDownload_ValidPath() {
+	r := &testResource{
+		uuid:    "e6af5323-db4d-4db3-a402-a8992d6c8d99",
+		kind:    KindModels,
+		owner:   owner,
+		version: 1,
+	}
+
+	zip, err := suite.storage.Download(context.Background(), r)
+	suite.Assert().NoError(err)
+
+	info, err := os.Stat(zip)
+	suite.Require().NoError(err)
+	suite.Assert().False(info.IsDir())
+	suite.Assert().NotZero(info.Size())
 }
