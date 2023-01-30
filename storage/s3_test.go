@@ -46,7 +46,7 @@ func (suite *s3StorageTestSuite) SetupSuite() {
 	})
 	suite.presignClient = s3api.NewPresignClient(suite.client)
 	suite.bucketName = "fuel"
-	suite.storage = NewS3(suite.client, suite.presignClient, suite.bucketName)
+	suite.storage = NewS3(suite.client, suite.bucketName)
 	suite.fsStorage = newFilesystemStorage(basePath)
 
 	suite.setupTestData()

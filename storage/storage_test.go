@@ -1,6 +1,7 @@
 package storage
 
 import (
+	s3api "github.com/aws/aws-sdk-go-v2/service/s3"
 	"github.com/stretchr/testify/suite"
 	"testing"
 )
@@ -39,7 +40,7 @@ type StorageTestSuite struct {
 }
 
 func (suite *StorageTestSuite) TestNewS3Storage() {
-	storage := NewS3(nil, nil, "")
+	storage := NewS3(&s3api.Client{}, "")
 	suite.Assert().Implements((*Storage)(nil), storage)
 }
 
