@@ -222,6 +222,8 @@ func (suite *FilesystemStorageTestSuite) TestDownload_EmptyFolder() {
 		version: 1,
 	}
 
+	suite.Require().NoError(os.MkdirAll(getLocation(basePath, r, ""), os.ModePerm))
+
 	var err error
 	_, err = suite.storage.Download(context.Background(), r)
 	suite.Assert().Error(err)
