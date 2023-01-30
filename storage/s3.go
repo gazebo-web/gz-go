@@ -67,6 +67,7 @@ func (s *s3) GetFile(ctx context.Context, resource Resource, path string) ([]byt
 	if err != nil {
 		return nil, err
 	}
+	defer out.Body.Close()
 	b, err := io.ReadAll(out.Body)
 	if err != nil {
 		return nil, err
@@ -75,10 +76,10 @@ func (s *s3) GetFile(ctx context.Context, resource Resource, path string) ([]byt
 }
 
 // NewS3 initializes a new implementation of Storage using the AWS S3 service.
-func NewS3(client *s3api.Client, presign *s3api.PresignClient, bucket string) Storage {
+func NewS3(client *s3api.Client, bucket string) Storage {
 	return &s3{
 		client:   client,
-		presign:  presign,
+		presign:  s3api.NewPresignClient(client),
 		bucket:   bucket,
 		duration: 60 * time.Minute,
 	}
