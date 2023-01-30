@@ -21,14 +21,21 @@ var (
 		uuid:    "e6af5323-db4d-4db3-a402-a8992d6c8d99",
 		kind:    KindModels,
 		owner:   owner,
-		version: 1,
+		version: 2,
 	}
 
 	nonExistentResource = &testResource{
 		uuid:    uuid.NewV4().String(),
 		kind:    KindModels,
-		owner:   "Ekumen",
+		owner:   "TestOrg",
 		version: 1,
+	}
+
+	invalidResource = &testResource{
+		uuid:    "",
+		kind:    "",
+		owner:   "",
+		version: 0,
 	}
 )
 
@@ -51,7 +58,7 @@ func (suite *FilesystemStorageTestSuite) SetupTest() {
 
 func (suite *FilesystemStorageTestSuite) TearDownTest() {
 	_ = os.Remove(getZipLocation(basePath, compressibleResource))
-	_ = os.RemoveAll(getRootLocation(basePath, "Ekumen", "", ""))
+	_ = os.RemoveAll(getRootLocation(basePath, "TestOrg", "", ""))
 }
 
 func (suite *FilesystemStorageTestSuite) TestGetFile_NotFound() {
@@ -222,12 +229,7 @@ func (suite *FilesystemStorageTestSuite) TestDownload_EmptyFolder() {
 }
 
 func (suite *FilesystemStorageTestSuite) TestDownload_PathToZip() {
-	r := &testResource{
-		uuid:    "e6af5323-db4d-4db3-a402-a8992d6c8d99",
-		kind:    KindModels,
-		owner:   owner,
-		version: 1,
-	}
+	r := compressibleResource
 
 	zip, err := suite.storage.Download(context.Background(), r)
 	suite.Assert().NoError(err)

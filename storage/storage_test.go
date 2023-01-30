@@ -39,7 +39,7 @@ type StorageTestSuite struct {
 }
 
 func (suite *StorageTestSuite) TestNewS3Storage() {
-	storage := NewS3(nil)
+	storage := NewS3(nil, nil, "")
 	suite.Assert().Implements((*Storage)(nil), storage)
 }
 
