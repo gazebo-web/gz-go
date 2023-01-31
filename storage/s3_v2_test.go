@@ -21,15 +21,14 @@ import (
 
 type s3v2StorageTestSuite struct {
 	suite.Suite
-	storage       Storage
-	server        *httptest.Server
-	backend       *s3mem.Backend
-	faker         *gofakes3.GoFakeS3
-	config        aws.Config
-	client        *s3api.Client
-	bucketName    string
-	fsStorage     Storage
-	presignClient *s3api.PresignClient
+	storage    Storage
+	server     *httptest.Server
+	backend    *s3mem.Backend
+	faker      *gofakes3.GoFakeS3
+	config     aws.Config
+	client     *s3api.Client
+	bucketName string
+	fsStorage  Storage
 }
 
 func TestSuiteS3Storage(t *testing.T) {
@@ -44,7 +43,6 @@ func (suite *s3v2StorageTestSuite) SetupSuite() {
 	suite.client = s3api.NewFromConfig(suite.config, func(o *s3api.Options) {
 		o.UsePathStyle = true
 	})
-	suite.presignClient = s3api.NewPresignClient(suite.client)
 	suite.bucketName = "fuel"
 	suite.storage = NewS3v2(suite.client, suite.bucketName)
 	suite.fsStorage = newFilesystemStorage(basePath)
