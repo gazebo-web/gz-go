@@ -19,7 +19,7 @@ import (
 	"testing"
 )
 
-type s3StorageTestSuite struct {
+type s3v2StorageTestSuite struct {
 	suite.Suite
 	storage       Storage
 	server        *httptest.Server
@@ -33,10 +33,10 @@ type s3StorageTestSuite struct {
 }
 
 func TestSuiteS3Storage(t *testing.T) {
-	suite.Run(t, new(s3StorageTestSuite))
+	suite.Run(t, new(s3v2StorageTestSuite))
 }
 
-func (suite *s3StorageTestSuite) SetupSuite() {
+func (suite *s3v2StorageTestSuite) SetupSuite() {
 	suite.backend = s3mem.New()
 	suite.faker = gofakes3.New(suite.backend)
 	suite.server = httptest.NewServer(suite.faker.Server())
@@ -46,13 +46,13 @@ func (suite *s3StorageTestSuite) SetupSuite() {
 	})
 	suite.presignClient = s3api.NewPresignClient(suite.client)
 	suite.bucketName = "fuel"
-	suite.storage = NewS3(suite.client, suite.bucketName)
+	suite.storage = NewS3v2(suite.client, suite.bucketName)
 	suite.fsStorage = newFilesystemStorage(basePath)
 
 	suite.setupTestData()
 }
 
-func (suite *s3StorageTestSuite) setupTestData() {
+func (suite *s3v2StorageTestSuite) setupTestData() {
 	ctx := context.Background()
 	_, err := suite.client.CreateBucket(ctx, &s3api.CreateBucketInput{Bucket: aws.String(suite.bucketName)})
 	suite.Require().NoError(err)
@@ -60,7 +60,7 @@ func (suite *s3StorageTestSuite) setupTestData() {
 	suite.Require().NoError(suite.walkDirWithS3Func(ctx, suite.uploadFile))
 }
 
-func (suite *s3StorageTestSuite) TearDownSuite() {
+func (suite *s3v2StorageTestSuite) TearDownSuite() {
 	ctx := context.Background()
 
 	suite.Require().NoError(suite.walkDirWithS3Func(ctx, suite.deleteFile))
@@ -70,7 +70,7 @@ func (suite *s3StorageTestSuite) TearDownSuite() {
 	suite.server.Close()
 }
 
-func (suite *s3StorageTestSuite) setupS3Config() aws.Config {
+func (suite *s3v2StorageTestSuite) setupS3Config() aws.Config {
 	cfg, err := config.LoadDefaultConfig(
 		context.TODO(),
 		config.WithCredentialsProvider(credentials.NewStaticCredentialsProvider("KEY", "SECRET", "SESSION")),
@@ -89,7 +89,7 @@ func (suite *s3StorageTestSuite) setupS3Config() aws.Config {
 	return cfg
 }
 
-func (suite *s3StorageTestSuite) walkDirWithS3Func(ctx context.Context, fn func(ctx context.Context, bucket, path string, body io.Reader) error) error {
+func (suite *s3v2StorageTestSuite) walkDirWithS3Func(ctx context.Context, fn func(ctx context.Context, bucket, path string, body io.Reader) error) error {
 	return filepath.WalkDir(basePath, func(path string, d fs.DirEntry, err error) error {
 		if err != nil {
 			return err
@@ -114,7 +114,7 @@ func (suite *s3StorageTestSuite) walkDirWithS3Func(ctx context.Context, fn func(
 	})
 }
 
-func (suite *s3StorageTestSuite) uploadFile(ctx context.Context, bucket string, path string, body io.Reader) error {
+func (suite *s3v2StorageTestSuite) uploadFile(ctx context.Context, bucket string, path string, body io.Reader) error {
 	_, err := suite.client.PutObject(ctx, &s3api.PutObjectInput{
 		Bucket: aws.String(bucket),
 		Key:    aws.String(path),
@@ -123,7 +123,7 @@ func (suite *s3StorageTestSuite) uploadFile(ctx context.Context, bucket string, 
 	return err
 }
 
-func (suite *s3StorageTestSuite) deleteFile(ctx context.Context, bucket string, path string, _ io.Reader) error {
+func (suite *s3v2StorageTestSuite) deleteFile(ctx context.Context, bucket string, path string, _ io.Reader) error {
 	_, err := suite.client.DeleteObject(ctx, &s3api.DeleteObjectInput{
 		Bucket: aws.String(bucket),
 		Key:    aws.String(path),
@@ -131,7 +131,7 @@ func (suite *s3StorageTestSuite) deleteFile(ctx context.Context, bucket string, 
 	return err
 }
 
-func (suite *s3StorageTestSuite) TestGetFile_InvalidResource() {
+func (suite *s3v2StorageTestSuite) TestGetFile_InvalidResource() {
 	r := invalidResource
 	ctx := context.Background()
 	content, err := suite.storage.GetFile(ctx, r, "model.sdf")
@@ -140,7 +140,7 @@ func (suite *s3StorageTestSuite) TestGetFile_InvalidResource() {
 	suite.Assert().ErrorIs(err, ErrResourceInvalidFormat)
 }
 
-func (suite *s3StorageTestSuite) TestGetFile_NotFound() {
+func (suite *s3v2StorageTestSuite) TestGetFile_NotFound() {
 	r := &testResource{
 		uuid:    validUUID,
 		kind:    KindModels,
@@ -153,7 +153,7 @@ func (suite *s3StorageTestSuite) TestGetFile_NotFound() {
 	suite.Assert().Empty(content)
 }
 
-func (suite *s3StorageTestSuite) TestGetFile_Success() {
+func (suite *s3v2StorageTestSuite) TestGetFile_Success() {
 	r := &testResource{
 		uuid:    validUUID,
 		kind:    KindModels,
@@ -170,7 +170,7 @@ func (suite *s3StorageTestSuite) TestGetFile_Success() {
 	suite.Assert().Equal(expected, content)
 }
 
-func (suite *s3StorageTestSuite) TestDownload_InvalidResource() {
+func (suite *s3v2StorageTestSuite) TestDownload_InvalidResource() {
 	r := invalidResource
 	ctx := context.Background()
 	content, err := suite.storage.Download(ctx, r)
@@ -179,7 +179,7 @@ func (suite *s3StorageTestSuite) TestDownload_InvalidResource() {
 	suite.Assert().ErrorIs(err, ErrResourceInvalidFormat)
 }
 
-func (suite *s3StorageTestSuite) TestDownload_NotFound() {
+func (suite *s3v2StorageTestSuite) TestDownload_NotFound() {
 	r := &testResource{
 		uuid:    validUUID,
 		kind:    KindModels,
@@ -192,7 +192,7 @@ func (suite *s3StorageTestSuite) TestDownload_NotFound() {
 	suite.Assert().Empty(url)
 }
 
-func (suite *s3StorageTestSuite) TestDownload_Success() {
+func (suite *s3v2StorageTestSuite) TestDownload_Success() {
 	r := &testResource{
 		uuid:    validUUID,
 		kind:    KindModels,

@@ -8,8 +8,13 @@ import (
 	"time"
 )
 
-// s3 implements Storage using the Amazon Web Services - Simple Storage Service (S3).
-type s3 struct {
+// s3v2 implements Storage using the Amazon Web Services - Simple Storage Service (S3).
+// It uses the second version of the SDK.
+//
+//	Reference: https://aws.amazon.com/s3/
+//	API: https://docs.aws.amazon.com/AmazonS3/latest/API/Welcome.html
+//	SDK: https://github.com/aws/aws-sdk-go-v2
+type s3v2 struct {
 	client   *s3api.Client
 	presign  *s3api.PresignClient
 	bucket   string
@@ -17,20 +22,20 @@ type s3 struct {
 }
 
 // Upload the assets found in source to S3.
-func (s *s3) Upload(ctx context.Context, resource Resource, source string) error {
+func (s *s3v2) Upload(ctx context.Context, resource Resource, source string) error {
 	//TODO implement me
 	panic("implement me")
 }
 
 // Create prepares the bucket to hold a resource identified by UUID that will be uploaded
 // by owner and it will of the given kind.
-func (s *s3) Create(ctx context.Context, owner string, kind Kind, uuid string) error {
+func (s *s3v2) Create(ctx context.Context, owner string, kind Kind, uuid string) error {
 	//TODO implement me
 	panic("implement me")
 }
 
 // Download downloads a zip version of the given resource from S3.
-func (s *s3) Download(ctx context.Context, resource Resource) (string, error) {
+func (s *s3v2) Download(ctx context.Context, resource Resource) (string, error) {
 	if err := validateResource(resource); err != nil {
 		return "", err
 	}
@@ -55,7 +60,7 @@ func (s *s3) Download(ctx context.Context, resource Resource) (string, error) {
 }
 
 // GetFile returns the content of file from a given path.
-func (s *s3) GetFile(ctx context.Context, resource Resource, path string) ([]byte, error) {
+func (s *s3v2) GetFile(ctx context.Context, resource Resource, path string) ([]byte, error) {
 	if err := validateResource(resource); err != nil {
 		return nil, err
 	}
@@ -75,9 +80,9 @@ func (s *s3) GetFile(ctx context.Context, resource Resource, path string) ([]byt
 	return b, nil
 }
 
-// NewS3 initializes a new implementation of Storage using the AWS S3 service.
-func NewS3(client *s3api.Client, bucket string) Storage {
-	return &s3{
+// NewS3v2 initializes a new implementation of Storage using the AWS S3 service.
+func NewS3v2(client *s3api.Client, bucket string) Storage {
+	return &s3v2{
 		client:   client,
 		presign:  s3api.NewPresignClient(client),
 		bucket:   bucket,
