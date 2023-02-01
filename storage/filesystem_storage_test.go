@@ -248,119 +248,59 @@ func (suite *FilesystemStorageTestSuite) TestDownload_ValidPath() {
 	suite.Assert().NotZero(info.Size())
 }
 
-func (suite *FilesystemStorageTestSuite) TestCreate_InvalidOwner() {
-	err := suite.storage.Create(context.Background(), "", "", "")
-	suite.Assert().Error(err)
-	suite.Assert().ErrorIs(err, ErrResourceInvalidFormat)
-}
-
-func (suite *FilesystemStorageTestSuite) TestCreate_InvalidKind() {
-	err := suite.storage.Create(context.Background(), owner, "", "")
-	suite.Assert().Error(err)
-	suite.Assert().ErrorIs(err, ErrResourceInvalidFormat)
-}
-
-func (suite *FilesystemStorageTestSuite) TestCreate_InvalidUUID() {
-	err := suite.storage.Create(context.Background(), owner, KindModels, "")
-	suite.Assert().Error(err)
-	suite.Assert().ErrorIs(err, ErrResourceInvalidFormat)
-}
-
-func (suite *FilesystemStorageTestSuite) TestCreate_ResourceAlreadyExists() {
-	r := &testResource{
-		uuid:    validUUID,
-		kind:    KindModels,
-		owner:   owner,
-		version: 1,
-	}
-
-	err := suite.storage.Create(context.Background(), r.GetOwner(), r.GetKind(), r.GetUUID())
-	suite.Assert().Error(err)
-	suite.Assert().ErrorIs(err, ErrResourceAlreadyExists)
-}
-
-func (suite *FilesystemStorageTestSuite) TestCreate_Success() {
-	err := suite.storage.Create(context.Background(), nonExistentResource.GetOwner(), nonExistentResource.GetKind(), nonExistentResource.GetUUID())
-	suite.Assert().NoError(err)
-}
-
-func (suite *FilesystemStorageTestSuite) TestUpload_InvalidOwner() {
+func (suite *FilesystemStorageTestSuite) TestUploadDir_InvalidOwner() {
 	r := &testResource{
 		uuid:    "31f64dd2-e867-45a7-9a8c-10d9733de2b3",
 		kind:    KindModels,
 		owner:   "",
 		version: 1,
 	}
-	err := suite.storage.Upload(context.Background(), r, "")
+	err := suite.storage.UploadDir(context.Background(), r, "")
 	suite.Assert().Error(err)
 	suite.Assert().ErrorIs(err, ErrResourceInvalidFormat)
 }
 
-func (suite *FilesystemStorageTestSuite) TestUpload_InvalidKind() {
+func (suite *FilesystemStorageTestSuite) TestUploadDir_InvalidKind() {
 	r := &testResource{
 		uuid:    "31f64dd2-e867-45a7-9a8c-10d9733de2b3",
 		kind:    "",
 		owner:   "OpenRobotics",
 		version: 1,
 	}
-	err := suite.storage.Upload(context.Background(), r, "")
+	err := suite.storage.UploadDir(context.Background(), r, "")
 	suite.Assert().Error(err)
 	suite.Assert().ErrorIs(err, ErrResourceInvalidFormat)
 }
 
-func (suite *FilesystemStorageTestSuite) TestUpload_InvalidUUID() {
+func (suite *FilesystemStorageTestSuite) TestUploadDir_InvalidUUID() {
 	r := &testResource{
 		uuid:    "",
 		kind:    KindModels,
 		owner:   "OpenRobotics",
 		version: 1,
 	}
-	err := suite.storage.Upload(context.Background(), r, "")
+	err := suite.storage.UploadDir(context.Background(), r, "")
 	suite.Assert().Error(err)
 	suite.Assert().ErrorIs(err, ErrResourceInvalidFormat)
 }
 
-func (suite *FilesystemStorageTestSuite) TestUpload_NotFound() {
-	// We create the resource in the storage first
-	err := suite.storage.Create(context.Background(), nonExistentResource.GetOwner(), nonExistentResource.GetKind(), nonExistentResource.GetUUID())
-	suite.Require().NoError(err)
-
-	// Folder: ./testdata/example1234 doesn't exist
-	err = suite.storage.Upload(context.Background(), nonExistentResource, "./testdata/example1234")
-	suite.Assert().Error(err)
-	suite.Assert().ErrorIs(err, ErrSourceFolderNotFound)
-}
-
-func (suite *FilesystemStorageTestSuite) TestUpload_NotFolder() {
-	// We create the resource in the storage first
-	err := suite.storage.Create(context.Background(), nonExistentResource.GetOwner(), nonExistentResource.GetKind(), nonExistentResource.GetUUID())
-	suite.Require().NoError(err)
-
+func (suite *FilesystemStorageTestSuite) TestUploadDir_SourceIsNotAFolder() {
 	// ./testdata/example/model.config is a file
-	err = suite.storage.Upload(context.Background(), nonExistentResource, "./testdata/example/model.config")
+	err := suite.storage.UploadDir(context.Background(), nonExistentResource, "./testdata/example/model.config")
 	suite.Assert().Error(err)
 	suite.Assert().ErrorIs(err, ErrSourceFile)
 }
 
-func (suite *FilesystemStorageTestSuite) TestUpload_Empty() {
-
-	// We create the resource in the storage first
-	err := suite.storage.Create(context.Background(), nonExistentResource.GetOwner(), nonExistentResource.GetKind(), nonExistentResource.GetUUID())
-	suite.Require().NoError(err)
-
+func (suite *FilesystemStorageTestSuite) TestUploadDir_SourceIsEmpty() {
 	// Folder: ./testdata/example_empty is empty
 	suite.Require().NoError(os.MkdirAll("./testdata/example_empty", os.ModePerm))
-	err = suite.storage.Upload(context.Background(), nonExistentResource, "./testdata/example_empty")
+	err := suite.storage.UploadDir(context.Background(), nonExistentResource, "./testdata/example_empty")
 	suite.Assert().Error(err)
 	suite.Assert().ErrorIs(err, ErrSourceFolderEmpty)
 }
 
-func (suite *FilesystemStorageTestSuite) TestUpload_Success() {
-	// We create the resource in the storage first
-	err := suite.storage.Create(context.Background(), nonExistentResource.GetOwner(), nonExistentResource.GetKind(), nonExistentResource.GetUUID())
-	suite.Require().NoError(err)
-
+func (suite *FilesystemStorageTestSuite) TestUploadDir_Success() {
 	// Let's upload the assets from ./testdata/example
-	err = suite.storage.Upload(context.Background(), nonExistentResource, "./testdata/example")
+	err := suite.storage.UploadDir(context.Background(), nonExistentResource, "./testdata/example")
 	suite.Assert().NoError(err)
 }

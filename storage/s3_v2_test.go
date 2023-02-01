@@ -10,12 +10,8 @@ import (
 	"github.com/johannesboyne/gofakes3"
 	"github.com/johannesboyne/gofakes3/backend/s3mem"
 	"github.com/stretchr/testify/suite"
-	"io"
-	"io/fs"
 	"net/http"
 	"net/http/httptest"
-	"os"
-	"path/filepath"
 	"testing"
 )
 
@@ -31,7 +27,7 @@ type s3v2StorageTestSuite struct {
 	fsStorage  Storage
 }
 
-func TestSuiteS3Storage(t *testing.T) {
+func TestSuiteS3v2Storage(t *testing.T) {
 	suite.Run(t, new(s3v2StorageTestSuite))
 }
 
@@ -55,13 +51,13 @@ func (suite *s3v2StorageTestSuite) setupTestData() {
 	_, err := suite.client.CreateBucket(ctx, &s3api.CreateBucketInput{Bucket: aws.String(suite.bucketName)})
 	suite.Require().NoError(err)
 
-	suite.Require().NoError(suite.walkDirWithS3Func(ctx, suite.uploadFile))
+	suite.Require().NoError(WalkDir(ctx, basePath, UploadFileS3(suite.client, suite.bucketName, nil)))
 }
 
 func (suite *s3v2StorageTestSuite) TearDownSuite() {
 	ctx := context.Background()
 
-	suite.Require().NoError(suite.walkDirWithS3Func(ctx, suite.deleteFile))
+	suite.Require().NoError(WalkDir(ctx, basePath, DeleteFileS3(suite.client, suite.bucketName, nil)))
 
 	_, err := suite.client.DeleteBucket(ctx, &s3api.DeleteBucketInput{Bucket: aws.String(suite.bucketName)})
 	suite.Require().NoError(err)
@@ -85,48 +81,6 @@ func (suite *s3v2StorageTestSuite) setupS3Config() aws.Config {
 	)
 	suite.Require().NoError(err)
 	return cfg
-}
-
-func (suite *s3v2StorageTestSuite) walkDirWithS3Func(ctx context.Context, fn func(ctx context.Context, bucket, path string, body io.Reader) error) error {
-	return filepath.WalkDir(basePath, func(path string, d fs.DirEntry, err error) error {
-		if err != nil {
-			return err
-		}
-		if d.IsDir() {
-			return nil
-		}
-		key, err := filepath.Rel(basePath, path)
-		if err != nil {
-			return err
-		}
-		f, err := os.Open(path)
-		if err != nil {
-			return err
-		}
-		defer f.Close()
-		err = fn(ctx, suite.bucketName, key, f)
-		if err != nil {
-			return err
-		}
-		return nil
-	})
-}
-
-func (suite *s3v2StorageTestSuite) uploadFile(ctx context.Context, bucket string, path string, body io.Reader) error {
-	_, err := suite.client.PutObject(ctx, &s3api.PutObjectInput{
-		Bucket: aws.String(bucket),
-		Key:    aws.String(path),
-		Body:   body,
-	})
-	return err
-}
-
-func (suite *s3v2StorageTestSuite) deleteFile(ctx context.Context, bucket string, path string, _ io.Reader) error {
-	_, err := suite.client.DeleteObject(ctx, &s3api.DeleteObjectInput{
-		Bucket: aws.String(bucket),
-		Key:    aws.String(path),
-	})
-	return err
 }
 
 func (suite *s3v2StorageTestSuite) TestGetFile_InvalidResource() {
@@ -202,4 +156,53 @@ func (suite *s3v2StorageTestSuite) TestDownload_Success() {
 	suite.Assert().NoError(err)
 	suite.Assert().NotEmpty(url)
 	suite.Assert().Contains(url, ".zip")
+}
+
+func (suite *s3v2StorageTestSuite) TestUploadDir_InvalidResource() {
+	r := invalidResource
+	ctx := context.Background()
+	err := suite.storage.UploadDir(ctx, r, "./testdata/example")
+	suite.Assert().Error(err)
+	suite.Assert().ErrorIs(err, ErrResourceInvalidFormat)
+}
+
+func (suite *s3v2StorageTestSuite) TestUploadDir_SourceNotFound() {
+	r := nonExistentResource
+	ctx := context.Background()
+
+	err := suite.storage.UploadDir(ctx, r, "./testdata/example1234")
+	suite.Assert().Error(err)
+	suite.Assert().ErrorIs(err, ErrSourceFolderNotFound)
+}
+
+func (suite *s3v2StorageTestSuite) TestUploadDir_SourceIsEmpty() {
+	r := nonExistentResource
+	ctx := context.Background()
+
+	err := suite.storage.UploadDir(ctx, r, "./testdata/example_empty")
+	suite.Assert().Error(err)
+	suite.Assert().ErrorIs(err, ErrSourceFolderEmpty)
+}
+
+func (suite *s3v2StorageTestSuite) TestUploadDir_NotFile() {
+	r := nonExistentResource
+	ctx := context.Background()
+
+	err := suite.storage.UploadDir(ctx, r, "./testdata/example/meshes/turtle.dae")
+	suite.Assert().Error(err)
+	suite.Assert().ErrorIs(err, ErrSourceFile)
+}
+
+func (suite *s3v2StorageTestSuite) TestUploadDir_Success() {
+	r := nonExistentResource
+	ctx := context.Background()
+
+	err := suite.storage.UploadDir(ctx, r, "./testdata/example")
+	suite.Assert().NoError(err)
+
+	b, err := suite.storage.GetFile(ctx, r, "meshes/turtle.dae")
+	suite.Require().NoError(err)
+	suite.Assert().NotEmpty(b)
+
+	suite.Require().NoError(WalkDir(ctx, "./testdata/example", DeleteFileS3(suite.client, suite.bucketName, nonExistentResource)))
 }

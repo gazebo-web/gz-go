@@ -11,24 +11,27 @@ import (
 )
 
 // fsStorage contains the implementation of a storage manager for resources using the host filesystem.
-// It can be used with something like AWS EFS storage in EC2 instances.
+// It can be used with AWS EFS storage in EC2 instances.
 type fsStorage struct {
 	basePath string
 }
 
-func (s *fsStorage) Upload(ctx context.Context, resource Resource, src string) error {
+func (s *fsStorage) UploadDir(ctx context.Context, resource Resource, src string) error {
 	if err := validateResource(resource); err != nil {
 		return err
 	}
 	var info os.FileInfo
 	var err error
 	if info, err = os.Stat(src); errors.Is(err, os.ErrNotExist) {
-		return errors.Wrap(ErrSourceFolderNotFound, err.Error())
+		err = s.create(ctx, resource.GetOwner(), resource.GetKind(), resource.GetUUID())
+		if err != nil {
+			return err
+		}
 	}
 	if !info.IsDir() {
 		return ErrSourceFile
 	}
-	empty, err := gz.IsFolderEmpty(src)
+	empty, err := gz.IsDirEmpty(src)
 	if err != nil {
 		return errors.Wrap(ErrSourceFolderEmpty, err.Error())
 	}
@@ -44,7 +47,7 @@ func (s *fsStorage) Upload(ctx context.Context, resource Resource, src string) e
 	return nil
 }
 
-func (s *fsStorage) Create(ctx context.Context, owner string, kind Kind, uuid string) error {
+func (s *fsStorage) create(ctx context.Context, owner string, kind Kind, uuid string) error {
 	if err := validateOwner(owner); err != nil {
 		return err
 	}
@@ -83,7 +86,7 @@ func (s *fsStorage) Download(ctx context.Context, resource Resource) (string, er
 	}
 
 	if info.IsDir() {
-		empty, err := gz.IsFolderEmpty(path)
+		empty, err := gz.IsDirEmpty(path)
 		if err != nil {
 			return "", errors.Wrap(ErrEmptyResource, err.Error())
 		}

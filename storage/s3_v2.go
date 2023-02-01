@@ -2,9 +2,14 @@ package storage
 
 import (
 	"context"
+	"fmt"
 	"github.com/aws/aws-sdk-go-v2/aws"
 	s3api "github.com/aws/aws-sdk-go-v2/service/s3"
+	"github.com/gazebo-web/gz-go/v7"
+	"github.com/pkg/errors"
 	"io"
+	"io/fs"
+	"os"
 	"time"
 )
 
@@ -21,17 +26,38 @@ type s3v2 struct {
 	duration time.Duration
 }
 
-// Upload the assets found in source to S3.
-func (s *s3v2) Upload(ctx context.Context, resource Resource, source string) error {
-	//TODO implement me
-	panic("implement me")
-}
+// UploadDir the assets found in source to S3.
+func (s *s3v2) UploadDir(ctx context.Context, resource Resource, src string) error {
+	err := validateResource(resource)
+	if err != nil {
+		return err
+	}
 
-// Create prepares the bucket to hold a resource identified by UUID that will be uploaded
-// by owner and it will of the given kind.
-func (s *s3v2) Create(ctx context.Context, owner string, kind Kind, uuid string) error {
-	//TODO implement me
-	panic("implement me")
+	// Check src exists locally
+	var info fs.FileInfo
+	if info, err = os.Stat(src); errors.Is(err, os.ErrNotExist) {
+		return errors.Wrap(ErrSourceFolderNotFound, err.Error())
+	}
+
+	// Check it's a directory
+	if !info.IsDir() {
+		return ErrSourceFile
+	}
+
+	// Check it's not empty
+	empty, err := gz.IsDirEmpty(src)
+	if err != nil {
+		return errors.Wrap(ErrSourceFolderEmpty, err.Error())
+	}
+	if empty {
+		return ErrSourceFolderEmpty
+	}
+
+	err = WalkDir(ctx, src, UploadFileS3(s.client, s.bucket, resource))
+	if err != nil {
+		return fmt.Errorf("failed to upload files in directory: %s, error: %w", src, err)
+	}
+	return nil
 }
 
 // Download downloads a zip version of the given resource from S3.
@@ -40,9 +66,10 @@ func (s *s3v2) Download(ctx context.Context, resource Resource) (string, error) 
 		return "", err
 	}
 
+	path := getZipLocation("", resource)
 	_, err := s.client.HeadObject(ctx, &s3api.HeadObjectInput{
 		Bucket: aws.String(s.bucket),
-		Key:    aws.String(getZipLocation("", resource)),
+		Key:    aws.String(path),
 	})
 	if err != nil {
 		return "", err
@@ -50,7 +77,7 @@ func (s *s3v2) Download(ctx context.Context, resource Resource) (string, error) 
 
 	out, err := s.presign.PresignGetObject(ctx, &s3api.GetObjectInput{
 		Bucket: aws.String(s.bucket),
-		Key:    aws.String(getZipLocation("", resource)),
+		Key:    aws.String(path),
 	}, s3api.WithPresignExpires(s.duration))
 	if err != nil {
 		return "", err
@@ -87,5 +114,32 @@ func NewS3v2(client *s3api.Client, bucket string) Storage {
 		presign:  s3api.NewPresignClient(client),
 		bucket:   bucket,
 		duration: 60 * time.Minute,
+	}
+}
+
+func UploadFileS3(client *s3api.Client, bucket string, resource Resource) WalkDirFunc {
+	return func(ctx context.Context, path string, body io.Reader) error {
+		if resource != nil {
+			path = getLocation("", resource, path)
+		}
+		_, err := client.PutObject(ctx, &s3api.PutObjectInput{
+			Bucket: aws.String(bucket),
+			Key:    aws.String(path),
+			Body:   body,
+		})
+		return err
+	}
+}
+
+func DeleteFileS3(client *s3api.Client, bucket string, resource Resource) WalkDirFunc {
+	return func(ctx context.Context, path string, body io.Reader) error {
+		if resource != nil {
+			path = getLocation("", resource, path)
+		}
+		_, err := client.DeleteObject(ctx, &s3api.DeleteObjectInput{
+			Bucket: aws.String(bucket),
+			Key:    aws.String(path),
+		})
+		return err
 	}
 }

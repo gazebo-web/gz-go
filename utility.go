@@ -248,7 +248,7 @@ func IsError(err error, target error) bool {
 	return strings.Contains(err.Error(), target.Error())
 }
 
-func IsFolderEmpty(path string) (bool, error) {
+func IsDirEmpty(path string) (bool, error) {
 	entries, err := os.ReadDir(path)
 	if err != nil {
 		return true, err
