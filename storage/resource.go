@@ -16,6 +16,7 @@ var (
 	ErrSourceFolderNotFound  = errors.New("source folder not found")
 	ErrSourceFolderEmpty     = errors.New("source folder is empty")
 	ErrSourceFile            = errors.New("source is a file, should be a folder")
+	ErrFileNil               = errors.New("no file provided")
 )
 
 // Kind describes the subfolder where different types of resources will be uploaded for a single

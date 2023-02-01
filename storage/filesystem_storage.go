@@ -16,6 +16,11 @@ type fsStorage struct {
 	basePath string
 }
 
+func (s *fsStorage) UploadZip(ctx context.Context, resource Resource, file *os.File) error {
+	//TODO implement me
+	panic("implement me")
+}
+
 func (s *fsStorage) UploadDir(ctx context.Context, resource Resource, src string) error {
 	if err := validateResource(resource); err != nil {
 		return err

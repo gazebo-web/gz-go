@@ -1,6 +1,9 @@
 package storage
 
-import "context"
+import (
+	"context"
+	"os"
+)
 
 // Storage holds the methods to interact with a Cloud provider storage.
 type Storage interface {
@@ -10,4 +13,6 @@ type Storage interface {
 	Download(ctx context.Context, resource Resource) (string, error)
 	// UploadDir uploads assets located in the given source folder and placed them into the given resource.
 	UploadDir(ctx context.Context, resource Resource, source string) error
+	// UploadZip uploads a compressed set of assets of the given resource.
+	UploadZip(ctx context.Context, resource Resource, file *os.File) error
 }

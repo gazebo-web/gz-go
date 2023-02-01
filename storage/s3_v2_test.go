@@ -12,6 +12,7 @@ import (
 	"github.com/stretchr/testify/suite"
 	"net/http"
 	"net/http/httptest"
+	"os"
 	"testing"
 )
 
@@ -58,6 +59,8 @@ func (suite *s3v2StorageTestSuite) TearDownSuite() {
 	ctx := context.Background()
 
 	suite.Require().NoError(WalkDir(ctx, basePath, DeleteFileS3(suite.client, suite.bucketName, nil)))
+
+	_ = os.Remove(getZipLocation(basePath, compressibleResource))
 
 	_, err := suite.client.DeleteBucket(ctx, &s3api.DeleteBucketInput{Bucket: aws.String(suite.bucketName)})
 	suite.Require().NoError(err)
@@ -184,7 +187,7 @@ func (suite *s3v2StorageTestSuite) TestUploadDir_SourceIsEmpty() {
 	suite.Assert().ErrorIs(err, ErrSourceFolderEmpty)
 }
 
-func (suite *s3v2StorageTestSuite) TestUploadDir_NotFile() {
+func (suite *s3v2StorageTestSuite) TestUploadDir_SourceIsAFile() {
 	r := nonExistentResource
 	ctx := context.Background()
 
@@ -205,4 +208,46 @@ func (suite *s3v2StorageTestSuite) TestUploadDir_Success() {
 	suite.Assert().NotEmpty(b)
 
 	suite.Require().NoError(WalkDir(ctx, "./testdata/example", DeleteFileS3(suite.client, suite.bucketName, nonExistentResource)))
+}
+
+func (suite *s3v2StorageTestSuite) TestUploadZip_InvalidResource() {
+	r := invalidResource
+	err := suite.storage.UploadZip(context.Background(), r, nil)
+	suite.Assert().Error(err)
+	suite.Assert().ErrorIs(err, ErrResourceInvalidFormat)
+}
+
+func (suite *s3v2StorageTestSuite) TestUploadZip_FileIsNil() {
+	r := compressibleResource
+	err := suite.storage.UploadZip(context.Background(), r, nil)
+	suite.Assert().Error(err)
+	suite.Assert().ErrorIs(err, ErrFileNil)
+}
+
+func (suite *s3v2StorageTestSuite) TestUploadZip_Success() {
+	ctx := context.Background()
+	r := compressibleResource
+	// Since the zip file wasn't created yet, it should fail to download the resource.
+	_, err := suite.storage.Download(ctx, r)
+	suite.Require().Error(err)
+
+	// Generate the zip file locally by downloading through the local storage implementation:
+	// The filesystem implementation produces zip files automatically, this is not the case in cloud storages
+	// as files need to be uploaded individually, and can't perform zip operations in the cloud automatically.
+	path, err := suite.fsStorage.Download(ctx, compressibleResource)
+	suite.Require().NoError(err)
+	suite.Require().NotEmpty(path)
+
+	// Open the file in order to run UploadZip with the file handler
+	f, err := os.Open(path)
+	suite.Require().NoError(err)
+
+	// Test
+	err = suite.storage.UploadZip(ctx, r, f)
+	suite.Assert().NoError(err)
+
+	// The zip file should not be available in the cloud
+	link, err := suite.storage.Download(ctx, r)
+	suite.Require().NoError(err)
+	suite.Require().Contains(link, "2.zip")
 }

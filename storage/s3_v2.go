@@ -26,6 +26,24 @@ type s3v2 struct {
 	duration time.Duration
 }
 
+// UploadZip as part of the resource archive found under the .zips folder inside the owner's directory.
+func (s *s3v2) UploadZip(ctx context.Context, resource Resource, file *os.File) error {
+	err := validateResource(resource)
+	if err != nil {
+		return err
+	}
+	if file == nil {
+		return ErrFileNil
+	}
+	path := getZipLocation("", resource)
+	uploader := UploadFileS3(s.client, s.bucket, nil)
+	err = uploader(ctx, path, file)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
 // UploadDir the assets found in source to S3.
 func (s *s3v2) UploadDir(ctx context.Context, resource Resource, src string) error {
 	err := validateResource(resource)
