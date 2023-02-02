@@ -22,8 +22,12 @@ type Storage interface {
 	UploadZip(ctx context.Context, resource Resource, file *os.File) error
 }
 
+// ReadFileFunc is used to provide integration with cloud providers while using the same business logic
+// when reading the content of a file.
 type ReadFileFunc func(ctx context.Context, resource Resource, path string) (io.ReadCloser, error)
 
+// ReadFile reads the content of the file located in path from the given resource.
+// The integration the specific storage providers is provided by the ReadFileFunc.
 func ReadFile(ctx context.Context, resource Resource, path string, fn ReadFileFunc) ([]byte, error) {
 	if err := validateResource(resource); err != nil {
 		return nil, err
