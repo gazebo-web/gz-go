@@ -1,13 +1,10 @@
 package storage
 
 import (
-	"archive/zip"
 	"context"
 	"github.com/gazebo-web/gz-go/v7"
 	"github.com/pkg/errors"
-	"io"
 	"os"
-	"path/filepath"
 )
 
 // fsStorage contains the implementation of a storage manager for resources using the host filesystem.
@@ -127,66 +124,12 @@ func (s *fsStorage) GetFile(ctx context.Context, resource Resource, path string)
 // If the file was already created, it returns a cached file.
 func (s *fsStorage) zip(ctx context.Context, resource Resource) (string, error) {
 	target := getZipLocation(s.basePath, resource)
-	if _, err := os.Stat(target); errors.Is(err, os.ErrExist) {
-		return target, nil
-	}
-
-	f, err := os.Create(target)
-	if err != nil {
-		return "", err
-	}
-	defer f.Close()
-
-	w := zip.NewWriter(f)
-	defer w.Close()
-
 	source := getLocation(s.basePath, resource, "")
-	err = filepath.Walk(source, func(path string, info os.FileInfo, err error) error {
-		if err != nil {
-			return err
-		}
-
-		// Create a local file header
-		header, err := zip.FileInfoHeader(info)
-		if err != nil {
-			return err
-		}
-
-		// Set compression
-		header.Method = zip.Deflate
-
-		// Set relative path of a file as the header name
-		header.Name, err = filepath.Rel(filepath.Dir(source), path)
-		if err != nil {
-			return err
-		}
-		if info.IsDir() {
-			header.Name += "/"
-		}
-
-		// Create writer for the file header and save content of the file
-		headerWriter, err := w.CreateHeader(header)
-		if err != nil {
-			return err
-		}
-
-		if info.IsDir() {
-			return nil
-		}
-
-		f, err := os.Open(path)
-		if err != nil {
-			return err
-		}
-		defer f.Close()
-
-		_, err = io.Copy(headerWriter, f)
-		return err
-	})
+	f, err := gz.Zip(target, source)
+	defer f.Close()
 	if err != nil {
 		return "", err
 	}
-
 	return target, nil
 }
 

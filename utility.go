@@ -319,3 +319,69 @@ func CopyFile(dst string, src string) error {
 	}
 	return nil
 }
+
+// Zip the src folder into dst. It leaves the closing responsibility of the os.File to the consumer of this function.
+func Zip(dst, src string) (*os.File, error) {
+	if _, err := os.Stat(dst); errors.Is(err, os.ErrExist) {
+		f, err := os.Open(dst)
+		if err != nil {
+			return nil, err
+		}
+		return f, nil
+	}
+	zipFile, err := os.Create(dst)
+	if err != nil {
+		return nil, err
+	}
+
+	w := zip.NewWriter(zipFile)
+	defer w.Close()
+
+	err = filepath.Walk(src, func(path string, info os.FileInfo, err error) error {
+		if err != nil {
+			return err
+		}
+
+		// Create a local file header
+		header, err := zip.FileInfoHeader(info)
+		if err != nil {
+			return err
+		}
+
+		// Set compression
+		header.Method = zip.Deflate
+
+		// Set relative path of a file as the header name
+		header.Name, err = filepath.Rel(filepath.Dir(src), path)
+		if err != nil {
+			return err
+		}
+		if info.IsDir() {
+			header.Name += "/"
+		}
+
+		// Create writer for the file header and save content of the file
+		headerWriter, err := w.CreateHeader(header)
+		if err != nil {
+			return err
+		}
+
+		if info.IsDir() {
+			return nil
+		}
+
+		f, err := os.Open(path)
+		if err != nil {
+			return err
+		}
+		defer f.Close()
+
+		_, err = io.Copy(headerWriter, f)
+		return err
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	return zipFile, nil
+}
