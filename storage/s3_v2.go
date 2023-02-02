@@ -2,13 +2,9 @@ package storage
 
 import (
 	"context"
-	"fmt"
 	"github.com/aws/aws-sdk-go-v2/aws"
 	s3api "github.com/aws/aws-sdk-go-v2/service/s3"
-	"github.com/gazebo-web/gz-go/v7"
-	"github.com/pkg/errors"
 	"io"
-	"io/fs"
 	"os"
 	"time"
 )
@@ -28,54 +24,12 @@ type s3v2 struct {
 
 // UploadZip as part of the resource archive found under the .zips folder inside the owner's directory.
 func (s *s3v2) UploadZip(ctx context.Context, resource Resource, file *os.File) error {
-	err := validateResource(resource)
-	if err != nil {
-		return err
-	}
-	if file == nil {
-		return ErrFileNil
-	}
-	path := getZipLocation("", resource)
-	uploader := UploadFileS3v2(s.client, s.bucket, nil)
-	err = uploader(ctx, path, file)
-	if err != nil {
-		return err
-	}
-	return nil
+	return UploadZip(ctx, resource, file, UploadFileS3v2(s.client, s.bucket, nil))
 }
 
 // UploadDir the assets found in source to S3.
 func (s *s3v2) UploadDir(ctx context.Context, resource Resource, src string) error {
-	err := validateResource(resource)
-	if err != nil {
-		return err
-	}
-
-	// Check src exists locally
-	var info fs.FileInfo
-	if info, err = os.Stat(src); errors.Is(err, os.ErrNotExist) {
-		return errors.Wrap(ErrSourceFolderNotFound, err.Error())
-	}
-
-	// Check it's a directory
-	if !info.IsDir() {
-		return ErrSourceFile
-	}
-
-	// Check it's not empty
-	empty, err := gz.IsDirEmpty(src)
-	if err != nil {
-		return errors.Wrap(ErrSourceFolderEmpty, err.Error())
-	}
-	if empty {
-		return ErrSourceFolderEmpty
-	}
-
-	err = WalkDir(ctx, src, UploadFileS3v2(s.client, s.bucket, resource))
-	if err != nil {
-		return fmt.Errorf("failed to upload files in directory: %s, error: %w", src, err)
-	}
-	return nil
+	return UploadDir(ctx, resource, src, UploadFileS3v2(s.client, s.bucket, resource))
 }
 
 // Download downloads a zip version of the given resource from S3.
