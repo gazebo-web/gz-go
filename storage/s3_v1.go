@@ -10,6 +10,12 @@ import (
 	"time"
 )
 
+// s3v1 implements Storage using the Amazon Web Services - Simple Storage Service (S3).
+// It uses the first version of the SDK.
+//
+//	Reference: https://aws.amazon.com/s3/
+//	API: https://docs.aws.amazon.com/AmazonS3/latest/API/Welcome.html
+//	SDK: https://github.com/aws/aws-sdk-go
 type s3v1 struct {
 	client   *s3api.S3
 	uploader *s3manager.Uploader
@@ -17,10 +23,12 @@ type s3v1 struct {
 	duration time.Duration
 }
 
+// GetFile reads the content of a file located in path from the given Resource.
 func (s *s3v1) GetFile(ctx context.Context, resource Resource, path string) ([]byte, error) {
 	return ReadFile(ctx, resource, path, ReadFileS3v1(s.client, s.bucket))
 }
 
+// Download returns the URL of zip file that contains all the content from the given Resource.
 func (s *s3v1) Download(ctx context.Context, resource Resource) (string, error) {
 	if err := validateResource(resource); err != nil {
 		return "", err
@@ -46,14 +54,18 @@ func (s *s3v1) Download(ctx context.Context, resource Resource) (string, error) 
 	return url, nil
 }
 
+// UploadDir uploads all the files found in src to S3.
 func (s *s3v1) UploadDir(ctx context.Context, resource Resource, src string) error {
 	return UploadDir(ctx, resource, src, UploadFileS3v1(s.uploader, s.bucket, resource))
 }
 
+// UploadZip uploads a zip file of the given resource to S3. It should be called before any attempts to Download
+// the zip file of the given Resource.
 func (s *s3v1) UploadZip(ctx context.Context, resource Resource, file *os.File) error {
 	return UploadZip(ctx, resource, file, UploadFileS3v1(s.uploader, s.bucket, nil))
 }
 
+// NewS3v1 initializes a new implementation of Storage using the AWS S3 service.
 func NewS3v1(client *s3api.S3, uploader *s3manager.Uploader, bucket string) Storage {
 	return &s3v1{
 		client:   client,
@@ -63,6 +75,7 @@ func NewS3v1(client *s3api.S3, uploader *s3manager.Uploader, bucket string) Stor
 	}
 }
 
+// ReadFileS3v1 generates a function that contains the interaction with S3 to read the content of a file.
 func ReadFileS3v1(client *s3api.S3, bucket string) ReadFileFunc {
 	return func(ctx context.Context, resource Resource, path string) (io.ReadCloser, error) {
 		out, err := client.GetObject(&s3api.GetObjectInput{
@@ -76,6 +89,9 @@ func ReadFileS3v1(client *s3api.S3, bucket string) ReadFileFunc {
 	}
 }
 
+// UploadFileS3v1 generates a function that allows to upload a single file in a path.
+// If Resource is nil, it will use the given path as-is, otherwise it will use the given path as a relative path
+// to the given Resource.
 func UploadFileS3v1(uploader *s3manager.Uploader, bucket string, resource Resource) WalkDirFunc {
 	return func(ctx context.Context, path string, body io.Reader) error {
 		if resource != nil {
@@ -90,6 +106,9 @@ func UploadFileS3v1(uploader *s3manager.Uploader, bucket string, resource Resour
 	}
 }
 
+// DeleteFileS3v1 generates a function that allows to delete a single file in a path.
+// If Resource is nil, it will use the given path as-is, otherwise it will use the given path as a relative path
+// to the given Resource.
 func DeleteFileS3v1(client *s3api.S3, bucket string, resource Resource) WalkDirFunc {
 	return func(ctx context.Context, path string, _ io.Reader) error {
 		if resource != nil {

@@ -73,6 +73,7 @@ func NewS3v2(client *s3api.Client, bucket string) Storage {
 	}
 }
 
+// ReadFileS3v2 generates a function that contains the interaction with S3 to read the content of a file.
 func ReadFileS3v2(client *s3api.Client, bucket string) ReadFileFunc {
 	return func(ctx context.Context, resource Resource, path string) (io.ReadCloser, error) {
 		out, err := client.GetObject(ctx, &s3api.GetObjectInput{
@@ -86,6 +87,9 @@ func ReadFileS3v2(client *s3api.Client, bucket string) ReadFileFunc {
 	}
 }
 
+// UploadFileS3v2 generates a function that allows to upload a single file in a path.
+// If Resource is nil, it will use the given path as-is, otherwise it will use the given path as a relative path
+// to the given Resource.
 func UploadFileS3v2(client *s3api.Client, bucket string, resource Resource) WalkDirFunc {
 	return func(ctx context.Context, path string, body io.Reader) error {
 		if resource != nil {
@@ -100,8 +104,11 @@ func UploadFileS3v2(client *s3api.Client, bucket string, resource Resource) Walk
 	}
 }
 
+// DeleteFileS3v2 generates a function that allows to delete a single file in a path.
+// If Resource is nil, it will use the given path as-is, otherwise it will use the given path as a relative path
+// to the given Resource.
 func DeleteFileS3v2(client *s3api.Client, bucket string, resource Resource) WalkDirFunc {
-	return func(ctx context.Context, path string, body io.Reader) error {
+	return func(ctx context.Context, path string, _ io.Reader) error {
 		if resource != nil {
 			path = getLocation("", resource, path)
 		}
