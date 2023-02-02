@@ -37,6 +37,13 @@ var (
 		owner:   "",
 		version: 0,
 	}
+
+	validResource = &testResource{
+		uuid:    validUUID,
+		kind:    KindModels,
+		owner:   owner,
+		version: version,
+	}
 )
 
 type FilesystemStorageTestSuite struct {
@@ -131,12 +138,7 @@ func (suite *FilesystemStorageTestSuite) TestGetFile_ResourceInvalidVersion() {
 }
 
 func (suite *FilesystemStorageTestSuite) TestGetFile_Exists() {
-	r := &testResource{
-		uuid:    validUUID,
-		kind:    KindModels,
-		owner:   owner,
-		version: version,
-	}
+	r := validResource
 
 	var err error
 	_, err = suite.storage.GetFile(context.Background(), r, "/model.sdf")
@@ -145,12 +147,7 @@ func (suite *FilesystemStorageTestSuite) TestGetFile_Exists() {
 
 func (suite *FilesystemStorageTestSuite) TestGetFile_ContentMatches() {
 
-	r := &testResource{
-		uuid:    validUUID,
-		kind:    KindModels,
-		owner:   owner,
-		version: version,
-	}
+	r := validResource
 
 	var err error
 	expected, err := os.ReadFile("./testdata/OpenRobotics/models/e6af5323-db4d-4db3-a402-a8992d6c8d99/1/model.sdf")
@@ -166,12 +163,7 @@ func (suite *FilesystemStorageTestSuite) TestGetFile_ContentMatches() {
 }
 
 func (suite *FilesystemStorageTestSuite) TestGetFile_ContentMatchesSubFolder() {
-	r := &testResource{
-		uuid:    validUUID,
-		kind:    KindModels,
-		owner:   owner,
-		version: version,
-	}
+	r := validResource
 
 	var err error
 	expected, err := os.ReadFile("./testdata/OpenRobotics/models/e6af5323-db4d-4db3-a402-a8992d6c8d99/1/meshes/turtle.dae")

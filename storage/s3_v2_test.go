@@ -96,12 +96,7 @@ func (suite *s3v2StorageTestSuite) TestGetFile_InvalidResource() {
 }
 
 func (suite *s3v2StorageTestSuite) TestGetFile_NotFound() {
-	r := &testResource{
-		uuid:    validUUID,
-		kind:    KindModels,
-		owner:   owner,
-		version: version,
-	}
+	r := validResource
 	ctx := context.Background()
 	content, err := suite.storage.GetFile(ctx, r, "model123.sdf")
 	suite.Assert().Error(err)
@@ -109,12 +104,7 @@ func (suite *s3v2StorageTestSuite) TestGetFile_NotFound() {
 }
 
 func (suite *s3v2StorageTestSuite) TestGetFile_Success() {
-	r := &testResource{
-		uuid:    validUUID,
-		kind:    KindModels,
-		owner:   owner,
-		version: version,
-	}
+	r := validResource
 	ctx := context.Background()
 	content, err := suite.storage.GetFile(ctx, r, "model.sdf")
 	suite.Assert().NoError(err)
@@ -148,12 +138,7 @@ func (suite *s3v2StorageTestSuite) TestDownload_NotFound() {
 }
 
 func (suite *s3v2StorageTestSuite) TestDownload_Success() {
-	r := &testResource{
-		uuid:    validUUID,
-		kind:    KindModels,
-		owner:   owner,
-		version: version,
-	}
+	r := validResource
 	ctx := context.Background()
 	url, err := suite.storage.Download(ctx, r)
 	suite.Assert().NoError(err)
