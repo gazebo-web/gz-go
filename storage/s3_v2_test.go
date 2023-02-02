@@ -52,13 +52,13 @@ func (suite *s3v2StorageTestSuite) setupTestData() {
 	_, err := suite.client.CreateBucket(ctx, &s3api.CreateBucketInput{Bucket: aws.String(suite.bucketName)})
 	suite.Require().NoError(err)
 
-	suite.Require().NoError(WalkDir(ctx, basePath, UploadFileS3(suite.client, suite.bucketName, nil)))
+	suite.Require().NoError(WalkDir(ctx, basePath, UploadFileS3v2(suite.client, suite.bucketName, nil)))
 }
 
 func (suite *s3v2StorageTestSuite) TearDownSuite() {
 	ctx := context.Background()
 
-	suite.Require().NoError(WalkDir(ctx, basePath, DeleteFileS3(suite.client, suite.bucketName, nil)))
+	suite.Require().NoError(WalkDir(ctx, basePath, DeleteFileS3v2(suite.client, suite.bucketName, nil)))
 
 	_ = os.Remove(getZipLocation(basePath, compressibleResource))
 
@@ -207,7 +207,7 @@ func (suite *s3v2StorageTestSuite) TestUploadDir_Success() {
 	suite.Require().NoError(err)
 	suite.Assert().NotEmpty(b)
 
-	suite.Require().NoError(WalkDir(ctx, "./testdata/example", DeleteFileS3(suite.client, suite.bucketName, nonExistentResource)))
+	suite.Require().NoError(WalkDir(ctx, "./testdata/example", DeleteFileS3v2(suite.client, suite.bucketName, nonExistentResource)))
 }
 
 func (suite *s3v2StorageTestSuite) TestUploadZip_InvalidResource() {

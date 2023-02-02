@@ -36,7 +36,7 @@ func (s *s3v2) UploadZip(ctx context.Context, resource Resource, file *os.File) 
 		return ErrFileNil
 	}
 	path := getZipLocation("", resource)
-	uploader := UploadFileS3(s.client, s.bucket, nil)
+	uploader := UploadFileS3v2(s.client, s.bucket, nil)
 	err = uploader(ctx, path, file)
 	if err != nil {
 		return err
@@ -71,7 +71,7 @@ func (s *s3v2) UploadDir(ctx context.Context, resource Resource, src string) err
 		return ErrSourceFolderEmpty
 	}
 
-	err = WalkDir(ctx, src, UploadFileS3(s.client, s.bucket, resource))
+	err = WalkDir(ctx, src, UploadFileS3v2(s.client, s.bucket, resource))
 	if err != nil {
 		return fmt.Errorf("failed to upload files in directory: %s, error: %w", src, err)
 	}
@@ -135,7 +135,7 @@ func NewS3v2(client *s3api.Client, bucket string) Storage {
 	}
 }
 
-func UploadFileS3(client *s3api.Client, bucket string, resource Resource) WalkDirFunc {
+func UploadFileS3v2(client *s3api.Client, bucket string, resource Resource) WalkDirFunc {
 	return func(ctx context.Context, path string, body io.Reader) error {
 		if resource != nil {
 			path = getLocation("", resource, path)
@@ -149,7 +149,7 @@ func UploadFileS3(client *s3api.Client, bucket string, resource Resource) WalkDi
 	}
 }
 
-func DeleteFileS3(client *s3api.Client, bucket string, resource Resource) WalkDirFunc {
+func DeleteFileS3v2(client *s3api.Client, bucket string, resource Resource) WalkDirFunc {
 	return func(ctx context.Context, path string, body io.Reader) error {
 		if resource != nil {
 			path = getLocation("", resource, path)
