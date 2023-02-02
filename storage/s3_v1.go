@@ -18,23 +18,7 @@ type s3v1 struct {
 }
 
 func (s *s3v1) GetFile(ctx context.Context, resource Resource, path string) ([]byte, error) {
-	if err := validateResource(resource); err != nil {
-		return nil, err
-	}
-
-	out, err := s.client.GetObject(&s3api.GetObjectInput{
-		Bucket: aws.String(s.bucket),
-		Key:    aws.String(getLocation("", resource, path)),
-	})
-	if err != nil {
-		return nil, err
-	}
-	defer out.Body.Close()
-	b, err := io.ReadAll(out.Body)
-	if err != nil {
-		return nil, err
-	}
-	return b, nil
+	return ReadFile(ctx, resource, path, ReadFileS3v1(s.client, s.bucket))
 }
 
 func (s *s3v1) Download(ctx context.Context, resource Resource) (string, error) {
@@ -76,6 +60,19 @@ func NewS3v1(client *s3api.S3, uploader *s3manager.Uploader, bucket string) Stor
 		uploader: uploader,
 		bucket:   bucket,
 		duration: 60 * time.Minute,
+	}
+}
+
+func ReadFileS3v1(client *s3api.S3, bucket string) ReadFileFunc {
+	return func(ctx context.Context, resource Resource, path string) (io.ReadCloser, error) {
+		out, err := client.GetObject(&s3api.GetObjectInput{
+			Bucket: aws.String(bucket),
+			Key:    aws.String(getLocation("", resource, path)),
+		})
+		if err != nil {
+			return nil, err
+		}
+		return out.Body, nil
 	}
 }
 

@@ -60,23 +60,7 @@ func (s *s3v2) Download(ctx context.Context, resource Resource) (string, error) 
 
 // GetFile returns the content of file from a given path.
 func (s *s3v2) GetFile(ctx context.Context, resource Resource, path string) ([]byte, error) {
-	if err := validateResource(resource); err != nil {
-		return nil, err
-	}
-
-	out, err := s.client.GetObject(ctx, &s3api.GetObjectInput{
-		Bucket: aws.String(s.bucket),
-		Key:    aws.String(getLocation("", resource, path)),
-	})
-	if err != nil {
-		return nil, err
-	}
-	defer out.Body.Close()
-	b, err := io.ReadAll(out.Body)
-	if err != nil {
-		return nil, err
-	}
-	return b, nil
+	return ReadFile(ctx, resource, path, ReadFileS3v2(s.client, s.bucket))
 }
 
 // NewS3v2 initializes a new implementation of Storage using the AWS S3 service.
@@ -86,6 +70,19 @@ func NewS3v2(client *s3api.Client, bucket string) Storage {
 		presign:  s3api.NewPresignClient(client),
 		bucket:   bucket,
 		duration: 60 * time.Minute,
+	}
+}
+
+func ReadFileS3v2(client *s3api.Client, bucket string) ReadFileFunc {
+	return func(ctx context.Context, resource Resource, path string) (io.ReadCloser, error) {
+		out, err := client.GetObject(ctx, &s3api.GetObjectInput{
+			Bucket: aws.String(bucket),
+			Key:    aws.String(getLocation("", resource, path)),
+		})
+		if err != nil {
+			return nil, err
+		}
+		return out.Body, nil
 	}
 }
 
