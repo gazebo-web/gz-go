@@ -29,13 +29,51 @@ const (
 	KindCollections Kind = "collections"
 )
 
+// NewResource initializes a new Resource with the given values.
+func NewResource(uuid string, kind Kind, owner string, version uint64) Resource {
+	return &resource{
+		uuid:    uuid,
+		kind:    kind,
+		owner:   owner,
+		version: version,
+	}
+}
+
+// resource is the default implementation of Resource provided  by this package.
+type resource struct {
+	uuid    string
+	kind    Kind
+	owner   string
+	version uint64
+}
+
+// GetUUID returns this resource's uuid.
+func (r *resource) GetUUID() string {
+	return r.uuid
+}
+
+// GetKind returns this resource's kind.
+func (r *resource) GetKind() Kind {
+	return r.kind
+}
+
+// GetOwner returns this resource's owner.
+func (r *resource) GetOwner() string {
+	return r.owner
+}
+
+// GetVersion returns this resource's version.
+func (r *resource) GetVersion() uint64 {
+	return r.version
+}
+
 // Resource represents the resource that a user wants to download from a cloud storage.
 type Resource interface {
 	// GetUUID returns the UUID v4 that identifies the current Resource.
 	GetUUID() string
 	// GetKind identifies of what type the current Resource is.
 	GetKind() Kind
-	// GetOwner returns who's the owner of the current Resource.
+	// GetOwner returns who is the owner of the current Resource.
 	GetOwner() string
 	// GetVersion returns the numeric version of the current Resource. Resources increment their version as new
 	// updates are introduced to them.

@@ -17,28 +17,28 @@ const (
 )
 
 var (
-	compressibleResource = &testResource{
+	compressibleResource = &resource{
 		uuid:    "e6af5323-db4d-4db3-a402-a8992d6c8d99",
 		kind:    KindModels,
 		owner:   owner,
 		version: 2,
 	}
 
-	nonExistentResource = &testResource{
+	nonExistentResource = &resource{
 		uuid:    uuid.NewV4().String(),
 		kind:    KindModels,
 		owner:   "TestOrg",
 		version: 1,
 	}
 
-	invalidResource = &testResource{
+	invalidResource = &resource{
 		uuid:    "",
 		kind:    "",
 		owner:   "",
 		version: 0,
 	}
 
-	validResource = &testResource{
+	validResource = &resource{
 		uuid:    validUUID,
 		kind:    KindModels,
 		owner:   owner,
@@ -69,7 +69,7 @@ func (suite *FilesystemStorageTestSuite) TearDownTest() {
 }
 
 func (suite *FilesystemStorageTestSuite) TestGetFile_NotFound() {
-	r := &testResource{
+	r := &resource{
 		uuid:    validUUID,
 		kind:    KindModels,
 		owner:   owner,
@@ -83,7 +83,7 @@ func (suite *FilesystemStorageTestSuite) TestGetFile_NotFound() {
 }
 
 func (suite *FilesystemStorageTestSuite) TestGetFile_ResourceInvalidOwner() {
-	r := &testResource{
+	r := &resource{
 		uuid:    "",
 		kind:    "",
 		owner:   "",
@@ -97,7 +97,7 @@ func (suite *FilesystemStorageTestSuite) TestGetFile_ResourceInvalidOwner() {
 }
 
 func (suite *FilesystemStorageTestSuite) TestGetFile_ResourceInvalidKind() {
-	r := &testResource{
+	r := &resource{
 		uuid:    "",
 		kind:    "",
 		owner:   owner,
@@ -110,7 +110,7 @@ func (suite *FilesystemStorageTestSuite) TestGetFile_ResourceInvalidKind() {
 }
 
 func (suite *FilesystemStorageTestSuite) TestGetFile_ResourceInvalidUUID() {
-	r := &testResource{
+	r := &resource{
 		uuid:    "",
 		kind:    KindModels,
 		owner:   owner,
@@ -124,7 +124,7 @@ func (suite *FilesystemStorageTestSuite) TestGetFile_ResourceInvalidUUID() {
 }
 
 func (suite *FilesystemStorageTestSuite) TestGetFile_ResourceInvalidVersion() {
-	r := &testResource{
+	r := &resource{
 		uuid:    validUUID,
 		kind:    KindModels,
 		owner:   owner,
@@ -179,7 +179,7 @@ func (suite *FilesystemStorageTestSuite) TestGetFile_ContentMatchesSubFolder() {
 }
 
 func (suite *FilesystemStorageTestSuite) TestDownload_InvalidResource() {
-	r := &testResource{
+	r := &resource{
 		uuid:    "31f64dd2-e867-45a7-9a8c-10d9733de2b3",
 		kind:    KindModels,
 		owner:   owner,
@@ -193,7 +193,7 @@ func (suite *FilesystemStorageTestSuite) TestDownload_InvalidResource() {
 }
 
 func (suite *FilesystemStorageTestSuite) TestDownload_NotFound() {
-	r := &testResource{
+	r := &resource{
 		uuid:    "31f64dd2-e867-45a7-9a8c-10d9733de2b3",
 		kind:    KindModels,
 		owner:   owner,
@@ -207,7 +207,7 @@ func (suite *FilesystemStorageTestSuite) TestDownload_NotFound() {
 }
 
 func (suite *FilesystemStorageTestSuite) TestDownload_EmptyFolder() {
-	r := &testResource{
+	r := &resource{
 		uuid:    "31f64dd2-e867-45a7-9a8c-10d9733de2b3",
 		kind:    KindModels,
 		owner:   owner,
@@ -241,7 +241,7 @@ func (suite *FilesystemStorageTestSuite) TestDownload_ValidPath() {
 }
 
 func (suite *FilesystemStorageTestSuite) TestUploadDir_InvalidOwner() {
-	r := &testResource{
+	r := &resource{
 		uuid:    "31f64dd2-e867-45a7-9a8c-10d9733de2b3",
 		kind:    KindModels,
 		owner:   "",
@@ -253,7 +253,7 @@ func (suite *FilesystemStorageTestSuite) TestUploadDir_InvalidOwner() {
 }
 
 func (suite *FilesystemStorageTestSuite) TestUploadDir_InvalidKind() {
-	r := &testResource{
+	r := &resource{
 		uuid:    "31f64dd2-e867-45a7-9a8c-10d9733de2b3",
 		kind:    "",
 		owner:   "OpenRobotics",
@@ -265,7 +265,7 @@ func (suite *FilesystemStorageTestSuite) TestUploadDir_InvalidKind() {
 }
 
 func (suite *FilesystemStorageTestSuite) TestUploadDir_InvalidUUID() {
-	r := &testResource{
+	r := &resource{
 		uuid:    "",
 		kind:    KindModels,
 		owner:   "OpenRobotics",
