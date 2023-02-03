@@ -8,6 +8,7 @@ import (
 	"github.com/dgrijalva/jwt-go"
 	htmlTemplate "html/template"
 	"io"
+	"log"
 	"math/rand"
 	"net/http"
 	"os"
@@ -384,4 +385,11 @@ func Zip(dst, src string) (*os.File, error) {
 	}
 
 	return zipFile, nil
+}
+
+func Close(c io.Closer) {
+	err := c.Close()
+	if err != nil {
+		log.Println("Failed to close:", err)
+	}
 }

@@ -126,7 +126,7 @@ func (s *fsStorage) zip(ctx context.Context, resource Resource) (string, error) 
 	target := getZipLocation(s.basePath, resource)
 	source := getLocation(s.basePath, resource, "")
 	f, err := gz.Zip(target, source)
-	defer f.Close()
+	defer gz.Close(f)
 	if err != nil {
 		return "", err
 	}
