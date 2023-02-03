@@ -260,6 +260,7 @@ func IsDirEmpty(path string) (bool, error) {
 	return false, nil
 }
 
+// CopyDir recursively copies the whole directory with its content from src to dst.
 func CopyDir(dst, src string) error {
 	entries, err := os.ReadDir(src)
 	if err != nil {
@@ -290,6 +291,7 @@ func CopyDir(dst, src string) error {
 	return nil
 }
 
+// CopyFile copies the file from src into dst. It assigns the same permissions as the original file.
 func CopyFile(dst string, src string) error {
 	// Source file
 	f, err := os.Open(src)
@@ -387,6 +389,8 @@ func Zip(dst, src string) (*os.File, error) {
 	return zipFile, nil
 }
 
+// Close runs the Close method from the io.Closer.
+// If there's an error, it will print the error in the stdout.
 func Close(c io.Closer) {
 	err := c.Close()
 	if err != nil {
