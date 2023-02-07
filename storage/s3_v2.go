@@ -27,7 +27,7 @@ func (s *s3v2) UploadZip(ctx context.Context, resource Resource, file *os.File) 
 	return UploadZip(ctx, resource, file, UploadFileS3v2(s.client, s.bucket, nil))
 }
 
-// UploadDir the assets found in source to S3.
+// UploadDir uploads all the files found in src to S3.
 func (s *s3v2) UploadDir(ctx context.Context, resource Resource, src string) error {
 	return UploadDir(ctx, resource, src, UploadFileS3v2(s.client, s.bucket, resource))
 }
