@@ -71,7 +71,7 @@ func (s *fsStorage) create(ctx context.Context, owner string, uuid string) error
 	return nil
 }
 
-// Download returns the path to the zip file that includes the given resource.
+// Download returns a path to the zip file that includes the given resource.
 func (s *fsStorage) Download(ctx context.Context, resource Resource) (string, error) {
 	if err := validateResource(resource); err != nil {
 		return "", err
