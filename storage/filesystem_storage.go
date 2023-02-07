@@ -25,7 +25,7 @@ func (s *fsStorage) UploadDir(ctx context.Context, resource Resource, src string
 	var info os.FileInfo
 	var err error
 	if info, err = os.Stat(src); errors.Is(err, os.ErrNotExist) {
-		err = s.create(ctx, resource.GetOwner(), resource.GetKind(), resource.GetUUID())
+		err = s.create(ctx, resource.GetOwner(), resource.GetUUID())
 		if err != nil {
 			return err
 		}
@@ -49,18 +49,15 @@ func (s *fsStorage) UploadDir(ctx context.Context, resource Resource, src string
 	return nil
 }
 
-func (s *fsStorage) create(ctx context.Context, owner string, kind Kind, uuid string) error {
+func (s *fsStorage) create(ctx context.Context, owner string, uuid string) error {
 	if err := validateOwner(owner); err != nil {
-		return err
-	}
-	if err := validateKind(kind); err != nil {
 		return err
 	}
 	if err := validateUUID(uuid); err != nil {
 		return err
 	}
 
-	path := getRootLocation(s.basePath, owner, kind, uuid)
+	path := getRootLocation(s.basePath, owner, uuid)
 	_, err := os.Stat(path)
 	if err == nil {
 		return ErrResourceAlreadyExists

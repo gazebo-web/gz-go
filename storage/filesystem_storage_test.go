@@ -19,28 +19,24 @@ const (
 var (
 	compressibleResource = &resource{
 		uuid:    "e6af5323-db4d-4db3-a402-a8992d6c8d99",
-		kind:    KindModels,
 		owner:   owner,
 		version: 2,
 	}
 
 	nonExistentResource = &resource{
 		uuid:    uuid.NewV4().String(),
-		kind:    KindModels,
 		owner:   "TestOrg",
 		version: 1,
 	}
 
 	invalidResource = &resource{
 		uuid:    "",
-		kind:    "",
 		owner:   "",
 		version: 0,
 	}
 
 	validResource = &resource{
 		uuid:    validUUID,
-		kind:    KindModels,
 		owner:   owner,
 		version: version,
 	}
@@ -65,13 +61,12 @@ func (suite *FilesystemStorageTestSuite) SetupTest() {
 
 func (suite *FilesystemStorageTestSuite) TearDownTest() {
 	_ = os.Remove(getZipLocation(basePath, compressibleResource))
-	_ = os.RemoveAll(getRootLocation(basePath, "TestOrg", "", ""))
+	_ = os.RemoveAll(getRootLocation(basePath, "TestOrg", ""))
 }
 
 func (suite *FilesystemStorageTestSuite) TestGetFile_NotFound() {
 	r := &resource{
 		uuid:    validUUID,
-		kind:    KindModels,
 		owner:   owner,
 		version: invalidVersion,
 	}
@@ -85,7 +80,6 @@ func (suite *FilesystemStorageTestSuite) TestGetFile_NotFound() {
 func (suite *FilesystemStorageTestSuite) TestGetFile_ResourceInvalidOwner() {
 	r := &resource{
 		uuid:    "",
-		kind:    "",
 		owner:   "",
 		version: 0,
 	}
@@ -96,23 +90,9 @@ func (suite *FilesystemStorageTestSuite) TestGetFile_ResourceInvalidOwner() {
 	suite.Assert().ErrorIs(err, ErrResourceInvalidFormat)
 }
 
-func (suite *FilesystemStorageTestSuite) TestGetFile_ResourceInvalidKind() {
-	r := &resource{
-		uuid:    "",
-		kind:    "",
-		owner:   owner,
-		version: 0,
-	}
-	var err error
-	_, err = suite.storage.GetFile(context.Background(), r, "")
-	suite.Assert().Error(err)
-	suite.Assert().ErrorIs(err, ErrResourceInvalidFormat)
-}
-
 func (suite *FilesystemStorageTestSuite) TestGetFile_ResourceInvalidUUID() {
 	r := &resource{
 		uuid:    "",
-		kind:    KindModels,
 		owner:   owner,
 		version: 0,
 	}
@@ -126,7 +106,6 @@ func (suite *FilesystemStorageTestSuite) TestGetFile_ResourceInvalidUUID() {
 func (suite *FilesystemStorageTestSuite) TestGetFile_ResourceInvalidVersion() {
 	r := &resource{
 		uuid:    validUUID,
-		kind:    KindModels,
 		owner:   owner,
 		version: 0,
 	}
@@ -150,7 +129,7 @@ func (suite *FilesystemStorageTestSuite) TestGetFile_ContentMatches() {
 	r := validResource
 
 	var err error
-	expected, err := os.ReadFile("./testdata/OpenRobotics/models/e6af5323-db4d-4db3-a402-a8992d6c8d99/1/model.sdf")
+	expected, err := os.ReadFile("./testdata/OpenRobotics/e6af5323-db4d-4db3-a402-a8992d6c8d99/1/model.sdf")
 	suite.Require().NoError(err)
 	suite.Require().NotEmpty(expected)
 
@@ -166,7 +145,7 @@ func (suite *FilesystemStorageTestSuite) TestGetFile_ContentMatchesSubFolder() {
 	r := validResource
 
 	var err error
-	expected, err := os.ReadFile("./testdata/OpenRobotics/models/e6af5323-db4d-4db3-a402-a8992d6c8d99/1/meshes/turtle.dae")
+	expected, err := os.ReadFile("./testdata/OpenRobotics/e6af5323-db4d-4db3-a402-a8992d6c8d99/1/meshes/turtle.dae")
 	suite.Require().NoError(err)
 	suite.Require().NotEmpty(expected)
 
@@ -181,7 +160,6 @@ func (suite *FilesystemStorageTestSuite) TestGetFile_ContentMatchesSubFolder() {
 func (suite *FilesystemStorageTestSuite) TestDownload_InvalidResource() {
 	r := &resource{
 		uuid:    "31f64dd2-e867-45a7-9a8c-10d9733de2b3",
-		kind:    KindModels,
 		owner:   owner,
 		version: 0, // Invalid version
 	}
@@ -195,7 +173,6 @@ func (suite *FilesystemStorageTestSuite) TestDownload_InvalidResource() {
 func (suite *FilesystemStorageTestSuite) TestDownload_NotFound() {
 	r := &resource{
 		uuid:    "31f64dd2-e867-45a7-9a8c-10d9733de2b3",
-		kind:    KindModels,
 		owner:   owner,
 		version: 3, // Valid version but doesn't exist
 	}
@@ -209,7 +186,6 @@ func (suite *FilesystemStorageTestSuite) TestDownload_NotFound() {
 func (suite *FilesystemStorageTestSuite) TestDownload_EmptyFolder() {
 	r := &resource{
 		uuid:    "31f64dd2-e867-45a7-9a8c-10d9733de2b3",
-		kind:    KindModels,
 		owner:   owner,
 		version: 1,
 	}
@@ -243,20 +219,7 @@ func (suite *FilesystemStorageTestSuite) TestDownload_ValidPath() {
 func (suite *FilesystemStorageTestSuite) TestUploadDir_InvalidOwner() {
 	r := &resource{
 		uuid:    "31f64dd2-e867-45a7-9a8c-10d9733de2b3",
-		kind:    KindModels,
 		owner:   "",
-		version: 1,
-	}
-	err := suite.storage.UploadDir(context.Background(), r, "")
-	suite.Assert().Error(err)
-	suite.Assert().ErrorIs(err, ErrResourceInvalidFormat)
-}
-
-func (suite *FilesystemStorageTestSuite) TestUploadDir_InvalidKind() {
-	r := &resource{
-		uuid:    "31f64dd2-e867-45a7-9a8c-10d9733de2b3",
-		kind:    "",
-		owner:   "OpenRobotics",
 		version: 1,
 	}
 	err := suite.storage.UploadDir(context.Background(), r, "")
@@ -267,7 +230,6 @@ func (suite *FilesystemStorageTestSuite) TestUploadDir_InvalidKind() {
 func (suite *FilesystemStorageTestSuite) TestUploadDir_InvalidUUID() {
 	r := &resource{
 		uuid:    "",
-		kind:    KindModels,
 		owner:   "OpenRobotics",
 		version: 1,
 	}

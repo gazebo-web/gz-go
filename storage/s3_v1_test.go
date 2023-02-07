@@ -121,7 +121,6 @@ func (suite *s3v1StorageTestSuite) TestDownload_InvalidResource() {
 func (suite *s3v1StorageTestSuite) TestDownload_NotFound() {
 	r := &resource{
 		uuid:    validUUID,
-		kind:    KindModels,
 		owner:   owner,
 		version: 5,
 	}

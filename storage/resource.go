@@ -19,21 +19,10 @@ var (
 	ErrFileNil               = errors.New("no file provided")
 )
 
-// Kind describes the subfolder where different types of resources will be uploaded for a single
-// owner. Developers can create different resources, but a set of basic kinds are provided in this library.
-type Kind string
-
-const (
-	KindModels      Kind = "models"
-	KindWorlds      Kind = "worlds"
-	KindCollections Kind = "collections"
-)
-
 // NewResource initializes a new Resource with the given values.
-func NewResource(uuid string, kind Kind, owner string, version uint64) Resource {
+func NewResource(uuid string, owner string, version uint64) Resource {
 	return &resource{
 		uuid:    uuid,
-		kind:    kind,
 		owner:   owner,
 		version: version,
 	}
@@ -42,7 +31,6 @@ func NewResource(uuid string, kind Kind, owner string, version uint64) Resource 
 // resource is the default implementation of Resource provided  by this package.
 type resource struct {
 	uuid    string
-	kind    Kind
 	owner   string
 	version uint64
 }
@@ -50,11 +38,6 @@ type resource struct {
 // GetUUID returns this resource's uuid.
 func (r *resource) GetUUID() string {
 	return r.uuid
-}
-
-// GetKind returns this resource's kind.
-func (r *resource) GetKind() Kind {
-	return r.kind
 }
 
 // GetOwner returns this resource's owner.
@@ -71,8 +54,6 @@ func (r *resource) GetVersion() uint64 {
 type Resource interface {
 	// GetUUID returns the UUID v4 that identifies the current Resource.
 	GetUUID() string
-	// GetKind identifies of what type the current Resource is.
-	GetKind() Kind
 	// GetOwner returns who is the owner of the current Resource.
 	GetOwner() string
 	// GetVersion returns the numeric version of the current Resource. Resources increment their version as new
@@ -84,9 +65,6 @@ type Resource interface {
 // This validation step only performs sanity checks, but doesn't apply any business rules.
 func validateResource(r Resource) error {
 	if err := validateOwner(r.GetOwner()); err != nil {
-		return err
-	}
-	if err := validateKind(r.GetKind()); err != nil {
 		return err
 	}
 	if err := validateUUID(r.GetUUID()); err != nil {
@@ -102,14 +80,6 @@ func validateResource(r Resource) error {
 func validateOwner(owner string) error {
 	if len(owner) == 0 {
 		return errors.Wrap(ErrResourceInvalidFormat, "missing owner")
-	}
-	return nil
-}
-
-// validateKind performs validation to the given kind.
-func validateKind(kind Kind) error {
-	if len(kind) == 0 {
-		return errors.Wrap(ErrResourceInvalidFormat, "missing kind")
 	}
 	return nil
 }
@@ -134,7 +104,7 @@ func validateVersion(v uint64) error {
 //
 //	If path is not empty, it will append the given path to the resulting location of the resource.
 func getLocation(base string, r Resource, path string) string {
-	location := filepath.Join(base, r.GetOwner(), string(r.GetKind()), r.GetUUID(), strconv.FormatUint(r.GetVersion(), 10))
+	location := filepath.Join(base, r.GetOwner(), r.GetUUID(), strconv.FormatUint(r.GetVersion(), 10))
 	if len(path) > 0 {
 		location = filepath.Join(location, path)
 	}
@@ -144,11 +114,11 @@ func getLocation(base string, r Resource, path string) string {
 // getZipLocation returns the location of the zip file associated to a Resource relative to the base location.
 func getZipLocation(base string, r Resource) string {
 	filename := fmt.Sprintf("%d.zip", r.GetVersion())
-	return filepath.Join(base, r.GetOwner(), string(r.GetKind()), r.GetUUID(), ".zips", filename)
+	return filepath.Join(base, r.GetOwner(), r.GetUUID(), ".zips", filename)
 }
 
 // getRootLocation returns the absolute location of where all the versions of the given uuid and the given kind will be
 // uploaded for the given owner.
-func getRootLocation(base string, owner string, kind Kind, uuid string) string {
-	return filepath.Join(base, owner, string(kind), uuid)
+func getRootLocation(base string, owner string, uuid string) string {
+	return filepath.Join(base, owner, uuid)
 }
