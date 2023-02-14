@@ -18,7 +18,7 @@ func (s *fsStorage) UploadZip(ctx context.Context, resource Resource, file *os.F
 	panic("implement me")
 }
 
-// UploadDir uploads the assets found in source to the dedicated directory used to store resources..
+// UploadDir uploads the assets found in source to the dedicated directory used to store resources.
 func (s *fsStorage) UploadDir(ctx context.Context, resource Resource, src string) error {
 	if err := validateResource(resource); err != nil {
 		return err
@@ -118,7 +118,7 @@ func (s *fsStorage) GetFile(ctx context.Context, resource Resource, path string)
 	return b, nil
 }
 
-// zip compress the given resource to a  zip file. It returns the location to the zip file.
+// zip compresses the given resource to a zip file and returns the path to the zip file.
 // If the file was already created, it returns a cached file.
 func (s *fsStorage) zip(ctx context.Context, resource Resource) (string, error) {
 	target := getZipLocation(s.basePath, resource)

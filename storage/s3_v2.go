@@ -22,7 +22,7 @@ type s3v2 struct {
 	duration time.Duration
 }
 
-// UploadZip as part of the resource archive found under the .zips folder inside the owner's directory.
+// UploadZip uploads a zip file of the given resource to S3.
 func (s *s3v2) UploadZip(ctx context.Context, resource Resource, file *os.File) error {
 	return UploadZip(ctx, resource, file, UploadFileS3v2(s.client, s.bucket, nil))
 }
@@ -32,7 +32,7 @@ func (s *s3v2) UploadDir(ctx context.Context, resource Resource, src string) err
 	return UploadDir(ctx, resource, src, UploadFileS3v2(s.client, s.bucket, resource))
 }
 
-// Download downloads a zip version of the given resource from S3.
+// Download downloads a zip file of the given resource from S3.
 func (s *s3v2) Download(ctx context.Context, resource Resource) (string, error) {
 	if err := validateResource(resource); err != nil {
 		return "", err
@@ -58,7 +58,7 @@ func (s *s3v2) Download(ctx context.Context, resource Resource) (string, error) 
 	return out.URL, nil
 }
 
-// GetFile returns the content of file from a given path.
+// GetFile returns the content of a file from the given path.
 func (s *s3v2) GetFile(ctx context.Context, resource Resource, path string) ([]byte, error) {
 	return ReadFile(ctx, resource, path, ReadFileS3v2(s.client, s.bucket))
 }

@@ -76,7 +76,7 @@ func validateResource(r Resource) error {
 	return nil
 }
 
-// validateOwner performs validation to the given owner.
+// validateOwner validates the given owner.
 func validateOwner(owner string) error {
 	if len(owner) == 0 {
 		return errors.Wrap(ErrResourceInvalidFormat, "missing owner")
@@ -92,7 +92,7 @@ func validateUUID(id string) error {
 	return nil
 }
 
-// validateVersion performs validation to the given version.
+// validateVersion validates the given version.
 func validateVersion(v uint64) error {
 	if v == 0 {
 		return errors.Wrap(ErrResourceInvalidFormat, "invalid version, should be greater than 0")
