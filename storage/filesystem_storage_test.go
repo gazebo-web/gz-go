@@ -258,3 +258,40 @@ func (suite *FilesystemStorageTestSuite) TestUploadDir_Success() {
 	err := suite.storage.UploadDir(context.Background(), nonExistentResource, "./testdata/example")
 	suite.Assert().NoError(err)
 }
+
+func (suite *FilesystemStorageTestSuite) TestUploadZip_InvalidResource() {
+	err := suite.storage.UploadZip(context.Background(), invalidResource, nil)
+	suite.Assert().Error(err)
+	suite.Assert().ErrorIs(err, ErrResourceInvalidFormat)
+}
+
+func (suite *FilesystemStorageTestSuite) TestUploadZip_FileNil() {
+	err := suite.storage.UploadZip(context.Background(), validResource, nil)
+	suite.Assert().Error(err)
+	suite.Assert().ErrorIs(err, ErrFileNil)
+}
+
+func (suite *FilesystemStorageTestSuite) TestUploadZip_FileAlreadyExists() {
+	f, err := os.Open(getZipLocation("./testdata", validResource))
+	suite.Require().NoError(err)
+
+	err = suite.storage.UploadZip(context.Background(), compressibleResource, f)
+	suite.Assert().NoError(err)
+
+	err = suite.storage.UploadZip(context.Background(), compressibleResource, f)
+	suite.Assert().Error(err)
+	suite.Assert().ErrorIs(err, ErrResourceAlreadyExists)
+
+	suite.Require().NoError(f.Close())
+}
+
+func (suite *FilesystemStorageTestSuite) TestUploadZip_Success() {
+	// Let's upload the assets from ./testdata/example
+	f, err := os.Open(getZipLocation("./testdata", validResource))
+	suite.Require().NoError(err)
+
+	err = suite.storage.UploadZip(context.Background(), compressibleResource, f)
+	suite.Assert().NoError(err)
+
+	suite.Require().NoError(f.Close())
+}

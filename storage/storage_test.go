@@ -82,10 +82,16 @@ func TestUploadZip(t *testing.T) {
 	require.NoError(t, err)
 
 	var content []byte
+	var path string
 	assert.NoError(t, UploadZip(ctx, r, f, func(ctx context.Context, p string, body io.Reader) error {
 		var err error
 		content, err = io.ReadAll(body)
+		path = p
 		return err
 	}))
 	assert.NotEmpty(t, content)
+	expected, err := filepath.Rel("./testdata", location)
+	assert.NoError(t, err)
+	assert.Equal(t, expected, path)
+	require.NoError(t, f.Close())
 }

@@ -4,6 +4,7 @@ import (
 	"context"
 	"github.com/gazebo-web/gz-go/v7"
 	"github.com/pkg/errors"
+	"io"
 	"os"
 )
 
@@ -14,8 +15,31 @@ type fsStorage struct {
 }
 
 func (s *fsStorage) UploadZip(ctx context.Context, resource Resource, file *os.File) error {
-	//TODO implement me
-	panic("implement me")
+	if err := validateResource(resource); err != nil {
+		return err
+	}
+	if file == nil {
+		return ErrFileNil
+	}
+
+	dst := getZipLocation(s.basePath, resource)
+
+	if _, err := os.Stat(dst); !errors.Is(err, os.ErrNotExist) {
+		return ErrResourceAlreadyExists
+	}
+
+	zipFile, err := os.Create(dst)
+	defer gz.Close(zipFile)
+	if err != nil {
+		return err
+	}
+
+	_, err = io.Copy(zipFile, file)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
 
 // UploadDir uploads the assets found in source to the dedicated directory used to store resources.
