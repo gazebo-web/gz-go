@@ -45,7 +45,7 @@ func ReadFile(ctx context.Context, resource Resource, path string, fn ReadFileFu
 }
 
 // UploadDir uploads the directory and all the sub elements found in src using the provided WalkDirFunc
-// for each file found inside src. It will be uploaded as the assets for the given Resource.
+// for each file found inside src. They will be uploaded as the assets for the given Resource.
 func UploadDir(ctx context.Context, resource Resource, src string, fn WalkDirFunc) error {
 	err := validateResource(resource)
 	if err != nil {
