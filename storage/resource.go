@@ -19,6 +19,17 @@ var (
 	ErrFileNil               = errors.New("no file provided")
 )
 
+// Resource represents the resource that a user wants to download from a cloud storage.
+type Resource interface {
+	// GetUUID returns the UUID v4 that identifies the current Resource.
+	GetUUID() string
+	// GetOwner returns who is the owner of the current Resource.
+	GetOwner() string
+	// GetVersion returns the numeric version of the current Resource. Resources increment their version as new
+	// updates are introduced to them.
+	GetVersion() uint64
+}
+
 // NewResource initializes a new Resource with the given values.
 func NewResource(uuid string, owner string, version uint64) Resource {
 	return &resource{
@@ -48,17 +59,6 @@ func (r *resource) GetOwner() string {
 // GetVersion returns this resource's version.
 func (r *resource) GetVersion() uint64 {
 	return r.version
-}
-
-// Resource represents the resource that a user wants to download from a cloud storage.
-type Resource interface {
-	// GetUUID returns the UUID v4 that identifies the current Resource.
-	GetUUID() string
-	// GetOwner returns who is the owner of the current Resource.
-	GetOwner() string
-	// GetVersion returns the numeric version of the current Resource. Resources increment their version as new
-	// updates are introduced to them.
-	GetVersion() uint64
 }
 
 // validateResource validates the given resource, it returns an error if the resource is invalid.
