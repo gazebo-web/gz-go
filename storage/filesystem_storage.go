@@ -159,7 +159,7 @@ func (s *fileSys) zip(ctx context.Context, resource Resource) (string, error) {
 }
 
 // newFilesystemStorage initializes a new Storage implementation using the host FileSystem.
-// It receives the base path as an argument, where all the resources can be found.
+// It receives the base path as an argument, where all resources are stored.
 func newFilesystemStorage(path string) Storage {
 	return &fileSys{
 		basePath: path,

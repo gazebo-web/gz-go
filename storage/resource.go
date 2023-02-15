@@ -84,7 +84,7 @@ func validateOwner(owner string) error {
 	return nil
 }
 
-// validateUUID performs validation to the given UUID.
+// validateUUID validates the given UUID.
 func validateUUID(id string) error {
 	if u, err := uuid.FromString(id); err != nil || u.Version() != uuid.V4 {
 		return errors.Wrap(ErrResourceInvalidFormat, "invalid uuid")
