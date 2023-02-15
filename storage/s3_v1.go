@@ -54,7 +54,7 @@ func (s *s3v1) Download(ctx context.Context, resource Resource) (string, error) 
 	return url, nil
 }
 
-// UploadDir uploads all the files found in src to S3.
+// UploadDir uploads the entire src directory to S3.
 func (s *s3v1) UploadDir(ctx context.Context, resource Resource, src string) error {
 	return UploadDir(ctx, resource, src, uploadFileS3v1(s.uploader, s.bucket, resource))
 }
