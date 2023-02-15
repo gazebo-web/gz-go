@@ -8,13 +8,14 @@ import (
 	"os"
 )
 
-// fsStorage contains the implementation of a storage manager for resources using the host filesystem.
+// fileSys contains the implementation of a storage manager for resources using the host filesystem.
 // It can be used with AWS EFS storage in EC2 instances.
-type fsStorage struct {
+type fileSys struct {
 	basePath string
 }
 
-func (s *fsStorage) UploadZip(ctx context.Context, resource Resource, file *os.File) error {
+// UploadZip uploads the given file as the zip file of the given resource.
+func (s *fileSys) UploadZip(ctx context.Context, resource Resource, file *os.File) error {
 	if err := validateResource(resource); err != nil {
 		return err
 	}
@@ -23,7 +24,6 @@ func (s *fsStorage) UploadZip(ctx context.Context, resource Resource, file *os.F
 	}
 
 	dst := getZipLocation(s.basePath, resource)
-
 	if _, err := os.Stat(dst); !errors.Is(err, os.ErrNotExist) {
 		return ErrResourceAlreadyExists
 	}
@@ -43,7 +43,7 @@ func (s *fsStorage) UploadZip(ctx context.Context, resource Resource, file *os.F
 }
 
 // UploadDir uploads the assets found in source to the dedicated directory used to store resources.
-func (s *fsStorage) UploadDir(ctx context.Context, resource Resource, src string) error {
+func (s *fileSys) UploadDir(ctx context.Context, resource Resource, src string) error {
 	if err := validateResource(resource); err != nil {
 		return err
 	}
@@ -74,7 +74,7 @@ func (s *fsStorage) UploadDir(ctx context.Context, resource Resource, src string
 	return nil
 }
 
-func (s *fsStorage) create(ctx context.Context, owner string, uuid string) error {
+func (s *fileSys) create(ctx context.Context, owner string, uuid string) error {
 	if err := validateOwner(owner); err != nil {
 		return err
 	}
@@ -97,7 +97,7 @@ func (s *fsStorage) create(ctx context.Context, owner string, uuid string) error
 }
 
 // Download returns a path to the zip file that includes the given resource.
-func (s *fsStorage) Download(ctx context.Context, resource Resource) (string, error) {
+func (s *fileSys) Download(ctx context.Context, resource Resource) (string, error) {
 	if err := validateResource(resource); err != nil {
 		return "", err
 	}
@@ -123,7 +123,7 @@ func (s *fsStorage) Download(ctx context.Context, resource Resource) (string, er
 }
 
 // GetFile returns the content of file from a given path.
-func (s *fsStorage) GetFile(ctx context.Context, resource Resource, path string) ([]byte, error) {
+func (s *fileSys) GetFile(ctx context.Context, resource Resource, path string) ([]byte, error) {
 	if err := validateResource(resource); err != nil {
 		return nil, err
 	}
@@ -144,7 +144,7 @@ func (s *fsStorage) GetFile(ctx context.Context, resource Resource, path string)
 
 // zip compresses the given resource to a zip file and returns the path to the zip file.
 // If the file was already created, it returns a cached file.
-func (s *fsStorage) zip(ctx context.Context, resource Resource) (string, error) {
+func (s *fileSys) zip(ctx context.Context, resource Resource) (string, error) {
 	target := getZipLocation(s.basePath, resource)
 	source := getLocation(s.basePath, resource, "")
 	f, err := gz.Zip(target, source)
@@ -158,7 +158,7 @@ func (s *fsStorage) zip(ctx context.Context, resource Resource) (string, error) 
 // newFilesystemStorage initializes a new Storage implementation using the host FileSystem.
 // It receives the base path as an argument, where all the resources can be found.
 func newFilesystemStorage(path string) Storage {
-	return &fsStorage{
+	return &fileSys{
 		basePath: path,
 	}
 }
