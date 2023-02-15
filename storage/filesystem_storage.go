@@ -50,10 +50,7 @@ func (s *fileSys) UploadDir(ctx context.Context, resource Resource, src string) 
 	var info os.FileInfo
 	var err error
 	if info, err = os.Stat(src); errors.Is(err, os.ErrNotExist) {
-		err = s.create(ctx, resource.GetOwner(), resource.GetUUID())
-		if err != nil {
-			return err
-		}
+		return errors.Wrap(ErrSourceFolderNotFound, err.Error())
 	}
 	if !info.IsDir() {
 		return ErrSourceFile
@@ -66,6 +63,12 @@ func (s *fileSys) UploadDir(ctx context.Context, resource Resource, src string) 
 		return ErrSourceFolderEmpty
 	}
 	dst := getLocation(s.basePath, resource, "")
+	if _, err = os.Stat(dst); errors.Is(err, os.ErrNotExist) {
+		err = s.create(ctx, resource.GetOwner(), resource.GetUUID())
+		if err != nil {
+			return err
+		}
+	}
 
 	err = gz.CopyDir(dst, src)
 	if err != nil {

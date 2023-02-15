@@ -238,6 +238,13 @@ func (suite *FilesystemStorageTestSuite) TestUploadDir_InvalidUUID() {
 	suite.Assert().ErrorIs(err, ErrResourceInvalidFormat)
 }
 
+func (suite *FilesystemStorageTestSuite) TestUploadDir_SourceNotFound() {
+	// ./testdata_notfound does not exist
+	err := suite.storage.UploadDir(context.Background(), nonExistentResource, "./testdata_notfound")
+	suite.Assert().Error(err)
+	suite.Assert().ErrorIs(err, ErrSourceFolderNotFound)
+}
+
 func (suite *FilesystemStorageTestSuite) TestUploadDir_SourceIsNotAFolder() {
 	// ./testdata/example/model.config is a file
 	err := suite.storage.UploadDir(context.Background(), nonExistentResource, "./testdata/example/model.config")
@@ -251,6 +258,12 @@ func (suite *FilesystemStorageTestSuite) TestUploadDir_SourceIsEmpty() {
 	err := suite.storage.UploadDir(context.Background(), nonExistentResource, "./testdata/example_empty")
 	suite.Assert().Error(err)
 	suite.Assert().ErrorIs(err, ErrSourceFolderEmpty)
+}
+
+func (suite *FilesystemStorageTestSuite) TestUploadDir_DestinationNotFound() {
+	// Let's upload the assets from ./testdata/example
+	err := suite.storage.UploadDir(context.Background(), nonExistentResource, "./testdata/example")
+	suite.Assert().NoError(err)
 }
 
 func (suite *FilesystemStorageTestSuite) TestUploadDir_Success() {
