@@ -90,10 +90,11 @@ func readFileS3v1(client *s3api.S3, bucket string) ReadFileFunc {
 }
 
 // uploadFileS3v1 generates a function that uploads a single file in a path.
-// If Resource is nil, it will use the given path as-is, otherwise it will use the given path as a relative path
-// to the given Resource.
+
 func uploadFileS3v1(uploader *s3manager.Uploader, bucket string, resource Resource) WalkDirFunc {
 	return func(ctx context.Context, path string, body io.Reader) error {
+		// If Resource is nil, it will use the given path as-is, otherwise it will use the given path as a relative path
+		// to the given Resource.
 		if resource != nil {
 			path = getLocation("", resource, path)
 		}
@@ -107,10 +108,10 @@ func uploadFileS3v1(uploader *s3manager.Uploader, bucket string, resource Resour
 }
 
 // deleteFileS3v1 generates a function that allows to delete a single file in a path.
-// If Resource is nil, it will use the given path as-is, otherwise it will use the given path as a relative path
-// to the given Resource.
 func deleteFileS3v1(client *s3api.S3, bucket string, resource Resource) WalkDirFunc {
 	return func(ctx context.Context, path string, _ io.Reader) error {
+		// If Resource is nil, it will use the given path as-is, otherwise it will use the given path as a relative path
+		// to the given Resource.
 		if resource != nil {
 			path = getLocation("", resource, path)
 		}
