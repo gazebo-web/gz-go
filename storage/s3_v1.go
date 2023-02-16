@@ -28,7 +28,7 @@ func (s *s3v1) GetFile(ctx context.Context, resource Resource, path string) ([]b
 	return ReadFile(ctx, resource, path, readFileS3v1(s.client, s.bucket))
 }
 
-// Download returns the URL of zip file that contains all the contents of the given Resource.
+// Download returns the URL to a zip file that contains all the contents of the given Resource.
 func (s *s3v1) Download(ctx context.Context, resource Resource) (string, error) {
 	if err := validateResource(resource); err != nil {
 		return "", err

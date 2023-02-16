@@ -8,7 +8,7 @@ import (
 	"os"
 )
 
-// fileSys contains the implementation of a storage manager for resources using the host filesystem.
+// fileSys is a Storage implementation that uses the host filesystem to store resources.
 // It can be used with AWS EFS storage in EC2 instances.
 type fileSys struct {
 	basePath string
