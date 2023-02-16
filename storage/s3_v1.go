@@ -90,7 +90,6 @@ func readFileS3v1(client *s3api.S3, bucket string) ReadFileFunc {
 }
 
 // uploadFileS3v1 generates a function that uploads a single file in a path.
-
 func uploadFileS3v1(uploader *s3manager.Uploader, bucket string, resource Resource) WalkDirFunc {
 	return func(ctx context.Context, path string, body io.Reader) error {
 		// If Resource is nil, it will use the given path as-is, otherwise it will use the given path as a relative path
