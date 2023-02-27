@@ -25,7 +25,9 @@ func (s *fileSys) UploadZip(ctx context.Context, resource Resource, file *os.Fil
 
 	dst := getZipLocation(s.basePath, resource)
 	if _, err := os.Stat(dst); !errors.Is(err, os.ErrNotExist) {
-		return ErrResourceAlreadyExists
+		if err := os.Remove(dst); err != nil {
+			return err
+		}
 	}
 
 	zipFile, err := os.Create(dst)
