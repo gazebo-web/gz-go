@@ -23,6 +23,9 @@ type s3v2 struct {
 }
 
 // UploadZip uploads a zip file of the given resource to S3.
+//
+//	Resources can have a compressed representation of the resource itself that acts like a cache, it contains all the
+//	files from the said resource. This function uploads that zip file.
 func (s *s3v2) UploadZip(ctx context.Context, resource Resource, file *os.File) error {
 	return UploadZip(ctx, resource, file, uploadFileS3v2(s.client, s.bucket, nil))
 }

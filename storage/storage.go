@@ -21,6 +21,9 @@ type Storage interface {
 	// UploadDir uploads assets located in the given source folder and placed them into the given resource.
 	UploadDir(ctx context.Context, resource Resource, source string) error
 	// UploadZip uploads a compressed set of assets of the given resource.
+	//
+	//	Resources can have a compressed representation of the resource itself that acts like a cache, it contains all the
+	//	files from the said resource. This function uploads that zip file.
 	UploadZip(ctx context.Context, resource Resource, file *os.File) error
 }
 

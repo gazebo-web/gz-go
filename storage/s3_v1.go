@@ -61,6 +61,9 @@ func (s *s3v1) UploadDir(ctx context.Context, resource Resource, src string) err
 
 // UploadZip uploads a zip file of the given resource to S3. It should be called before any attempts to Download
 // the zip file of the given Resource.
+//
+//	Resources can have a compressed representation of the resource itself that acts like a cache, it contains all the
+//	files from the said resource. This function uploads that zip file.
 func (s *s3v1) UploadZip(ctx context.Context, resource Resource, file *os.File) error {
 	return UploadZip(ctx, resource, file, uploadFileS3v1(s.uploader, s.bucket, nil))
 }
