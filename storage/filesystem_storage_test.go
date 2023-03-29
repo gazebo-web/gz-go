@@ -310,6 +310,10 @@ func (suite *FilesystemStorageTestSuite) TestUploadZip_SuccessWhenFileAlreadyExi
 	before, err := os.ReadFile(dst)
 	suite.Require().NoError(err)
 
+	// Rewind the file handler
+	_, err = f.Seek(0, 0)
+	suite.Require().NoError(err)
+
 	// Reuploading v2 should create a new file
 	err = suite.storage.UploadZip(context.Background(), compressibleResource, f)
 	suite.Assert().NoError(err)
@@ -322,5 +326,4 @@ func (suite *FilesystemStorageTestSuite) TestUploadZip_SuccessWhenFileAlreadyExi
 	// The file content should be the same, as we're using the same source.
 	suite.Assert().Equal(before, after)
 
-	suite.Require().NoError(f.Close())
 }
