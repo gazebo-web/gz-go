@@ -4,6 +4,7 @@ import (
 	"context"
 	uuid "github.com/satori/go.uuid"
 	"github.com/stretchr/testify/suite"
+	"io"
 	"os"
 	"testing"
 )
@@ -311,7 +312,7 @@ func (suite *FilesystemStorageTestSuite) TestUploadZip_SuccessWhenFileAlreadyExi
 	suite.Require().NoError(err)
 
 	// Rewind the file handler
-	_, err = f.Seek(0, 0)
+	_, err = f.Seek(0, io.SeekStart)
 	suite.Require().NoError(err)
 
 	// Reuploading v2 should create a new file
