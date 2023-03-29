@@ -285,11 +285,38 @@ func (suite *FilesystemStorageTestSuite) TestUploadZip_FileNil() {
 }
 
 func (suite *FilesystemStorageTestSuite) TestUploadZip_Success() {
-	// Let's upload the assets from ./testdata/example
-	f, err := os.Open(getZipLocation("./testdata", validResource))
+	f, err := os.Open(getZipLocation(basePath, validResource))
 	suite.Require().NoError(err)
 
 	err = suite.storage.UploadZip(context.Background(), compressibleResource, f)
+	suite.Assert().NoError(err)
+
+	suite.Require().NoError(f.Close())
+}
+
+func (suite *FilesystemStorageTestSuite) TestUploadZip_SuccessWhenFileAlreadyExists() {
+	// Get zip file for resource v1
+	f, err := os.Open(getZipLocation(basePath, validResource))
+	suite.Require().NoError(err)
+
+	// Upload zip file as v2
+	err = suite.storage.UploadZip(context.Background(), compressibleResource, f)
+	suite.Assert().NoError(err)
+
+	// Get the zip file location for resource v2
+	dst := getZipLocation(basePath, compressibleResource)
+
+	// Before calling UploadZip a second time, the file should exist.
+	_, err = os.Stat(dst)
+	suite.Assert().NoError(err)
+
+	// Reuploading v2 should create a new file
+	err = suite.storage.UploadZip(context.Background(), compressibleResource, f)
+	suite.Assert().NoError(err)
+
+	// After calling UploadZip a second time, the file should exist.
+	// We're already checking that the file is being deleted in gz.RemoveIfFound test case.
+	_, err = os.Stat(dst)
 	suite.Assert().NoError(err)
 
 	suite.Require().NoError(f.Close())

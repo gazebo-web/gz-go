@@ -14,7 +14,8 @@ type fileSys struct {
 	basePath string
 }
 
-// UploadZip uploads the given file as the zip file of the given resource.
+// UploadZip uploads the given file as the zip file of the given resource. If the file already exists, it will be
+// replaced by the new file.
 //
 //	Resources can have a compressed representation of the resource itself that acts like a cache, it contains all the
 //	files from the said resource. This function uploads that zip file.
@@ -27,10 +28,9 @@ func (s *fileSys) UploadZip(ctx context.Context, resource Resource, file *os.Fil
 	}
 
 	dst := getZipLocation(s.basePath, resource)
-	if _, err := os.Stat(dst); err == nil {
-		if err := os.Remove(dst); err != nil {
-			return err
-		}
+	err := gz.RemoveIfFound(dst)
+	if err != nil {
+		return err
 	}
 
 	zipFile, err := os.Create(dst)

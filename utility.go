@@ -397,3 +397,14 @@ func Close(c io.Closer) {
 		log.Println("Failed to close:", err)
 	}
 }
+
+// RemoveIfFound checks the file or directory in the given path exists, if it exists, it will attempt to remove it.
+// If it's a directory, it must be empty.
+func RemoveIfFound(path string) error {
+	if _, err := os.Stat(path); err == nil {
+		if err := os.Remove(path); err != nil {
+			return err
+		}
+	}
+	return nil
+}

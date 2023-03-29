@@ -3,6 +3,9 @@ package gz
 import (
 	"errors"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
+	"os"
+	"path/filepath"
 	"strings"
 	"testing"
 )
@@ -38,4 +41,20 @@ func TestIsError(t *testing.T) {
 
 	err = errors.New("another error")
 	assert.False(t, IsError(err, target))
+}
+
+func TestRemoveIfFound(t *testing.T) {
+	path, err := os.MkdirTemp("", "test")
+	require.NoError(t, err)
+
+	fp := filepath.Join(path, "test.txt")
+	f, err := os.Create(fp)
+	require.NoError(t, err)
+	require.NoError(t, f.Close())
+
+	assert.NoError(t, RemoveIfFound(fp))
+	_, err = os.Stat(fp)
+	assert.Error(t, err) // File should not exist
+
+	require.NoError(t, os.RemoveAll(path))
 }
