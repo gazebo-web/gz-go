@@ -8,6 +8,7 @@ import (
 	"github.com/dgrijalva/jwt-go"
 	htmlTemplate "html/template"
 	"io"
+	"log"
 	"math/rand"
 	"net/http"
 	"os"
@@ -246,4 +247,164 @@ func ParseHTMLTemplate(templateFilename string, data interface{}) (string, error
 // IsError returns true when err is the target error.
 func IsError(err error, target error) bool {
 	return strings.Contains(err.Error(), target.Error())
+}
+
+func IsDirEmpty(path string) (bool, error) {
+	entries, err := os.ReadDir(path)
+	if err != nil {
+		return true, err
+	}
+	if len(entries) == 0 {
+		return true, nil
+	}
+	return false, nil
+}
+
+// CopyDir recursively copies the whole directory with its content from src to dst.
+func CopyDir(dst, src string) error {
+	entries, err := os.ReadDir(src)
+	if err != nil {
+		return err
+	}
+	var info os.FileInfo
+	if info, err = os.Stat(src); err != nil {
+		return err
+	}
+
+	for _, entry := range entries {
+		name := entry.Name()
+		if entry.IsDir() {
+			if err = os.MkdirAll(filepath.Join(dst, name), info.Mode()); err != nil {
+				return err
+			}
+			err := CopyDir(filepath.Join(dst, name), filepath.Join(src, name))
+			if err != nil {
+				return err
+			}
+		} else {
+			err := CopyFile(filepath.Join(dst, name), filepath.Join(src, name))
+			if err != nil {
+				return err
+			}
+		}
+	}
+	return nil
+}
+
+// CopyFile copies the file from src into dst. It assigns the same permissions as the original file.
+func CopyFile(dst string, src string) error {
+	// Source file
+	f, err := os.Open(src)
+	if err != nil {
+		return err
+	}
+	defer f.Close()
+
+	// Destination file
+	fd, err := os.Create(dst)
+	if err != nil {
+		return err
+	}
+	defer fd.Close()
+
+	_, err = io.Copy(fd, f)
+	if err != nil {
+		return err
+	}
+	info, err := f.Stat()
+	if err != nil {
+		return err
+	}
+
+	err = fd.Chmod(info.Mode())
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+// Zip the src folder into dst. It leaves the closing responsibility of the os.File to the consumer of this function.
+func Zip(dst, src string) (*os.File, error) {
+	if _, err := os.Stat(dst); errors.Is(err, os.ErrExist) {
+		f, err := os.Open(dst)
+		if err != nil {
+			return nil, err
+		}
+		return f, nil
+	}
+	zipFile, err := os.Create(dst)
+	if err != nil {
+		return nil, err
+	}
+
+	w := zip.NewWriter(zipFile)
+	defer w.Close()
+
+	err = filepath.Walk(src, func(path string, info os.FileInfo, err error) error {
+		if err != nil {
+			return err
+		}
+
+		// Create a local file header
+		header, err := zip.FileInfoHeader(info)
+		if err != nil {
+			return err
+		}
+
+		// Set compression
+		header.Method = zip.Deflate
+
+		// Set relative path of a file as the header name
+		header.Name, err = filepath.Rel(filepath.Dir(src), path)
+		if err != nil {
+			return err
+		}
+		if info.IsDir() {
+			header.Name += "/"
+		}
+
+		// Create writer for the file header and save content of the file
+		headerWriter, err := w.CreateHeader(header)
+		if err != nil {
+			return err
+		}
+
+		if info.IsDir() {
+			return nil
+		}
+
+		f, err := os.Open(path)
+		if err != nil {
+			return err
+		}
+		defer f.Close()
+
+		_, err = io.Copy(headerWriter, f)
+		return err
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	return zipFile, nil
+}
+
+// Close runs the Close method from the io.Closer.
+// If there's an error, it will print the error in the stdout.
+func Close(c io.Closer) {
+	err := c.Close()
+	if err != nil {
+		log.Println("Failed to close:", err)
+	}
+}
+
+// RemoveIfFound checks the file or directory in the given path exists, if it exists, it will attempt to remove it.
+// If it's a directory, it must be empty.
+func RemoveIfFound(path string) error {
+	if _, err := os.Stat(path); err == nil {
+		if err := os.Remove(path); err != nil {
+			return err
+		}
+	}
+	return nil
 }
