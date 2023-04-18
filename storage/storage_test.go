@@ -1,6 +1,7 @@
 package storage
 
 import (
+	gstorage "cloud.google.com/go/storage"
 	"context"
 	s3api "github.com/aws/aws-sdk-go-v2/service/s3"
 	"github.com/stretchr/testify/assert"
@@ -26,7 +27,7 @@ func (suite *StorageTestSuite) TestNewS3Storage() {
 }
 
 func (suite *StorageTestSuite) TestNewGCSStorage() {
-	storage := NewGCS()
+	storage := NewGCS(&gstorage.Client{}, "")
 	suite.Assert().Implements((*Storage)(nil), storage)
 }
 
