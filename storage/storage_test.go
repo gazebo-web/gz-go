@@ -27,7 +27,7 @@ func (suite *StorageTestSuite) TestNewS3Storage() {
 }
 
 func (suite *StorageTestSuite) TestNewGCSStorage() {
-	storage := NewGCS(&gstorage.Client{}, "")
+	storage := NewGCS(&gstorage.Client{}, "bucket", []byte("1234"), "gazebo@developer.gserviceaccount.com")
 	suite.Assert().Implements((*Storage)(nil), storage)
 }
 

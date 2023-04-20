@@ -15,18 +15,47 @@ import (
 //	API: https://cloud.google.com/storage/docs/apis
 //	SDK: https://pkg.go.dev/cloud.google.com/go/storage
 type gcs struct {
+	// client contains a reference to the Google Cloud Storage SDK client.
 	client *storage.Client
+
+	// bucket contains the name of the bucket used to upload resources and zip files.
 	bucket string
+
+	//privateKey is the Google service account private key. It is obtainable
+	// from the Google Developers Console.
+	// At https://console.developers.google.com/project/<your-project-id>/apiui/credential,
+	// create a service account client ID or reuse one of your existing service account
+	// credentials. Click on the "Generate new P12 key" to generate and download
+	// a new private key. Once you download the P12 file, use the following command
+	// to convert it into a PEM file.
+	//
+	//    $ openssl pkcs12 -in key.p12 -passin pass:notasecret -out key.pem -nodes
+	//
+	privateKey []byte
+
+	// accessID represents the authorizer of the signed URL generation. It is typically the Google service account
+	// client email address from the Google Developers Console in the form of "xxx@developer.gserviceaccount.com".
+	accessID string
+
+	// duration defines the lifespan of a Pre-signed URL.
+	duration time.Duration
 }
 
+// UploadZip uploads a zip file of the given resource to GCS. It should be called before any attempts to Download
+// the zip file of the given Resource.
+//
+//	Resources can have a compressed representation of the resource itself that acts like a cache, it contains all the
+//	files from the said resource. This function uploads that zip file.
 func (g *gcs) UploadZip(ctx context.Context, resource Resource, file *os.File) error {
 	return UploadZip(ctx, resource, file, uploadFileGCS(g.client, g.bucket, nil))
 }
 
+// UploadDir uploads the entire src directory to GCS.
 func (g *gcs) UploadDir(ctx context.Context, resource Resource, src string) error {
 	return UploadDir(ctx, resource, src, uploadFileGCS(g.client, g.bucket, resource))
 }
 
+// Download returns the URL to a zip file that contains all the contents of the given Resource.
 func (g *gcs) Download(ctx context.Context, resource Resource) (string, error) {
 	if err := validateResource(resource); err != nil {
 		return "", err
@@ -42,9 +71,11 @@ func (g *gcs) Download(ctx context.Context, resource Resource) (string, error) {
 	}
 
 	opts := &storage.SignedURLOptions{
-		Scheme:  storage.SigningSchemeV4,
-		Method:  "GET",
-		Expires: time.Now().Add(1 * time.Minute),
+		GoogleAccessID: g.accessID,
+		PrivateKey:     g.privateKey,
+		Scheme:         storage.SigningSchemeV4,
+		Method:         "GET",
+		Expires:        time.Now().Add(g.duration),
 	}
 
 	u, err := g.client.Bucket(g.bucket).SignedURL(path, opts)
@@ -118,9 +149,13 @@ func deleteFileGCS(client *storage.Client, bucket string, resource Resource) Wal
 	}
 }
 
-func NewGCS(client *storage.Client, bucket string) Storage {
+// NewGCS initializes a new implementation of Storage using the Google Cloud Storage service.
+func NewGCS(client *storage.Client, bucket string, pk []byte, accessID string) Storage {
 	return &gcs{
-		client: client,
-		bucket: bucket,
+		client:     client,
+		bucket:     bucket,
+		accessID:   accessID,
+		privateKey: pk,
+		duration:   5 * time.Minute,
 	}
 }

@@ -1,9 +1,11 @@
 package storage
 
 import (
+	"cloud.google.com/go/storage"
 	"context"
 	"github.com/fsouza/fake-gcs-server/fakestorage"
 	"github.com/stretchr/testify/suite"
+	"google.golang.org/api/option"
 	"os"
 	"testing"
 )
@@ -14,6 +16,9 @@ type gcsStorageTestSuite struct {
 	server     *fakestorage.Server
 	bucketName string
 	fsStorage  Storage
+	accessID   string
+	privateKey []byte
+	client     *storage.Client
 }
 
 func TestSuiteGCSStorage(t *testing.T) {
@@ -22,8 +27,14 @@ func TestSuiteGCSStorage(t *testing.T) {
 
 func (suite *gcsStorageTestSuite) SetupSuite() {
 	suite.server = fakestorage.NewServer(nil)
+	var err error
+	suite.client, err = storage.NewClient(context.Background(), option.WithHTTPClient(suite.server.HTTPClient()), option.WithoutAuthentication())
+	suite.Require().NoError(err)
 	suite.bucketName = "fuel"
-	suite.storage = NewGCS(suite.server.Client(), suite.bucketName)
+	suite.privateKey, err = os.ReadFile("./testdata/keys/key.pem")
+	suite.Require().NoError(err)
+	suite.accessID = "gazebo@developer.gserviceaccount.com"
+	suite.storage = NewGCS(suite.client, suite.bucketName, suite.privateKey, suite.accessID)
 	suite.fsStorage = newFilesystemStorage(basePath)
 
 	suite.setupTestData()
