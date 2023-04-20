@@ -74,7 +74,7 @@ func NewS3v1(client *s3api.S3, uploader *s3manager.Uploader, bucket string) Stor
 		client:   client,
 		uploader: uploader,
 		bucket:   bucket,
-		duration: 60 * time.Minute,
+		duration: 5 * time.Minute,
 	}
 }
 
