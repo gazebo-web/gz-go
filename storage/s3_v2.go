@@ -72,7 +72,7 @@ func NewS3v2(client *s3api.Client, bucket string) Storage {
 		client:   client,
 		presign:  s3api.NewPresignClient(client),
 		bucket:   bucket,
-		duration: 60 * time.Minute,
+		duration: 5 * time.Minute,
 	}
 }
 
