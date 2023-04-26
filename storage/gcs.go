@@ -4,12 +4,13 @@ import (
 	"cloud.google.com/go/storage"
 	"context"
 	"fmt"
+	"github.com/gazebo-web/gz-go/v7"
 	"io"
 	"os"
 	"time"
 )
 
-// gcs implements Storage using the Google Cloud Platform - Cloud Storage (CS) service.
+// gcs implements Storage using the Google Cloud Storage (GCS) service.
 //
 //	Reference: https://cloud.google.com/storage
 //	API: https://cloud.google.com/storage/docs/apis
@@ -21,7 +22,7 @@ type gcs struct {
 	// bucket contains the name of the bucket used to upload resources and zip files.
 	bucket string
 
-	//privateKey is the Google service account private key. It is obtainable
+	// privateKey is the Google service account private key. It is obtainable
 	// from the Google Developers Console.
 	// At https://console.developers.google.com/project/<your-project-id>/apiui/credential,
 	// create a service account client ID or reuse one of your existing service account
@@ -39,6 +40,12 @@ type gcs struct {
 
 	// duration defines the lifespan of a Pre-signed URL.
 	duration time.Duration
+}
+
+// getObjectGCS is a helper function that gets the object reference in the given bucket identified by the given path.
+func getObjectGCS(client *storage.Client, bucket string, path string) *storage.ObjectHandle {
+	obj := client.Bucket(bucket).Object(path)
+	return obj
 }
 
 // UploadZip uploads a zip file of the given resource to GCS. It should be called before any attempts to Download
@@ -102,12 +109,7 @@ func readFileGCS(client *storage.Client, bucket string) ReadFileFunc {
 	}
 }
 
-func getObjectGCS(client *storage.Client, bucket string, path string) *storage.ObjectHandle {
-	obj := client.Bucket(bucket).Object(path)
-	return obj
-}
-
-// uploadFileS3v1 generates a function that uploads a single file in a path.
+// uploadFileGCS generates a function that uploads a single file in a path.
 func uploadFileGCS(client *storage.Client, bucket string, resource Resource) WalkDirFunc {
 	return func(ctx context.Context, path string, body io.Reader) error {
 		// If Resource is nil, it will use the given path as-is, otherwise it will use the given path as a relative path
@@ -118,12 +120,9 @@ func uploadFileGCS(client *storage.Client, bucket string, resource Resource) Wal
 
 		obj := getObjectGCS(client, bucket, path)
 		w := obj.NewWriter(ctx)
+		defer gz.Close(w)
 
 		if _, err := io.Copy(w, body); err != nil {
-			return err
-		}
-
-		if err := w.Close(); err != nil {
 			return err
 		}
 
@@ -131,7 +130,7 @@ func uploadFileGCS(client *storage.Client, bucket string, resource Resource) Wal
 	}
 }
 
-// deleteFileS3v1 generates a function that allows to delete a single file in a path.
+// deleteFileGCS generates a function that allows to delete a single file in a path.
 func deleteFileGCS(client *storage.Client, bucket string, resource Resource) WalkDirFunc {
 	return func(ctx context.Context, path string, _ io.Reader) error {
 		// If Resource is nil, it will use the given path as-is, otherwise it will use the given path as a relative path
