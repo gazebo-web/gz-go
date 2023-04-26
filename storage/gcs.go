@@ -97,7 +97,7 @@ func (g *gcs) GetFile(ctx context.Context, resource Resource, path string) ([]by
 	return ReadFile(ctx, resource, path, readFileGCS(g.client, g.bucket))
 }
 
-// readFileS3v1 generates a function that contains the interaction with S3 to read the contents of a file.
+// readFileGCS generates a function that contains the interaction with GCS to read the contents of a file.
 func readFileGCS(client *storage.Client, bucket string) ReadFileFunc {
 	return func(ctx context.Context, resource Resource, path string) (io.ReadCloser, error) {
 		obj := getObjectGCS(client, bucket, getLocation("", resource, path))
