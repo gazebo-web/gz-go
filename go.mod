@@ -16,9 +16,11 @@ require (
 	github.com/dgrijalva/jwt-go v3.2.0+incompatible
 	github.com/fatih/structtag v1.2.0
 	github.com/fsouza/fake-gcs-server v1.44.2
+	github.com/gazebo-web/auth v0.4.0
 	github.com/go-chi/chi/v5 v5.0.7
 	github.com/go-chi/render v1.0.1
 	github.com/go-sql-driver/mysql v1.5.0
+	github.com/golang-jwt/jwt/v5 v5.0.0
 	github.com/gorilla/mux v1.8.0
 	github.com/grpc-ecosystem/go-grpc-middleware v1.3.0
 	github.com/jinzhu/gorm v1.9.16
@@ -28,6 +30,7 @@ require (
 	github.com/pkg/errors v0.9.1
 	github.com/prometheus/client_golang v1.7.1
 	github.com/rollbar/rollbar-go v1.2.0
+	github.com/rs/cors v1.9.0
 	github.com/satori/go.uuid v1.2.0
 	github.com/stretchr/testify v1.8.2
 	github.com/urfave/negroni v1.0.0
@@ -40,6 +43,7 @@ require (
 	go.opentelemetry.io/otel/sdk v1.7.0
 	go.opentelemetry.io/otel/trace v1.10.0
 	golang.org/x/crypto v0.1.0
+	google.golang.org/api v0.118.0
 	google.golang.org/grpc v1.54.0
 	google.golang.org/protobuf v1.30.0
 	gopkg.in/go-playground/validator.v9 v9.31.0
@@ -52,6 +56,7 @@ require (
 	cloud.google.com/go/compute/metadata v0.2.3 // indirect
 	cloud.google.com/go/iam v0.13.0 // indirect
 	cloud.google.com/go/pubsub v1.30.0 // indirect
+	firebase.google.com/go/v4 v4.11.0 // indirect
 	github.com/aws/aws-sdk-go-v2/aws/protocol/eventstream v1.4.10 // indirect
 	github.com/aws/aws-sdk-go-v2/feature/ec2/imds v1.12.21 // indirect
 	github.com/aws/aws-sdk-go-v2/internal/configsources v1.1.27 // indirect
@@ -111,8 +116,8 @@ require (
 	golang.org/x/text v0.9.0 // indirect
 	golang.org/x/tools v0.6.0 // indirect
 	golang.org/x/xerrors v0.0.0-20220907171357-04be3eba64a2 // indirect
-	google.golang.org/api v0.118.0 // indirect
 	google.golang.org/appengine v1.6.7 // indirect
+	google.golang.org/appengine/v2 v2.0.2 // indirect
 	google.golang.org/genproto v0.0.0-20230403163135-c38d8f061ccd // indirect
 	gopkg.in/go-playground/assert.v1 v1.2.1 // indirect
 	gopkg.in/inf.v0 v0.9.1 // indirect
