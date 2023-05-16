@@ -1,9 +1,13 @@
 package middleware
 
 import (
+	"context"
 	"fmt"
 	"github.com/gazebo-web/auth/pkg/authentication"
 	"github.com/golang-jwt/jwt/v5/request"
+	grpc_auth "github.com/grpc-ecosystem/go-grpc-middleware/auth"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 	"net/http"
 )
 
@@ -44,5 +48,19 @@ func newTokenMiddleware(verify authentication.TokenAuthentication, extractors ..
 			}
 			next.ServeHTTP(w, r)
 		})
+	}
+}
+
+// AuthFuncGRPC returns a new grpc_auth.AuthFunc to use with the gazebo-web authentication library.
+func AuthFuncGRPC(auth authentication.Authentication) grpc_auth.AuthFunc {
+	return func(ctx context.Context) (context.Context, error) {
+		token, err := grpc_auth.AuthFromMD(ctx, "bearer")
+		if err != nil {
+			return nil, err
+		}
+		if err := auth.VerifyJWT(ctx, token); err != nil {
+			return nil, status.Error(codes.Unauthenticated, err.Error())
+		}
+		return ctx, nil
 	}
 }
