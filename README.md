@@ -5,7 +5,7 @@
 </div>
 
 ## Getting started
-Ignition Go provides a set of features to help with web server development. It is a set of tools that were chosen to solve different problems in [fuelserver](https://gitlab.com/ignitionrobotics/web/fuelserver) and [cloudsim](https://gitlab.com/ignitionrobotics/web/cloudsim) packages.
+Gazebo Go provides a set of features to help with web server development. It is a set of tools that were chosen to solve different problems in [fuelserver](https://github.com/gazebo-web/fuel-server) and [cloudsim](https://github.com/gazebo-web/cloudsim) packages.
 
 ### Features
 - A custom router based on the [gorilla/mux](https://github.com/gorilla/mux) package.
@@ -82,7 +82,7 @@ go get github.com/gazebo-web/gz-go/v7
 ```
 
 ## Contribute
-**There are many ways to contribute to Ignition Go.**
+**There are many ways to contribute to Gazebo Go.**
 - Reviewing the source code changes.
 - Report new bugs.
 - Suggest new packages that we should consider including.
@@ -101,5 +101,5 @@ go get github.com/gazebo-web/gz-go/v7
 - **IGN_GA_CAT_PREFIX**: (optional) A string to use as a prefix to Google Analytics Event Category.
 - **IGN_ROLLBAR_TOKEN**: (optional) Rollbar authentication token. If valid, then log messages will be sent to rollbar.com. It is recommended NOT to use rollbar during local development.
 - **IGN_ROLLBAR_ENV**: (optional) Rollbar environment string, such as "staging" or "production".
-- **IGN_ROLLBAR_ROOT**: (optional) Path to the application code root, not including the final slash. Such as bitbucket.org/ignitionrobotics/ign-fuelserver
+- **IGN_ROLLBAR_ROOT**: (optional) Path to the application code root, not including the final slash. Such as github.com/gazebo-web/fuel-server
 - **IGN_LOGGER_LOG_STDOUT**: (optional) Controls whether or not logs will be also sent to stdout/err. If missing, a false value will be used.
