@@ -152,8 +152,8 @@ func TestAuthFuncGRPC(t *testing.T) {
 		InterceptorTestSuite: &grpc_test.InterceptorTestSuite{
 			TestService: auth,
 			ServerOpts: []grpc.ServerOption{
-				grpc.StreamInterceptor(grpc_auth.StreamServerInterceptor(AuthFuncGRPC(auth))),
-				grpc.UnaryInterceptor(grpc_auth.UnaryServerInterceptor(AuthFuncGRPC(auth))),
+				grpc.StreamInterceptor(grpc_auth.StreamServerInterceptor(BearerAuthFuncGRPC(auth))),
+				grpc.UnaryInterceptor(grpc_auth.UnaryServerInterceptor(BearerAuthFuncGRPC(auth))),
 			},
 		},
 	}

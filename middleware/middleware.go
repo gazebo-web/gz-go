@@ -1,13 +1,9 @@
 package middleware
 
 import (
-	"context"
 	"fmt"
 	"github.com/gazebo-web/auth/pkg/authentication"
 	"github.com/golang-jwt/jwt/v5/request"
-	grpc_auth "github.com/grpc-ecosystem/go-grpc-middleware/auth"
-	"google.golang.org/grpc/codes"
-	"google.golang.org/grpc/status"
 	"net/http"
 )
 
@@ -20,11 +16,6 @@ type Extractor = request.Extractor
 
 // Middleware is used to modify or augment the behavior of an HTTP request handler.
 type Middleware func(http.Handler) http.Handler
-
-// BearerToken returns a Middleware for authenticating users using Bearer Tokens in JWT format.
-func BearerToken(authentication authentication.Authentication) Middleware {
-	return newTokenMiddleware(authentication.VerifyJWT, request.BearerExtractor{})
-}
 
 // newTokenMiddleware initializes a generic middleware that uses token authentication. It attempts to extract the tokens from
 // the HTTP request, and verifies the access token is valid to continue to the next element in the middleware chain.
@@ -48,29 +39,5 @@ func newTokenMiddleware(verify authentication.TokenAuthentication, extractors ..
 			}
 			next.ServeHTTP(w, r)
 		})
-	}
-}
-
-// AuthFuncGRPC returns a new grpc_auth.AuthFunc to use with the gazebo-web authentication library.
-//
-// The passed in context.Context will contain the gRPC metadata.MD object (for header-based authentication) and
-// the peer.Peer information that can contain transport-based credentials (e.g. `credentials.AuthInfo`).
-//
-//	auth := authentication.New[...]()
-//
-//	srv := grpc.NewServer(
-//		grpc.StreamInterceptor(grpc_auth.StreamServerInterceptor(AuthFuncGRPC(auth))),
-//		grpc.UnaryInterceptor(grpc_auth.UnaryServerInterceptor(AuthFuncGRPC(auth))),
-//	)
-func AuthFuncGRPC(auth authentication.Authentication) grpc_auth.AuthFunc {
-	return func(ctx context.Context) (context.Context, error) {
-		token, err := grpc_auth.AuthFromMD(ctx, "bearer")
-		if err != nil {
-			return nil, err
-		}
-		if err := auth.VerifyJWT(ctx, token); err != nil {
-			return nil, status.Error(codes.Unauthenticated, err.Error())
-		}
-		return ctx, nil
 	}
 }
