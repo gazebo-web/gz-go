@@ -17,11 +17,6 @@ type Extractor = request.Extractor
 // Middleware is used to modify or augment the behavior of an HTTP request handler.
 type Middleware func(http.Handler) http.Handler
 
-// BearerToken returns a Middleware for authenticating users using Bearer Tokens in JWT format.
-func BearerToken(authentication authentication.Authentication) Middleware {
-	return newTokenMiddleware(authentication.VerifyJWT, request.BearerExtractor{})
-}
-
 // newTokenMiddleware initializes a generic middleware that uses token authentication. It attempts to extract the tokens from
 // the HTTP request, and verifies the access token is valid to continue to the next element in the middleware chain.
 func newTokenMiddleware(verify authentication.TokenAuthentication, extractors ...Extractor) Middleware {
