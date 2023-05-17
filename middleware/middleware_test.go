@@ -1,13 +1,23 @@
 package middleware
 
 import (
+	"context"
 	"crypto/x509"
 	"encoding/pem"
+	"errors"
 	"fmt"
 	"github.com/gazebo-web/auth/pkg/authentication"
 	"github.com/golang-jwt/jwt/v5"
+	grpc_auth "github.com/grpc-ecosystem/go-grpc-middleware/auth"
+	grpc_test "github.com/grpc-ecosystem/go-grpc-middleware/testing"
+	grpc_testproto "github.com/grpc-ecosystem/go-grpc-middleware/testing/testproto"
+	"github.com/grpc-ecosystem/go-grpc-middleware/util/metautils"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
+	"github.com/stretchr/testify/suite"
+	"google.golang.org/grpc"
+	grpc_metadata "google.golang.org/grpc/metadata"
 	"net/http"
 	"net/http/httptest"
 	"os"
@@ -133,4 +143,84 @@ func setupBearerTokenTest(t *testing.T) http.Handler {
 		}
 	}))
 	return handler
+}
+
+func TestAuthFuncGRPC(t *testing.T) {
+	auth := newTestAuthentication()
+	ss := &TestAuthSuite{
+		auth: auth,
+		InterceptorTestSuite: &grpc_test.InterceptorTestSuite{
+			TestService: auth,
+			ServerOpts: []grpc.ServerOption{
+				grpc.StreamInterceptor(grpc_auth.StreamServerInterceptor(AuthFuncGRPC(auth))),
+				grpc.UnaryInterceptor(grpc_auth.UnaryServerInterceptor(AuthFuncGRPC(auth))),
+			},
+		},
+	}
+	suite.Run(t, ss)
+}
+
+type TestAuthSuite struct {
+	*grpc_test.InterceptorTestSuite
+	auth *testAuthService
+}
+
+func (suite *TestAuthSuite) TestVerifyJWT_FailsNoBearer() {
+	ctx := context.Background()
+
+	client := suite.NewClient()
+	res, err := client.Ping(ctx, &grpc_testproto.PingRequest{})
+	suite.Assert().Error(err)
+	suite.Assert().ErrorContains(err, "unauthenticated with bearer")
+	suite.Assert().Nil(res)
+}
+
+func (suite *TestAuthSuite) TestVerifyJWT_FailsVerifyJWTError() {
+	ctx := ctxWithToken(context.Background(), "bearer", "1234")
+	expectedError := errors.New("failed to verify token")
+
+	expectedCtx := mock.AnythingOfType("*context.valueCtx")
+	suite.auth.On("VerifyJWT", expectedCtx, "1234").Return(expectedError).Times(1)
+	client := suite.NewClient()
+
+	res, err := client.Ping(ctx, &grpc_testproto.PingRequest{})
+	suite.Assert().Error(err)
+	suite.Assert().ErrorContains(err, expectedError.Error())
+	suite.Assert().Nil(res)
+}
+
+func (suite *TestAuthSuite) TestVerifyJWT_Success() {
+	ctx := ctxWithToken(context.Background(), "bearer", "1234")
+
+	expectedCtx := mock.AnythingOfType("*context.valueCtx")
+	suite.auth.On("VerifyJWT", expectedCtx, "1234").Return(error(nil)).Times(1)
+	client := suite.NewClient()
+
+	res, err := client.Ping(ctx, &grpc_testproto.PingRequest{})
+	suite.Assert().NoError(err)
+	suite.Assert().NotNil(res)
+}
+
+func ctxWithToken(ctx context.Context, scheme string, token string) context.Context {
+	md := grpc_metadata.Pairs("authorization", fmt.Sprintf("%s %v", scheme, token))
+	return metautils.NiceMD(md).ToOutgoing(ctx)
+}
+
+type testAuthService struct {
+	grpc_testproto.UnimplementedTestServiceServer
+	mock.Mock
+}
+
+// Ping can be called by client without being authenticated by exampleAuthFunc as AuthFuncOverride is called instead.
+func (s *testAuthService) Ping(_ context.Context, _ *grpc_testproto.PingRequest) (*grpc_testproto.PingResponse, error) {
+	return &grpc_testproto.PingResponse{}, nil
+}
+
+func (s *testAuthService) VerifyJWT(ctx context.Context, token string) error {
+	args := s.Called(ctx, token)
+	return args.Error(0)
+}
+
+func newTestAuthentication() *testAuthService {
+	return &testAuthService{}
 }
