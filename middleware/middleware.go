@@ -52,6 +52,16 @@ func newTokenMiddleware(verify authentication.TokenAuthentication, extractors ..
 }
 
 // AuthFuncGRPC returns a new grpc_auth.AuthFunc to use with the gazebo-web authentication library.
+//
+// The passed in context.Context will contain the gRPC metadata.MD object (for header-based authentication) and
+// the peer.Peer information that can contain transport-based credentials (e.g. `credentials.AuthInfo`).
+//
+//	auth := authentication.New[...]()
+//
+//	srv := grpc.NewServer(
+//		grpc.StreamInterceptor(grpc_auth.StreamServerInterceptor(AuthFuncGRPC(auth))),
+//		grpc.UnaryInterceptor(grpc_auth.UnaryServerInterceptor(AuthFuncGRPC(auth))),
+//	)
 func AuthFuncGRPC(auth authentication.Authentication) grpc_auth.AuthFunc {
 	return func(ctx context.Context) (context.Context, error) {
 		token, err := grpc_auth.AuthFromMD(ctx, "bearer")
