@@ -211,7 +211,6 @@ type testAuthService struct {
 	mock.Mock
 }
 
-// Ping can be called by client without being authenticated by exampleAuthFunc as AuthFuncOverride is called instead.
 func (s *testAuthService) Ping(_ context.Context, _ *grpc_testproto.PingRequest) (*grpc_testproto.PingResponse, error) {
 	return &grpc_testproto.PingResponse{}, nil
 }
