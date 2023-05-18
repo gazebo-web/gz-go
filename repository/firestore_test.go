@@ -39,7 +39,7 @@ func (suite *FirestoreRepositoryTestSuite) SetupSuite() {
 	suite.fs, err = suite.client.Firestore(ctx)
 	suite.Require().NoError(err)
 
-	suite.repository = NewFirestoreRepository(suite.fs, &TestNoSQL{})
+	suite.repository = NewFirestoreRepository[TestNoSQL](suite.fs)
 }
 
 func (suite *FirestoreRepositoryTestSuite) TearDownTest() {
@@ -64,7 +64,34 @@ func (suite *FirestoreRepositoryTestSuite) tearDownFirebaseEmulatorDatabase() {
 	suite.Require().NoError(err)
 }
 
-func (suite *FirestoreRepositoryTestSuite) TestFind() {}
+func (suite *FirestoreRepositoryTestSuite) TestFind() {
+	var all []TestNoSQL
+
+	suite.setupMockData()
+
+	suite.Require().NoError(suite.repository.Find(&all))
+	suite.Assert().Len(all, 3)
+}
+
+func (suite *FirestoreRepositoryTestSuite) setupMockData() {
+	_, _, err := suite.fs.Collection("test").Add(context.Background(), TestNoSQL{
+		Name:  "test-1",
+		Value: 1,
+	})
+	suite.Require().NoError(err)
+
+	_, _, err = suite.fs.Collection("test").Add(context.Background(), TestNoSQL{
+		Name:  "test-2",
+		Value: 2,
+	})
+	suite.Require().NoError(err)
+
+	_, _, err = suite.fs.Collection("test").Add(context.Background(), TestNoSQL{
+		Name:  "test-3",
+		Value: 3,
+	})
+	suite.Require().NoError(err)
+}
 
 type TestNoSQL struct {
 	ModelNoSQL

@@ -2,62 +2,96 @@ package repository
 
 import (
 	"cloud.google.com/go/firestore"
+	"context"
 	"errors"
+	"github.com/gazebo-web/gz-go/v7/reflect"
 )
 
 var (
+	// ErrMethodNotImplemented is returned when a certain method is not implemented.
 	ErrMethodNotImplemented = errors.New("method not implemented")
 )
 
-type firestoreDB struct {
+// firestoreRepository implements Repository using the firestore client.
+type firestoreRepository[T Model] struct {
 	entity Model
 	client *firestore.Client
 }
 
-func (f *firestoreDB) FirstOrCreate(entity Model, filters ...Filter) error {
+// FirstOrCreate is not implemented.
+func (f *firestoreRepository[T]) FirstOrCreate(entity Model, filters ...Filter) error {
 	return ErrMethodNotImplemented
 }
 
-func (f *firestoreDB) Create(entity Model) (Model, error) {
+// Create is not implemented.
+func (f *firestoreRepository[T]) Create(entity Model) (Model, error) {
 	return nil, ErrMethodNotImplemented
 }
 
-func (f *firestoreDB) CreateBulk(entities []Model) ([]Model, error) {
+// CreateBulk is not implemented.
+func (f *firestoreRepository[T]) CreateBulk(entities []Model) ([]Model, error) {
 	return nil, ErrMethodNotImplemented
 }
 
-func (f *firestoreDB) Find(output interface{}, options ...Option) error {
+// Find filters entries and stores filtered entries in output.
+// output: will contain the result of the query. It must be a pointer to a slice.
+// options: configuration options for the search.
+func (f *firestoreRepository[T]) Find(output interface{}, options ...Option) error {
+	iter := f.client.Collection(f.Model().TableName()).Documents(context.Background())
+	docs, err := iter.GetAll()
+	if err != nil {
+		return err
+	}
+
+	var element T
+	for _, doc := range docs {
+		if err := doc.DataTo(&element); err != nil {
+			continue
+		}
+
+		if err := reflect.AppendToSlice(output, element); err != nil {
+			continue
+		}
+	}
+
+	return nil
+}
+
+// FindOne is not implemented.
+func (f *firestoreRepository[T]) FindOne(output Model, filters ...Filter) error {
 	return ErrMethodNotImplemented
 }
 
-func (f *firestoreDB) FindOne(output Model, filters ...Filter) error {
+// Last is not implemented.
+func (f *firestoreRepository[T]) Last(output Model, filters ...Filter) error {
 	return ErrMethodNotImplemented
 }
 
-func (f *firestoreDB) Last(output Model, filters ...Filter) error {
+// Update is not implemented.
+func (f *firestoreRepository[T]) Update(data interface{}, filters ...Filter) error {
 	return ErrMethodNotImplemented
 }
 
-func (f *firestoreDB) Update(data interface{}, filters ...Filter) error {
+// Delete is not implemented.
+func (f *firestoreRepository[T]) Delete(filters ...Filter) error {
 	return ErrMethodNotImplemented
 }
 
-func (f *firestoreDB) Delete(filters ...Filter) error {
-	return ErrMethodNotImplemented
-}
-
-func (f *firestoreDB) Count(filters ...Filter) (uint64, error) {
+// Count is not implemented.
+func (f *firestoreRepository[T]) Count(filters ...Filter) (uint64, error) {
 	return 0, ErrMethodNotImplemented
 }
 
-func (f *firestoreDB) Model() Model {
+// Model returns this repository's model.
+func (f *firestoreRepository[T]) Model() Model {
 	return f.entity
 }
 
 // NewFirestoreRepository initializes a new Repository implementation for Firestore collections.
-func NewFirestoreRepository(client *firestore.Client, entity Model) Repository {
-	return &firestoreDB{
+func NewFirestoreRepository[T Model](client *firestore.Client) Repository {
+	var baseModel T
+	return &firestoreRepository[T]{
 		client: client,
-		entity: entity,
+		entity: baseModel,
 	}
 }
