@@ -103,7 +103,7 @@ func (s *SQLOptionsTestSuite) TearDownSuite() {
 }
 
 func (s *SQLOptionsTestSuite) TestSQLOptionImplementsOption() {
-	s.Assert().Implements((*Option)(nil), new(Option))
+	s.Assert().Implements((*repository.Option)(nil), new(Option))
 }
 
 func (s *SQLOptionsTestSuite) getValues(values []*SQLOptionsTestModel) (out []int) {
