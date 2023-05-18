@@ -33,3 +33,18 @@ type ModelSQL struct {
 func (m ModelSQL) GetID() uint {
 	return m.ID
 }
+
+type ModelNoSQL struct {
+	// CreatedAt contains the date and time at which this model has been persisted.
+	CreatedAt time.Time `json:"created_at"`
+	// UpdatedAt contains the last date and time when this model has been updated.
+	UpdatedAt time.Time `json:"updated_at"`
+	// DeletedAt is used to implement soft record deletion. If set, the record will be considered
+	// as deleted.
+	DeletedAt *time.Time `json:"deleted_at"`
+}
+
+// GetID returns the unique identifier for this Model.
+func (m ModelNoSQL) GetID() uint {
+	return 0
+}
