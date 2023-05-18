@@ -1,15 +1,16 @@
-package repository
+package sql
 
 import (
 	"fmt"
 	utilsgorm "github.com/gazebo-web/gz-go/v7/database/gorm"
+	"github.com/gazebo-web/gz-go/v7/repository"
 	"github.com/jinzhu/gorm"
 	"github.com/stretchr/testify/suite"
 	"testing"
 )
 
 type SQLOptionsReferenceModel struct {
-	ModelSQL
+	Model
 	Value       int `json:"value"`
 	ReferenceID *uint
 	Reference   *SQLOptionsReferenceModel
@@ -20,7 +21,7 @@ func (t SQLOptionsReferenceModel) TableName() string {
 }
 
 type SQLOptionsTestModel struct {
-	ModelSQL
+	Model
 	Name         string `json:"name"`
 	Value        int    `json:"value"`
 	Even         bool   `json:"even"`
@@ -48,7 +49,7 @@ func TestSQLOptions(t *testing.T) {
 type SQLOptionsTestSuite struct {
 	suite.Suite
 	db         *gorm.DB
-	repository Repository
+	repository repository.Repository
 	models     []interface{}
 }
 
@@ -102,7 +103,7 @@ func (s *SQLOptionsTestSuite) TearDownSuite() {
 }
 
 func (s *SQLOptionsTestSuite) TestSQLOptionImplementsOption() {
-	s.Assert().Implements((*Option)(nil), new(SQLOption))
+	s.Assert().Implements((*Option)(nil), new(Option))
 }
 
 func (s *SQLOptionsTestSuite) getValues(values []*SQLOptionsTestModel) (out []int) {
@@ -160,7 +161,7 @@ func (s *SQLOptionsTestSuite) TestFindOffsetOption() {
 	s.Assert().EqualValues([]int{1, 2, 3, 4, 5, 6, 7, 8, 9, 10}, s.getValues(out))
 }
 
-//func (s *SQLOptionsTestSuite) TestFindSelectAndGroupByOptions() {
+// func (s *SQLOptionsTestSuite) TestFindSelectAndGroupByOptions() {
 //	var out []*SQLOptionsTestModel
 //
 //	// GroupBy fails if unaggregated fields are returned
@@ -173,7 +174,7 @@ func (s *SQLOptionsTestSuite) TestFindOffsetOption() {
 //	// Multiple field group
 //	s.Assert().NoError(s.repository.Find(&out, Fields("SUM(value) value"), GroupBy("even", "lte5")))
 //	s.Assert().EqualValues([]int{1 + 3 + 5, 2 + 4, 6 + 8 + 10, 7 + 9}, s.getValues(out))
-//}
+// }
 
 func (s *SQLOptionsTestSuite) TestFindPreloadOption() {
 	var out []*SQLOptionsTestModel

@@ -1,7 +1,8 @@
-package repository
+package sql
 
 import (
 	utilsgorm "github.com/gazebo-web/gz-go/v7/database/gorm"
+	"github.com/gazebo-web/gz-go/v7/repository"
 	"github.com/jinzhu/gorm"
 	"github.com/stretchr/testify/suite"
 	"testing"
@@ -14,11 +15,11 @@ func TestRepository(t *testing.T) {
 type RepositoryTestSuite struct {
 	suite.Suite
 	db         *gorm.DB
-	Repository Repository
+	Repository repository.Repository
 }
 
 type Test struct {
-	ModelSQL
+	Model
 	Name  string `json:"name"`
 	Value int    `json:"value"`
 }
@@ -57,7 +58,7 @@ func (suite *RepositoryTestSuite) SetupTest() {
 		Value: 3,
 	}
 
-	res, err := suite.Repository.CreateBulk([]Model{test1, test2, test3})
+	res, err := suite.Repository.CreateBulk([]repository.Model{test1, test2, test3})
 	suite.Require().NoError(err)
 	suite.Require().Len(res, 3)
 }
@@ -68,13 +69,13 @@ func (suite *RepositoryTestSuite) TearDownSuite() {
 }
 
 func (suite *RepositoryTestSuite) TestImplementsInterface() {
-	var expected *Repository
-	suite.Assert().Implements(expected, new(repositorySQL))
+	var expected *repository.Repository
+	suite.Assert().Implements(expected, new(repositoryGorm))
 }
 
 func (suite *RepositoryTestSuite) TestCreateOne() {
 	// Creating one record should not fail.
-	res, err := suite.Repository.CreateBulk([]Model{&Test{
+	res, err := suite.Repository.CreateBulk([]repository.Model{&Test{
 		Name:  "test",
 		Value: 999,
 	}})
@@ -89,7 +90,7 @@ func (suite *RepositoryTestSuite) TestCreateOne() {
 
 func (suite *RepositoryTestSuite) TestCreateMultiple() {
 	// Creating multiple records should not fail
-	res, err := suite.Repository.CreateBulk([]Model{
+	res, err := suite.Repository.CreateBulk([]repository.Model{
 		&Test{
 			Name:  "test",
 			Value: 999,
@@ -127,10 +128,10 @@ func (suite *RepositoryTestSuite) TestFindOne() {
 	var t Test
 
 	// Finding one should not fail.
-	suite.Assert().NoError(suite.Repository.FindOne(&t, Filter{
+	suite.Assert().NoError(suite.Repository.FindOne(&t, repository.Filter{
 		Template: "name = ?",
 		Values:   []interface{}{"Test1"},
-	}, Filter{
+	}, repository.Filter{
 		Template: "value = ?",
 		Values:   []interface{}{1},
 	}))
@@ -140,7 +141,7 @@ func (suite *RepositoryTestSuite) TestFindOne() {
 }
 
 func (suite *RepositoryTestSuite) TestUpdate() {
-	filter := Filter{
+	filter := repository.Filter{
 		Template: "name = ?",
 		Values:   []interface{}{"Test1"},
 	}
@@ -154,7 +155,7 @@ func (suite *RepositoryTestSuite) TestUpdate() {
 	suite.Assert().Error(suite.Repository.FindOne(&t, filter))
 
 	// Finding the correct record should not fail.
-	suite.Assert().NoError(suite.Repository.FindOne(&t, Filter{
+	suite.Assert().NoError(suite.Repository.FindOne(&t, repository.Filter{
 		Template: "name = ?",
 		Values:   []interface{}{"Test111"},
 	}))
@@ -165,7 +166,7 @@ func (suite *RepositoryTestSuite) TestUpdate() {
 }
 
 func (suite *RepositoryTestSuite) TestDelete() {
-	filter := Filter{
+	filter := repository.Filter{
 		Template: "name = ?",
 		Values:   []interface{}{"Test1"},
 	}
@@ -183,7 +184,7 @@ func (suite *RepositoryTestSuite) TestDelete() {
 
 func (suite *RepositoryTestSuite) TestFirstOrCreate() {
 	var test Test
-	suite.Require().NoError(suite.Repository.FirstOrCreate(&test, Filter{
+	suite.Require().NoError(suite.Repository.FirstOrCreate(&test, repository.Filter{
 		Template: "value = ?",
 		Values:   []interface{}{1},
 	}))
@@ -196,7 +197,7 @@ func (suite *RepositoryTestSuite) TestFirstOrCreate() {
 		Value: 4,
 	}
 
-	suite.Require().NoError(suite.Repository.FirstOrCreate(&test, Filter{
+	suite.Require().NoError(suite.Repository.FirstOrCreate(&test, repository.Filter{
 		Template: "value = ?",
 		Values:   []interface{}{4},
 	}))
@@ -215,7 +216,7 @@ func (suite *RepositoryTestSuite) TestLast() {
 	suite.Require().NoError(err)
 
 	var out Test
-	err = suite.Repository.Last(&out, Filter{
+	err = suite.Repository.Last(&out, repository.Filter{
 		Template: "name = ?",
 		Values:   []interface{}{"Test3"},
 	})
@@ -225,14 +226,14 @@ func (suite *RepositoryTestSuite) TestLast() {
 }
 
 func (suite *RepositoryTestSuite) TestCount() {
-	count, err := suite.Repository.Count(Filter{
+	count, err := suite.Repository.Count(repository.Filter{
 		Template: "name = ?",
 		Values:   []interface{}{"Test3"},
 	})
 	suite.Assert().NoError(err)
 	suite.Assert().Equal(uint64(1), count)
 
-	count, err = suite.Repository.Count(Filter{
+	count, err = suite.Repository.Count(repository.Filter{
 		Template: "name LIKE ?",
 		Values:   []interface{}{"Test%"},
 	})

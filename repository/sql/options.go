@@ -1,38 +1,38 @@
-package repository
+package sql
 
 import (
 	"fmt"
+	"github.com/gazebo-web/gz-go/v7/repository"
 	"github.com/jinzhu/gorm"
 	"strings"
 )
 
-// SQLOption is a SQL-specific Repository Option implementation.
+// Option is a SQL-specific repository.Option implementation.
 // It is used to configure SQL repository operations.
-// TODO This should be extracted into its own package to avoid colliding with other implementations
-type SQLOption func(r *gorm.DB)
+type Option func(r *gorm.DB)
 
-func (l SQLOption) IsOption() {}
+func (l Option) IsOption() {}
 
 // Fields defines fields to return.
-// Passing this Option to a Repository operation overwrites any previous GroupBy options passed.
-func Fields(fields ...string) Option {
-	return SQLOption(func(q *gorm.DB) {
+// Passing this Option to a Repository operation overwrites any previous Fields options passed.
+func Fields(fields ...string) repository.Option {
+	return Option(func(q *gorm.DB) {
 		*q = *q.Select(strings.Join(fields, ","))
 	})
 }
 
 // Where filters results based on passed conditions.
 // Multiple Filter options can be passed to a single Repository operation. They are logically ANDed together.
-func Where(template string, values ...interface{}) Option {
-	return SQLOption(func(q *gorm.DB) {
+func Where(template string, values ...interface{}) repository.Option {
+	return Option(func(q *gorm.DB) {
 		*q = *q.Where(template, values...)
 	})
 }
 
 // MaxResults defines the maximum number of results for an operation that can return multiple results.
 // Passing this Option to a Repository operation overwrites any previous MaxResults options passed.
-func MaxResults(n int) Option {
-	return SQLOption(func(q *gorm.DB) {
+func MaxResults(n int) repository.Option {
+	return Option(func(q *gorm.DB) {
 		*q = *q.Limit(n)
 	})
 }
@@ -40,16 +40,16 @@ func MaxResults(n int) Option {
 // Offset defines a number of results to skip before starting to capture values to return.
 // This Option will be ignored if the MaxResults Option is not present.
 // Passing this Option to a Repository operation overwrites any previous Offset options passed.
-func Offset(offset int) Option {
-	return SQLOption(func(q *gorm.DB) {
+func Offset(offset int) repository.Option {
+	return Option(func(q *gorm.DB) {
 		*q = *q.Offset(offset)
 	})
 }
 
 // GroupBy groups results based field values.
 // Passing this Option to a Repository operation overwrites any previous GroupBy options passed.
-func GroupBy(fields ...string) Option {
-	return SQLOption(func(q *gorm.DB) {
+func GroupBy(fields ...string) repository.Option {
+	return Option(func(q *gorm.DB) {
 		*q = *q.Group(strings.Join(fields, ","))
 	})
 }
@@ -71,8 +71,8 @@ func Descending(field string) OrderByField {
 // Use the Ascending and Descending functions to pass orders to this Option.
 // In situations with multiple orders, they are applied in sequence.
 // Multiple OrderBy options can be passed to a single Repository operation. They are appended to any previous orders.
-func OrderBy(orders ...OrderByField) Option {
-	return SQLOption(func(q *gorm.DB) {
+func OrderBy(orders ...OrderByField) repository.Option {
+	return Option(func(q *gorm.DB) {
 		for _, order := range orders {
 			*q = *q.Order(string(order))
 		}
@@ -83,8 +83,8 @@ func OrderBy(orders ...OrderByField) Option {
 // The field parameter must match the model field name exactly (case-sensitive).
 // An optional filter composed of a template and any number of values can be passed to filter preloaded results.
 // Multiple Preload options can be passed to a single Repository operation. They are appended to any previous preloads.
-func Preload(field string, filter ...interface{}) Option {
-	return SQLOption(func(q *gorm.DB) {
+func Preload(field string, filter ...interface{}) repository.Option {
+	return Option(func(q *gorm.DB) {
 		*q = *q.Preload(field, filter...)
 	})
 }
