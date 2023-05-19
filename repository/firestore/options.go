@@ -27,3 +27,37 @@ func Offset(offset int) repository.Option {
 		*q = q.Offset(offset)
 	})
 }
+
+// OrderByField contains order by information for a field
+type OrderByField struct {
+	Field     string
+	Direction firestore.Direction
+}
+
+// Ascending sorts the passed field in ascending order.
+func Ascending(field string) OrderByField {
+	return OrderByField{
+		Field:     field,
+		Direction: firestore.Asc,
+	}
+}
+
+// Descending sorts the passed field in descending order.
+func Descending(field string) OrderByField {
+	return OrderByField{
+		Field:     field,
+		Direction: firestore.Desc,
+	}
+}
+
+// OrderBy sorts results based on fields.
+// Use the Ascending and Descending functions to pass orders to this Option.
+// In situations with multiple orders, they are applied in sequence.
+// Multiple OrderBy options can be passed to a single Repository operation. They are appended to any previous orders.
+func OrderBy(orders ...OrderByField) repository.Option {
+	return Option(func(q *firestore.Query) {
+		for _, order := range orders {
+			*q = q.OrderBy(order.Field, order.Direction)
+		}
+	})
+}

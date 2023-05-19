@@ -112,6 +112,34 @@ func (suite *FirestoreRepositoryTestSuite) TestFind_Offset() {
 	suite.Assert().Len(found, 2)
 }
 
+func (suite *FirestoreRepositoryTestSuite) TestFind_OrderBy_Ascending() {
+	var found []Test
+
+	suite.setupMockData()
+
+	suite.Require().NoError(suite.repository.Find(&found, OrderBy(
+		Ascending("Value"),
+	)))
+	suite.Assert().Len(found, 3)
+	suite.Assert().Equal(1, found[0].Value)
+	suite.Assert().Equal(2, found[1].Value)
+	suite.Assert().Equal(3, found[2].Value)
+}
+
+func (suite *FirestoreRepositoryTestSuite) TestFind_OrderBy_Descending() {
+	var found []Test
+
+	suite.setupMockData()
+
+	suite.Require().NoError(suite.repository.Find(&found, OrderBy(
+		Descending("Value"),
+	)))
+	suite.Assert().Len(found, 3)
+	suite.Assert().Equal(3, found[0].Value)
+	suite.Assert().Equal(2, found[1].Value)
+	suite.Assert().Equal(1, found[2].Value)
+}
+
 func (suite *FirestoreRepositoryTestSuite) TestFindOne() {
 	err := suite.repository.FindOne(nil)
 	suite.Assert().Error(err)
