@@ -3,18 +3,11 @@ package repository
 import (
 	"cloud.google.com/go/firestore"
 	"context"
-	"errors"
 	"github.com/gazebo-web/gz-go/v7/reflect"
-)
-
-var (
-	// ErrMethodNotImplemented is returned when a certain method is not implemented.
-	ErrMethodNotImplemented = errors.New("method not implemented")
 )
 
 // firestoreRepository implements Repository using the firestore client.
 type firestoreRepository[T Model] struct {
-	entity Model
 	client *firestore.Client
 }
 
@@ -84,14 +77,13 @@ func (f *firestoreRepository[T]) Count(filters ...Filter) (uint64, error) {
 
 // Model returns this repository's model.
 func (f *firestoreRepository[T]) Model() Model {
-	return f.entity
+	var baseModel T
+	return baseModel
 }
 
 // NewFirestoreRepository initializes a new Repository implementation for Firestore collections.
 func NewFirestoreRepository[T Model](client *firestore.Client) Repository {
-	var baseModel T
 	return &firestoreRepository[T]{
 		client: client,
-		entity: baseModel,
 	}
 }

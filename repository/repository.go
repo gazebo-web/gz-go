@@ -3,6 +3,8 @@ package repository
 import "errors"
 
 var (
+	// ErrMethodNotImplemented is returned when a certain method is not implemented.
+	ErrMethodNotImplemented = errors.New("method not implemented")
 	// ErrNoFilter represents an error when no filter are provided.
 	ErrNoFilter = errors.New("no filters provided")
 	// ErrNoEntriesUpdated represent an error when no entries were updated in the database
