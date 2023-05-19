@@ -31,7 +31,7 @@ type Repository interface {
 	// Create inserts a single entry.
 	// entity: The entry to insert.
 	Create(entity Model) (Model, error)
-	// CreateBulk is a bulk operation to create multiple entries with a single operation.
+	// CreateBulk creates multiple entries with a single operation.
 	// entities: should be a slice of a Model implementation.
 	CreateBulk(entities []Model) ([]Model, error)
 	// Find filters entries and stores filtered entries in output.
