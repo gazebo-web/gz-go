@@ -102,6 +102,16 @@ func (suite *FirestoreRepositoryTestSuite) TestFind_MaxResults() {
 	suite.Assert().Len(found, 1)
 }
 
+func (suite *FirestoreRepositoryTestSuite) TestFind_Offset() {
+	var found []Test
+
+	suite.setupMockData()
+
+	// Calling with offset should return total - offset elements.
+	suite.Require().NoError(suite.repository.Find(&found, Offset(1)))
+	suite.Assert().Len(found, 2)
+}
+
 func (suite *FirestoreRepositoryTestSuite) TestFindOne() {
 	err := suite.repository.FindOne(nil)
 	suite.Assert().Error(err)
