@@ -83,13 +83,23 @@ func (suite *FirestoreRepositoryTestSuite) TestCreateBulk() {
 	suite.Assert().ErrorIs(err, repository.ErrMethodNotImplemented)
 }
 
-func (suite *FirestoreRepositoryTestSuite) TestFind() {
-	var all []Test
+func (suite *FirestoreRepositoryTestSuite) TestFind_All() {
+	var found []Test
 
 	suite.setupMockData()
 
-	suite.Require().NoError(suite.repository.Find(&all))
-	suite.Assert().Len(all, 3)
+	suite.Require().NoError(suite.repository.Find(&found))
+	suite.Assert().Len(found, 3)
+}
+
+func (suite *FirestoreRepositoryTestSuite) TestFind_MaxResults() {
+	var found []Test
+
+	suite.setupMockData()
+
+	// Calling with max results should return the same amount of elements
+	suite.Require().NoError(suite.repository.Find(&found, MaxResults(1)))
+	suite.Assert().Len(found, 1)
 }
 
 func (suite *FirestoreRepositoryTestSuite) TestFindOne() {
