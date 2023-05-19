@@ -145,7 +145,7 @@ func (suite *FirestoreRepositoryTestSuite) TestFind_Where() {
 
 	suite.setupMockData()
 
-	suite.Require().NoError(suite.repository.Find(&found, Where("Value", "=", 1)))
+	suite.Require().NoError(suite.repository.Find(&found, Where("Value", "==", 1)))
 	suite.Assert().Len(found, 1)
 	suite.Assert().Equal(1, found[0].Value)
 }
