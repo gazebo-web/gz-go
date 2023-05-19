@@ -48,6 +48,6 @@ jobs:
           GOOGLE_CLOUD_PROJECT: "test-project"
           FIRESTORE_EMULATOR_HOST: "localhost:8080"
         run: |
-          firebase emulators:start --project test-project &
+          firebase emulators:start --project $GOOGLE_CLOUD_PROJECT &
           go test -timeout 60m -covermode=atomic -coverprofile=coverage.tx -v ./...
           go tool cover -func=coverage.tx -o=coverage.out
