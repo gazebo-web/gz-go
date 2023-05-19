@@ -61,3 +61,13 @@ func OrderBy(orders ...OrderByField) repository.Option {
 		}
 	})
 }
+
+// Where filters results based on passed conditions.
+// Multiple Where options can be passed to a single Repository operation. They are logically ANDed together.
+// The op argument must be one of "==", "!=", "<", "<=", ">", ">=",
+// "array-contains", "array-contains-any", "in" or "not-in".
+func Where(field string, op string, value interface{}) repository.Option {
+	return Option(func(q *firestore.Query) {
+		*q = q.Where(field, op, value)
+	})
+}

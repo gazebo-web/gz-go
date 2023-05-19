@@ -140,6 +140,16 @@ func (suite *FirestoreRepositoryTestSuite) TestFind_OrderBy_Descending() {
 	suite.Assert().Equal(1, found[2].Value)
 }
 
+func (suite *FirestoreRepositoryTestSuite) TestFind_Where() {
+	var found []Test
+
+	suite.setupMockData()
+
+	suite.Require().NoError(suite.repository.Find(&found, Where("Value", "=", 1)))
+	suite.Assert().Len(found, 1)
+	suite.Assert().Equal(1, found[0].Value)
+}
+
 func (suite *FirestoreRepositoryTestSuite) TestFindOne() {
 	err := suite.repository.FindOne(nil)
 	suite.Assert().Error(err)
