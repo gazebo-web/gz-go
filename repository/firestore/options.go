@@ -85,6 +85,6 @@ func Where(field string, op string, value interface{}) repository.Option {
 // Calling StartAfter overrides a previous call to StartAfter.
 func StartAfter(fieldValues ...any) repository.Option {
 	return Option(func(q *firestore.Query) {
-		*q = q.StartAfter(fieldValues)
+		*q = q.StartAfter(fieldValues...)
 	})
 }
