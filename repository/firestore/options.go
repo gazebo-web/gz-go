@@ -71,3 +71,20 @@ func Where(field string, op string, value interface{}) repository.Option {
 		*q = q.Where(field, op, value)
 	})
 }
+
+// StartAfter initializes a new option that specifies that results should start right after
+// the document with the given field values.
+//
+// StartAfter should be called with one field value for each OrderBy clause,
+// in the order that they appear. For example, in
+//
+//	Repository.Find(&list, OrderBy(Descending("Value"), Ascending("Name")), StartAfter(2, "Test"))
+//
+// list will begin at the first document where Value = <2> + 1.
+//
+// Calling StartAfter overrides a previous call to StartAfter.
+func StartAfter(fieldValues ...any) repository.Option {
+	return Option(func(q *firestore.Query) {
+		*q = q.StartAfter(fieldValues...)
+	})
+}
