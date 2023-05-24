@@ -157,17 +157,6 @@ func (suite *FirestoreRepositoryTestSuite) TestFind_OrderByWithStartAfter() {
 	suite.Assert().Equal(1, found[1].Value)
 }
 
-func (suite *FirestoreRepositoryTestSuite) help() {
-	fs, err := suite.client.Firestore(context.Background())
-	suite.Require().NoError(err)
-
-	docs := fs.Collection("test").OrderBy("Value", firestore.Desc).StartAfter(3).Limit(100).Documents(context.Background())
-	all, err := docs.GetAll()
-	suite.Require().NoError(err)
-
-	suite.Assert().Len(all, 2)
-}
-
 func (suite *FirestoreRepositoryTestSuite) TestFind_Pagination_PageWithSize() {
 
 	suite.setupMockData()
