@@ -43,11 +43,7 @@ func (suite *FirestoreRepositoryTestSuite) SetupSuite() {
 	suite.repository = NewFirestoreRepository[Test](suite.fs)
 }
 
-func (suite *FirestoreRepositoryTestSuite) TearDownTest() {
-	suite.tearDownFirebaseEmulator()
-}
-
-func (suite *FirestoreRepositoryTestSuite) tearDownFirebaseEmulator() {
+func (suite *FirestoreRepositoryTestSuite) clearFirestoreData() {
 	var client http.Client
 
 	req, err := http.NewRequest(
@@ -235,6 +231,9 @@ func (suite *FirestoreRepositoryTestSuite) TestCount() {
 }
 
 func (suite *FirestoreRepositoryTestSuite) setupMockData() {
+	// Clear any previously existing data
+	suite.clearFirestoreData()
+
 	_, _, err := suite.fs.Collection("test").Add(context.Background(), Test{
 		Name:  "test-1",
 		Value: 1,
