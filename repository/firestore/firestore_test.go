@@ -150,7 +150,29 @@ func (suite *FirestoreRepositoryTestSuite) TestFind_Where() {
 	suite.Assert().Equal(1, found[0].Value)
 }
 
-func (suite *FirestoreRepositoryTestSuite) TestFind_Pagination() {
+func (suite *FirestoreRepositoryTestSuite) TestFind_OrderByWithStartAfter() {
+
+	suite.setupMockData()
+
+	var found []Test
+	suite.Require().NoError(suite.repository.Find(&found, OrderBy(Descending("Value")), StartAfter(3), MaxResults(2)))
+	suite.Assert().Len(found, 2)
+	suite.Assert().Equal(2, found[0].Value)
+	suite.Assert().Equal(1, found[1].Value)
+}
+
+func (suite *FirestoreRepositoryTestSuite) help() {
+	fs, err := suite.client.Firestore(context.Background())
+	suite.Require().NoError(err)
+
+	docs := fs.Collection("test").OrderBy("Value", firestore.Desc).StartAfter(3).Limit(100).Documents(context.Background())
+	all, err := docs.GetAll()
+	suite.Require().NoError(err)
+
+	suite.Assert().Len(all, 2)
+}
+
+func (suite *FirestoreRepositoryTestSuite) TestFind_Pagination_PageWithSize() {
 
 	suite.setupMockData()
 

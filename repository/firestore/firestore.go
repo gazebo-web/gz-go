@@ -32,7 +32,7 @@ func (r *firestoreRepository[T]) CreateBulk(entities []repository.Model) ([]repo
 // options: configuration options for the search.
 func (r *firestoreRepository[T]) Find(output interface{}, options ...repository.Option) error {
 	col := r.client.Collection(r.Model().TableName())
-	col.Query = r.applyOptions(col.Query, options...)
+	r.applyOptions(&col.Query, options...)
 	iter := col.Documents(context.Background())
 	docs, err := iter.GetAll()
 	if err != nil {
@@ -84,11 +84,10 @@ func (r *firestoreRepository[T]) Model() repository.Model {
 	return baseModel
 }
 
-func (r *firestoreRepository[T]) applyOptions(q firestore.Query, opts ...repository.Option) firestore.Query {
+func (r *firestoreRepository[T]) applyOptions(q *firestore.Query, opts ...repository.Option) {
 	for _, opt := range opts {
-		opt.(Option)(&q)
+		opt.(Option)(q)
 	}
-	return q
 }
 
 // NewFirestoreRepository initializes a new Repository implementation for Firestore collections.
