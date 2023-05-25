@@ -38,9 +38,16 @@ jobs:
           go-version: ${{ inputs.go-version }}
           cache: true
 
+      - name: Install Firebase Emulator Suite
+        run: |
+          npm install -g firebase-tools@12.0.1
+
       - name: Test
         env:
           IGN_DB_ADDRESS: "127.0.0.1:${{ job.services.mysql.ports[3306] }}"
+          GOOGLE_CLOUD_PROJECT: "test-project"
+          FIRESTORE_EMULATOR_HOST: "localhost:8080"
         run: |
+          firebase emulators:start --project $GOOGLE_CLOUD_PROJECT &
           go test -timeout 60m -covermode=atomic -coverprofile=coverage.tx -v ./...
           go tool cover -func=coverage.tx -o=coverage.out
