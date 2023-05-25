@@ -5,6 +5,7 @@ import (
 	"context"
 	firebase "firebase.google.com/go/v4"
 	"fmt"
+	"github.com/gazebo-web/gz-go/v7/errors"
 	"github.com/gazebo-web/gz-go/v7/repository"
 	"github.com/stretchr/testify/suite"
 	"net/http"
@@ -64,19 +65,19 @@ func (suite *FirestoreRepositoryTestSuite) clearFirestoreData() {
 func (suite *FirestoreRepositoryTestSuite) TestFirstOrCreate() {
 	err := suite.repository.FirstOrCreate(nil)
 	suite.Assert().Error(err)
-	suite.Assert().ErrorIs(err, repository.ErrMethodNotImplemented)
+	suite.Assert().ErrorIs(err, errors.ErrMethodNotImplemented)
 }
 
 func (suite *FirestoreRepositoryTestSuite) TestCreate() {
 	_, err := suite.repository.Create(nil)
 	suite.Assert().Error(err)
-	suite.Assert().ErrorIs(err, repository.ErrMethodNotImplemented)
+	suite.Assert().ErrorIs(err, errors.ErrMethodNotImplemented)
 }
 
 func (suite *FirestoreRepositoryTestSuite) TestCreateBulk() {
 	_, err := suite.repository.CreateBulk(nil)
 	suite.Assert().Error(err)
-	suite.Assert().ErrorIs(err, repository.ErrMethodNotImplemented)
+	suite.Assert().ErrorIs(err, errors.ErrMethodNotImplemented)
 }
 
 func (suite *FirestoreRepositoryTestSuite) TestFind_All() {
@@ -190,31 +191,31 @@ func (suite *FirestoreRepositoryTestSuite) TestFind_Pagination_PageWithSize() {
 func (suite *FirestoreRepositoryTestSuite) TestFindOne() {
 	err := suite.repository.FindOne(nil)
 	suite.Assert().Error(err)
-	suite.Assert().ErrorIs(err, repository.ErrMethodNotImplemented)
+	suite.Assert().ErrorIs(err, errors.ErrMethodNotImplemented)
 }
 
 func (suite *FirestoreRepositoryTestSuite) TestLast() {
 	err := suite.repository.Last(nil)
 	suite.Assert().Error(err)
-	suite.Assert().ErrorIs(err, repository.ErrMethodNotImplemented)
+	suite.Assert().ErrorIs(err, errors.ErrMethodNotImplemented)
 }
 
 func (suite *FirestoreRepositoryTestSuite) TestUpdate() {
 	err := suite.repository.Update(nil)
 	suite.Assert().Error(err)
-	suite.Assert().ErrorIs(err, repository.ErrMethodNotImplemented)
+	suite.Assert().ErrorIs(err, errors.ErrMethodNotImplemented)
 }
 
 func (suite *FirestoreRepositoryTestSuite) TestDelete() {
 	err := suite.repository.Delete()
 	suite.Assert().Error(err)
-	suite.Assert().ErrorIs(err, repository.ErrMethodNotImplemented)
+	suite.Assert().ErrorIs(err, errors.ErrMethodNotImplemented)
 }
 
 func (suite *FirestoreRepositoryTestSuite) TestCount() {
 	_, err := suite.repository.Count()
 	suite.Assert().Error(err)
-	suite.Assert().ErrorIs(err, repository.ErrMethodNotImplemented)
+	suite.Assert().ErrorIs(err, errors.ErrMethodNotImplemented)
 }
 
 func (suite *FirestoreRepositoryTestSuite) setupMockData() {

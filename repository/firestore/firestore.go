@@ -3,6 +3,7 @@ package firestore
 import (
 	"cloud.google.com/go/firestore"
 	"context"
+	"github.com/gazebo-web/gz-go/v7/errors"
 	"github.com/gazebo-web/gz-go/v7/reflect"
 	"github.com/gazebo-web/gz-go/v7/repository"
 )
@@ -14,17 +15,17 @@ type firestoreRepository[T repository.Model] struct {
 
 // FirstOrCreate is not implemented.
 func (r *firestoreRepository[T]) FirstOrCreate(entity repository.Model, filters ...repository.Filter) error {
-	return repository.ErrMethodNotImplemented
+	return errors.ErrMethodNotImplemented
 }
 
 // Create is not implemented.
 func (r *firestoreRepository[T]) Create(entity repository.Model) (repository.Model, error) {
-	return nil, repository.ErrMethodNotImplemented
+	return nil, errors.ErrMethodNotImplemented
 }
 
 // CreateBulk is not implemented.
 func (r *firestoreRepository[T]) CreateBulk(entities []repository.Model) ([]repository.Model, error) {
-	return nil, repository.ErrMethodNotImplemented
+	return nil, errors.ErrMethodNotImplemented
 }
 
 // Find filters entries and stores filtered entries in output.
@@ -55,27 +56,27 @@ func (r *firestoreRepository[T]) Find(output interface{}, options ...repository.
 
 // FindOne is not implemented.
 func (r *firestoreRepository[T]) FindOne(output repository.Model, filters ...repository.Filter) error {
-	return repository.ErrMethodNotImplemented
+	return errors.ErrMethodNotImplemented
 }
 
 // Last is not implemented.
 func (r *firestoreRepository[T]) Last(output repository.Model, filters ...repository.Filter) error {
-	return repository.ErrMethodNotImplemented
+	return errors.ErrMethodNotImplemented
 }
 
 // Update is not implemented.
 func (r *firestoreRepository[T]) Update(data interface{}, filters ...repository.Filter) error {
-	return repository.ErrMethodNotImplemented
+	return errors.ErrMethodNotImplemented
 }
 
 // Delete is not implemented.
 func (r *firestoreRepository[T]) Delete(filters ...repository.Filter) error {
-	return repository.ErrMethodNotImplemented
+	return errors.ErrMethodNotImplemented
 }
 
 // Count is not implemented.
 func (r *firestoreRepository[T]) Count(filters ...repository.Filter) (uint64, error) {
-	return 0, repository.ErrMethodNotImplemented
+	return 0, errors.ErrMethodNotImplemented
 }
 
 // Model returns this repository's model.

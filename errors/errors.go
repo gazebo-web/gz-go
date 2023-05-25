@@ -6,6 +6,12 @@ import (
 	"runtime"
 )
 
+var (
+	// ErrMethodNotImplemented is returned when a certain method is not implemented.
+	// It can be used instead of panicking for operations that are not intended to halt execution.
+	ErrMethodNotImplemented error = errors.New("method no implemented")
+)
+
 // WithFunctionContext wraps an error with information about the function that generated the error.
 // `skip` is the number of stack frames that need to be removed to reach the function that generated the error. If this
 // function is called to wrap an error on the function that generated the error, then `skip` should be set to 1.
