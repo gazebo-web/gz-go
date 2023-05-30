@@ -147,11 +147,21 @@ func (suite *FirestoreRepositoryTestSuite) TestFind_Where() {
 	suite.Assert().Equal(1, found[0].Value)
 }
 
-func (suite *FirestoreRepositoryTestSuite) TestFind_Pagination_PageWithCursor() {
+func (suite *FirestoreRepositoryTestSuite) TestFind_Pagination_PageWithStartAfter() {
 	suite.setupMockData()
 
 	var found []Test
 	suite.Require().NoError(suite.repository.Find(&found, OrderBy(Descending("Value")), StartAfter(3), MaxResults(100)))
+	suite.Assert().Len(found, 2)
+	suite.Assert().Equal(2, found[0].Value)
+	suite.Assert().Equal(1, found[1].Value)
+}
+
+func (suite *FirestoreRepositoryTestSuite) TestFind_Pagination_PageWithStartAt() {
+	suite.setupMockData()
+
+	var found []Test
+	suite.Require().NoError(suite.repository.Find(&found, OrderBy(Descending("Value")), StartAt(2), MaxResults(100)))
 	suite.Assert().Len(found, 2)
 	suite.Assert().Equal(2, found[0].Value)
 	suite.Assert().Equal(1, found[1].Value)
