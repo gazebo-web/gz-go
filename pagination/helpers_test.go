@@ -73,3 +73,21 @@ func TestGeneratePageToken(t *testing.T) {
 	require.NoError(t, err)
 	assert.True(t, result.Equal(updatedAt))
 }
+
+func TestParsePageToken(t *testing.T) {
+	// No token provided
+	_, err := ParsePageToken("")
+	assert.Error(t, err)
+
+	// Not a date
+	_, err = ParsePageToken("12345")
+	assert.Error(t, err)
+
+	// A valid time.Time should be correctly parsed into a time.Time when using ParsePageToken.
+	updatedAt := time.Now()
+	token := NewPageToken(updatedAt)
+
+	result, err := ParsePageToken(token)
+	require.NoError(t, err)
+	assert.True(t, result.Equal(updatedAt))
+}
