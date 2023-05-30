@@ -55,7 +55,7 @@ func TestGeneratePageToken(t *testing.T) {
 	// Returns empty string when a nil argument is passed
 	assert.Empty(t, NewPageToken(nil))
 
-	// Returns an empty string when it fails to convert marshal the data type into a text.
+	// Returns an empty string when it fails to marshal the data type into a text.
 	m := new(mockTextMarshaller)
 	m.On("MarshalText").Return("", errors.New("test error"))
 	assert.Empty(t, NewPageToken(m))
