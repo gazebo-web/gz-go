@@ -2,7 +2,9 @@ package pagination
 
 import (
 	"encoding/base64"
+	"errors"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
 	"testing"
 	"time"
@@ -40,9 +42,26 @@ func TestPageSize(t *testing.T) {
 	assert.Equal(t, int32(100), ps)
 }
 
+type mockTextMarshaller struct {
+	mock.Mock
+}
+
+func (m *mockTextMarshaller) MarshalText() (text []byte, err error) {
+	args := m.Called()
+	return []byte(args.String(0)), args.Error(1)
+}
+
 func TestGeneratePageToken(t *testing.T) {
+	// Returns empty string when a nil argument is passed
 	assert.Empty(t, NewPageToken(nil))
 
+	// Returns an empty string when it fails to convert marshal the data type into a text.
+	m := new(mockTextMarshaller)
+	m.On("MarshalText").Return("", errors.New("test error"))
+	assert.Empty(t, NewPageToken(m))
+
+	// Once time.Time is marshalled, it should encode the value into a valid base64 string, and return a string value that
+	// once converted back to time.Time, it should be equal to the original value.
 	updatedAt := time.Now()
 	token := NewPageToken(updatedAt)
 	require.NotEmpty(t, token)
