@@ -88,3 +88,20 @@ func StartAfter(fieldValues ...any) repository.Option {
 		*q = q.StartAfter(fieldValues...)
 	})
 }
+
+// StartAt initializes a new option that specifies that results should start at
+// document with the given field values.
+//
+// StartAt should be called with one field value for each OrderBy clause,
+// in the order that they appear. For example, in
+//
+//	Repository.Find(&list, OrderBy(Descending("Value"), Ascending("Name")), StartAt(1, "Test"))
+//
+// list will begin at the first document where Value = <1> + 1.
+//
+// Calling StartAfter overrides a previous call to StartAfter.
+func StartAt(fieldValues ...any) repository.Option {
+	return Option(func(q *firestore.Query) {
+		*q = q.StartAt(fieldValues...)
+	})
+}
