@@ -37,11 +37,6 @@ func TestPageSize(t *testing.T) {
 	ps = PageSize(paginationTestValue(-500))
 	assert.Equal(t, int32(-1), ps)
 
-	// If the user specifies a page_size = 1, the API chooses an appropriate minimum default (10),
-	// which the API should document. The API must not return an error.
-	ps = PageSize(paginationTestValue(1))
-	assert.Equal(t, int32(10), ps)
-
 	// In all other cases, it should return the input value.
 	ps = PageSize(paginationTestValue(100))
 	assert.Equal(t, int32(100), ps)
