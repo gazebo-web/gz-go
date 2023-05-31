@@ -16,7 +16,6 @@ type PageSizeGetter interface {
 //
 //	Default value: 50
 //	Max value: 1000
-//	Min value: 0.
 //
 //	If no value is passed, it returns 50.
 //	If a value greater than 1000 is specified, it caps the result value to 1000.
