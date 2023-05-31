@@ -17,7 +17,7 @@ type PageSizeGetter interface {
 //	Default value: 50
 //	Max value: 1000
 //
-//	If no value is passed, it returns 50.
+//	If no value is passed, it returns the default value.
 //	If a value greater than 1000 is specified, it caps the result value to 1000.
 //	If a negative value is specified, it returns -1.
 func PageSize(req PageSizeGetter) int32 {
