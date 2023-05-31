@@ -7,7 +7,8 @@ import (
 
 // PageSizeGetter holds a method to return the amount of pages requested by users when listing items in an API call.
 type PageSizeGetter interface {
-	// GetPageSize returns the desired page size.
+	// GetPageSize returns the desired page size. It's using int32 in order to match the method signature from the
+	// generated Go stubs that also return an int32 value.
 	GetPageSize() int32
 }
 
