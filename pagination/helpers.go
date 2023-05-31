@@ -11,7 +11,7 @@ type PageSizeGetter interface {
 	GetPageSize() int32
 }
 
-// PageSize returns a valid page size following the AIP-158 for Pagination.
+// PageSize returns a valid page size following the AIP-158 proposal for Pagination.
 // Reference: https://google.aip.dev/158
 //
 //	Default value: 50
