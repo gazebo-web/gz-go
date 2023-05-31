@@ -19,23 +19,23 @@ func (p paginationTestValue) GetPageSize() int32 {
 func TestPageSize(t *testing.T) {
 	// The page_size field must not be required.
 	ps := PageSize(nil)
-	assert.Equal(t, int32(50), ps)
+	assert.Equal(t, int32(defaultPageSize), ps)
 
 	// If the user does not specify page_size (or specifies 0), the API chooses an appropriate default (50),
 	// which the API should document. The API must not return an error.
 	ps = PageSize(paginationTestValue(0))
-	assert.Equal(t, int32(50), ps)
+	assert.Equal(t, int32(defaultPageSize), ps)
 
 	// If the user specifies page_size greater than the maximum permitted by the API (1000), the API should coerce down
 	// to the maximum permitted page size.
 	ps = PageSize(paginationTestValue(1001))
-	assert.Equal(t, int32(1000), ps)
+	assert.Equal(t, int32(maxPageSize), ps)
 
 	// If the user specifies a negative value for page_size, the API must send an INVALID_ARGUMENT error.
 	// The API may return fewer results than the number requested (including zero results), even if not at the end of
 	// the collection.
 	ps = PageSize(paginationTestValue(-500))
-	assert.Equal(t, int32(-1), ps)
+	assert.Equal(t, int32(InvalidValue), ps)
 
 	// In all other cases, it should return the input value.
 	ps = PageSize(paginationTestValue(100))
