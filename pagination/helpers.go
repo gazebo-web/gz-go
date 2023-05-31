@@ -32,7 +32,7 @@ func PageSize(req PageSizeGetter) int32 {
 		return maxPageSize
 	}
 	if req.GetPageSize() < 0 {
-		return -1
+		return InvalidValue
 	}
 	return req.GetPageSize()
 }

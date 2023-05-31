@@ -24,6 +24,7 @@ const (
 	defaultPage     = 1
 	defaultPageSize = 50
 	maxPageSize     = 1000
+	InvalidValue    = -1
 )
 
 // PagingRequest is used to describe pagination values from incoming requests.
