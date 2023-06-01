@@ -10,7 +10,8 @@ import (
 
 // firestoreRepository implements Repository using the firestore client.
 type firestoreRepository[T repository.Model] struct {
-	client *firestore.Client
+	client     *firestore.Client
+	collection string
 }
 
 // FirstOrCreate is not implemented.
@@ -32,7 +33,7 @@ func (r *firestoreRepository[T]) CreateBulk(entities []repository.Model) ([]repo
 // output: will contain the result of the query. It must be a pointer to a slice.
 // options: configuration options for the search.
 func (r *firestoreRepository[T]) Find(output interface{}, options ...repository.Option) error {
-	col := r.client.Collection(r.Model().TableName())
+	col := r.client.Collection(r.collection)
 	r.applyOptions(&col.Query, options...)
 	iter := col.Documents(context.Background())
 	docs, err := iter.GetAll()
@@ -92,8 +93,9 @@ func (r *firestoreRepository[T]) applyOptions(q *firestore.Query, opts ...reposi
 }
 
 // NewFirestoreRepository initializes a new Repository implementation for Firestore collections.
-func NewFirestoreRepository[T repository.Model](client *firestore.Client) repository.Repository {
+func NewFirestoreRepository[T repository.Model](client *firestore.Client, collection string) repository.Repository {
 	return &firestoreRepository[T]{
-		client: client,
+		client:     client,
+		collection: collection,
 	}
 }

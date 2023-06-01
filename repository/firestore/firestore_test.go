@@ -41,7 +41,7 @@ func (suite *FirestoreRepositoryTestSuite) SetupSuite() {
 	suite.fs, err = suite.client.Firestore(ctx)
 	suite.Require().NoError(err)
 
-	suite.repository = NewFirestoreRepository[Test](suite.fs)
+	suite.repository = NewFirestoreRepository[Test](suite.fs, "test")
 }
 
 func (suite *FirestoreRepositoryTestSuite) clearFirestoreData() {
