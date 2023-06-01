@@ -86,7 +86,7 @@ func TestGeneratePageToken(t *testing.T) {
 	assert.True(t, result.Equal(updatedAt))
 }
 
-func TestParsePageToken(t *testing.T) {
+func TestParsePageTokenToTime(t *testing.T) {
 	// No token provided
 	_, err := ParsePageTokenToTime("")
 	assert.Error(t, err)
