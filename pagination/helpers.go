@@ -54,9 +54,9 @@ func NewPageToken(input encoding.TextMarshaler) string {
 	return string(dst)
 }
 
-// ParsePageToken converts the given token and returns a valid time.Time.
+// ParsePageTokenToTime converts the given token and returns a valid time.Time.
 // The token provided is usually the value used in cursor-based pagination.
-func ParsePageToken(token string) (time.Time, error) {
+func ParsePageTokenToTime(token string) (time.Time, error) {
 	value, err := base64.StdEncoding.DecodeString(token)
 	if err != nil {
 		return time.Time{}, err
