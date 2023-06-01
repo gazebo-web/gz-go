@@ -13,8 +13,12 @@ type PageSizeGetter interface {
 	GetPageSize() int32
 }
 
+// PageSizeOptions allows developers to pass new MaxSize and DefaultSize values to the PageSize function.
+// The options described in this struct override the default PageSize values provided in this library.
 type PageSizeOptions struct {
-	MaxSize     int32
+	// MaxSize is the maximum number of elements that can be returned by the API.
+	MaxSize int32
+	// DefaultSize is the number of elements that the page list will default to.
 	DefaultSize int32
 }
 
@@ -31,8 +35,8 @@ func PageSize(req PageSizeGetter, opts ...PageSizeOptions) int32 {
 	if req == nil {
 		return defaultPageSize
 	}
-	defaultSize := int32(defaultPageSize)
-	maxSize := int32(maxPageSize)
+	defaultSize := defaultPageSize
+	maxSize := maxPageSize
 
 	if len(opts) > 0 {
 		if v := opts[len(opts)-1].DefaultSize; v > 0 {

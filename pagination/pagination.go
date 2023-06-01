@@ -21,10 +21,10 @@ const (
 	queryParamPage     = "page"
 	queryParamPageSize = "page_size"
 
-	defaultPage     = 1
-	defaultPageSize = 50
-	maxPageSize     = 100
-	InvalidValue    = -1
+	defaultPage           = 1
+	defaultPageSize int32 = 50
+	maxPageSize     int32 = 100
+	InvalidValue    int32 = -1
 )
 
 // PagingRequest is used to describe pagination values from incoming requests.
@@ -43,7 +43,7 @@ func ReadRequest(r *http.Request) PagingRequest {
 	}
 	pageSize, err := strconv.ParseUint(r.URL.Query().Get(queryParamPageSize), 10, 64)
 	if err != nil {
-		pageSize = defaultPageSize
+		pageSize = uint64(defaultPageSize)
 	}
 
 	return PagingRequest{
