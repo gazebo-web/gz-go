@@ -3,6 +3,7 @@ package pagination
 import (
 	"encoding"
 	"encoding/base64"
+	"time"
 )
 
 // PageSizeGetter holds a method to return the amount of pages requested by users when listing items in an API call.
@@ -67,4 +68,18 @@ func NewPageToken(input encoding.TextMarshaler) string {
 	dst := make([]byte, base64.StdEncoding.EncodedLen(len(src)))
 	base64.StdEncoding.Encode(dst, src)
 	return string(dst)
+}
+
+// ParsePageTokenToTime converts the given token and returns a valid time.Time.
+// The token provided is usually the value used in cursor-based pagination.
+func ParsePageTokenToTime(token string) (time.Time, error) {
+	value, err := base64.StdEncoding.DecodeString(token)
+	if err != nil {
+		return time.Time{}, err
+	}
+	result, err := time.Parse(time.RFC3339, string(value))
+	if err != nil {
+		return time.Time{}, err
+	}
+	return result, err
 }
