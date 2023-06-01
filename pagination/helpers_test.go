@@ -26,9 +26,9 @@ func TestPageSize(t *testing.T) {
 	ps = PageSize(paginationTestValue(0))
 	assert.Equal(t, int32(defaultPageSize), ps)
 
-	// If the user specifies page_size greater than the maximum permitted by the API (1000), the API should coerce down
+	// If the user specifies page_size greater than the maximum permitted by the API (100), the API should coerce down
 	// to the maximum permitted page size.
-	ps = PageSize(paginationTestValue(1001))
+	ps = PageSize(paginationTestValue(101))
 	assert.Equal(t, int32(maxPageSize), ps)
 
 	// If the user specifies a negative value for page_size, the API must send an INVALID_ARGUMENT error.
@@ -38,8 +38,8 @@ func TestPageSize(t *testing.T) {
 	assert.Equal(t, int32(InvalidValue), ps)
 
 	// In all other cases, it should return the input value.
-	ps = PageSize(paginationTestValue(100))
-	assert.Equal(t, int32(100), ps)
+	ps = PageSize(paginationTestValue(25))
+	assert.Equal(t, int32(25), ps)
 }
 
 func TestPageSize_Options(t *testing.T) {

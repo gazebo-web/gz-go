@@ -22,7 +22,7 @@ type PageSizeOptions struct {
 // Reference: https://google.aip.dev/158
 //
 //	Default value: 50
-//	Max value: 1000
+//	Default max value: 100
 //
 //	If no value is passed, it returns the default value.
 //	If a value greater than the max page size is specified, it caps the result value to the max page size.
