@@ -8,33 +8,49 @@ import (
 
 // PageSizeGetter holds a method to return the amount of pages requested by users when listing items in an API call.
 type PageSizeGetter interface {
-	// GetPageSize returns the desired page size.
+	// GetPageSize returns the desired page size. It's using int32 in order to match the method signature from the
+	// generated Go stubs that also return an int32 value.
 	GetPageSize() int32
 }
 
-// PageSize returns a valid page size following the AIP-158 for Pagination.
+type PageSizeOptions struct {
+	MaxSize     int32
+	DefaultSize int32
+}
+
+// PageSize returns a valid page size following the AIP-158 proposal for Pagination.
 // Reference: https://google.aip.dev/158
 //
 //	Default value: 50
 //	Max value: 1000
-//	Min value: 0.
 //
-//	If no value is passed, it returns 50.
-//	If a value greater than 1000 is specified, it caps the result value to 1000.
+//	If no value is passed, it returns the default value.
+//	If a value greater than the max page size is specified, it caps the result value to the max page size.
 //	If a negative value is specified, it returns -1.
-func PageSize(req PageSizeGetter) int32 {
+func PageSize(req PageSizeGetter, opts ...PageSizeOptions) int32 {
 	if req == nil {
 		return defaultPageSize
 	}
-	if req.GetPageSize() == 0 {
-		return defaultPageSize
+	defaultSize := int32(defaultPageSize)
+	maxSize := int32(maxPageSize)
+
+	if len(opts) > 0 {
+		if v := opts[len(opts)-1].DefaultSize; v > 0 {
+			defaultSize = v
+		}
+		if v := opts[len(opts)-1].MaxSize; v > 0 {
+			maxSize = v
+		}
 	}
 
-	if req.GetPageSize() > maxPageSize {
-		return maxPageSize
+	if req.GetPageSize() == 0 {
+		return defaultSize
+	}
+	if req.GetPageSize() > maxSize {
+		return maxSize
 	}
 	if req.GetPageSize() < 0 {
-		return -1
+		return InvalidValue
 	}
 	return req.GetPageSize()
 }
