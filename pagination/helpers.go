@@ -12,6 +12,11 @@ type PageSizeGetter interface {
 	GetPageSize() int32
 }
 
+type PageSizeOptions struct {
+	MaxSize     int32
+	DefaultSize int32
+}
+
 // PageSize returns a valid page size following the AIP-158 proposal for Pagination.
 // Reference: https://google.aip.dev/158
 //
@@ -21,16 +26,27 @@ type PageSizeGetter interface {
 //	If no value is passed, it returns the default value.
 //	If a value greater than the max page size is specified, it caps the result value to the max page size.
 //	If a negative value is specified, it returns -1.
-func PageSize(req PageSizeGetter) int32 {
+func PageSize(req PageSizeGetter, opts ...PageSizeOptions) int32 {
 	if req == nil {
 		return defaultPageSize
 	}
-	if req.GetPageSize() == 0 {
-		return defaultPageSize
+	defaultSize := int32(defaultPageSize)
+	maxSize := int32(maxPageSize)
+
+	if len(opts) > 0 {
+		if v := opts[len(opts)-1].DefaultSize; v > 0 {
+			defaultSize = v
+		}
+		if v := opts[len(opts)-1].MaxSize; v > 0 {
+			maxSize = v
+		}
 	}
 
-	if req.GetPageSize() > maxPageSize {
-		return maxPageSize
+	if req.GetPageSize() == 0 {
+		return defaultSize
+	}
+	if req.GetPageSize() > maxSize {
+		return maxSize
 	}
 	if req.GetPageSize() < 0 {
 		return InvalidValue

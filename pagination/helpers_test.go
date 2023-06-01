@@ -42,6 +42,18 @@ func TestPageSize(t *testing.T) {
 	assert.Equal(t, int32(100), ps)
 }
 
+func TestPageSize_Options(t *testing.T) {
+	ps := PageSize(paginationTestValue(1001), PageSizeOptions{
+		MaxSize: 1001,
+	})
+	assert.Equal(t, int32(1001), ps)
+
+	ps = PageSize(paginationTestValue(0), PageSizeOptions{
+		DefaultSize: 10,
+	})
+	assert.Equal(t, int32(10), ps)
+}
+
 type mockTextMarshaller struct {
 	mock.Mock
 }
