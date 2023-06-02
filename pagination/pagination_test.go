@@ -24,7 +24,7 @@ func TestReadRequest_NoQueryParams(t *testing.T) {
 
 	req := ReadRequest(&http.Request{URL: u})
 	assert.Equal(t, uint64(1), req.Page, "Must default to 1")
-	assert.Equal(t, uint64(30), req.PageSize, "Must default to 30")
+	assert.Equal(t, uint64(50), req.PageSize, "Must default to 50")
 }
 
 func TestReadRequest_WithPage(t *testing.T) {
@@ -33,7 +33,7 @@ func TestReadRequest_WithPage(t *testing.T) {
 
 	req := ReadRequest(&http.Request{URL: u})
 	assert.Equal(t, uint64(3), req.Page)
-	assert.Equal(t, uint64(30), req.PageSize, "Must default to 30")
+	assert.Equal(t, uint64(50), req.PageSize, "Must default to 50")
 }
 
 func TestReadRequest_WithPageSize(t *testing.T) {
