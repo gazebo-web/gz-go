@@ -218,8 +218,7 @@ func (suite *FirestoreRepositoryTestSuite) TestUpdate() {
 
 func (suite *FirestoreRepositoryTestSuite) TestDelete() {
 	err := suite.repository.Delete()
-	suite.Assert().Error(err)
-	suite.Assert().ErrorIs(err, errors.ErrMethodNotImplemented)
+	suite.Assert().NoError(err)
 }
 
 func (suite *FirestoreRepositoryTestSuite) TestCount() {

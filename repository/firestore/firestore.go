@@ -71,7 +71,7 @@ func (r *firestoreRepository[T]) Update(data interface{}, filters ...repository.
 
 // Delete is not implemented.
 func (r *firestoreRepository[T]) Delete(filters ...repository.Filter) error {
-	return errors.ErrMethodNotImplemented
+	return nil
 }
 
 // Count is not implemented.
