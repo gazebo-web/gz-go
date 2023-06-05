@@ -99,7 +99,7 @@ func StartAfter(fieldValues ...any) repository.Option {
 //
 // list will begin at the first document where Value = <1> + 1.
 //
-// Calling StartAfter overrides a previous call to StartAfter.
+// Calling StartAt overrides a previous call to StartAt.
 func StartAt(fieldValues ...any) repository.Option {
 	return Option(func(q *firestore.Query) {
 		*q = q.StartAt(fieldValues...)
@@ -114,6 +114,8 @@ func NoOp() repository.Option {
 
 // In generates a new option that allows selecting all the elements where the given field contains any of the given
 // values.
+//
+// Multiple In options can be passed to a single Repository operation. They are logically ANDed together.
 //
 //	Repository.Find(&list, In[string]("Name", []string{"Andrew", "John"]))
 func In[T any](field string, values []T) repository.Option {

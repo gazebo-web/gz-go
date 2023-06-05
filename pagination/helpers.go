@@ -9,11 +9,23 @@ import (
 	"time"
 )
 
-// PageSizeGetter holds a method to return the amount of pages requested by users when listing items in an API call.
-type PageSizeGetter interface {
+// Pagination determines what are the methods needed in a request object to perform pagination.
+type Pagination interface {
+	pageSizeGetter
+	pageTokenGetter
+}
+
+// pageSizeGetter holds a method to return the amount of pages requested by users when listing items in an API call.
+type pageSizeGetter interface {
 	// GetPageSize returns the desired page size. It's using int32 in order to match the method signature from the
 	// generated Go stubs that also return an int32 value.
 	GetPageSize() int32
+}
+
+// pageTokenGetter holds a method to the page requested by a user.
+type pageTokenGetter interface {
+	// GetPageToken returns the requested page token. If the user requests a specific page, this value is not empty.
+	GetPageToken() string
 }
 
 // PageSizeOptions allows developers to pass new MaxSize and DefaultSize values to the PageSize function.
@@ -34,7 +46,7 @@ type PageSizeOptions struct {
 //	If no value is passed, it returns the default value.
 //	If a value greater than the max page size is specified, it caps the result value to the max page size.
 //	If a negative value is specified, it returns -1.
-func PageSize(req PageSizeGetter, opts ...PageSizeOptions) int32 {
+func PageSize(req pageSizeGetter, opts ...PageSizeOptions) int32 {
 	if req == nil {
 		return defaultPageSize
 	}
@@ -100,13 +112,17 @@ func GetNextPageTokenFromTime(updatedAt time.Time) string {
 	return NewPageToken(updatedAt)
 }
 
-// SetCurrentPage generates a set of repository.Option to determine set the current page.
-func SetCurrentPage(opts []repository.Option, pageToken string) ([]repository.Option, error) {
+// SetCurrentPage generates a set of repository.Option to retrieve results for a specific page.
+func SetCurrentPage(opts []repository.Option, p Pagination) ([]repository.Option, error) {
 	opts = append(opts, firestore.OrderBy(firestore.Ascending("updated_at")))
-	if len(pageToken) == 0 {
+	opts, err := setMaxResults(opts, p)
+	if err != nil {
+		return nil, err
+	}
+	if p == nil || len(p.GetPageToken()) == 0 {
 		return opts, nil
 	}
-	updatedAt, err := ParsePageTokenToTime(pageToken)
+	updatedAt, err := ParsePageTokenToTime(p.GetPageToken())
 	if err != nil {
 		return nil, err
 	}
@@ -114,14 +130,32 @@ func SetCurrentPage(opts []repository.Option, pageToken string) ([]repository.Op
 	return opts, nil
 }
 
-// SetMaxResults establishes the max number of items that should be returned from firestore.
+// setMaxResults establishes the max number of items that should be returned from firestore.
 // This function includes an extra element in the MaxResults option, this last element is used for pagination.
 // The last element should be discarded before the list is returned to the user.
-// See getListAndCursor for more information.
-func SetMaxResults(opts []repository.Option, sg PageSizeGetter) ([]repository.Option, error) {
+// See GetListAndCursor for more information.
+func setMaxResults(opts []repository.Option, sg pageSizeGetter) ([]repository.Option, error) {
 	p := PageSize(sg)
 	if p == InvalidValue {
 		return nil, errors.New("invalid page size")
 	}
 	return append(opts, firestore.MaxResults(int(p)+1)), nil
+}
+
+// GetListAndCursor is used for pagination. This function generates a list of elements that should be returned to the
+// user, and if there's a next page available, it returns the last element as a separate return value.
+//
+// GetListAndCursor extracts the actual list that was requested by the user, and the last element from the Find output.
+// This way the List operation checks if there's a next page available.
+// If there's not, a zero value is returned, making the getNextPageToken return an empty string.
+//
+// See setMaxResults to understand why this function is being used.
+// This function is usually used alongside GetNextPageToken.
+func GetListAndCursor[T any](raw []T, sg pageSizeGetter) ([]T, T) {
+	if len(raw) > 0 && len(raw) > int(PageSize(sg)) {
+		last := raw[len(raw)-1]
+		return raw[:len(raw)-1], last
+	}
+	var zero T
+	return raw, zero
 }
