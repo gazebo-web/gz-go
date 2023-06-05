@@ -105,3 +105,20 @@ func StartAt(fieldValues ...any) repository.Option {
 		*q = q.StartAt(fieldValues...)
 	})
 }
+
+// NoOp is an option that performs no action.
+// It is defined so that options functions can validate inputs and choose to do nothing because of some internal logic.
+func NoOp() repository.Option {
+	return Option(func(q *firestore.Query) {})
+}
+
+// In generates a new option that allows selecting all the elements where the given field contains any of the given
+// values.
+//
+//	Repository.Find(&list, In[string]("Name", []string{"Andrew", "John"]))
+func In[T any](field string, values []T) repository.Option {
+	if len(values) == 0 {
+		return NoOp()
+	}
+	return Where(field, "in", values)
+}
