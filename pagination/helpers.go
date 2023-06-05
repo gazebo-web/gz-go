@@ -3,6 +3,9 @@ package pagination
 import (
 	"encoding"
 	"encoding/base64"
+	"errors"
+	"github.com/gazebo-web/gz-go/v7/repository"
+	"github.com/gazebo-web/gz-go/v7/repository/firestore"
 	"time"
 )
 
@@ -86,4 +89,39 @@ func ParsePageTokenToTime(token string) (time.Time, error) {
 		return time.Time{}, err
 	}
 	return result, err
+}
+
+// GetNextPageTokenFromTime generates a page token. This function should be used when generating a next page token
+// in a List operation on a time.Time field.
+func GetNextPageTokenFromTime(updatedAt time.Time) string {
+	if updatedAt.IsZero() {
+		return ""
+	}
+	return NewPageToken(updatedAt)
+}
+
+// SetCurrentPage generates a set of repository.Option to determine set the current page.
+func SetCurrentPage(opts []repository.Option, pageToken string) ([]repository.Option, error) {
+	opts = append(opts, firestore.OrderBy(firestore.Ascending("updated_at")))
+	if len(pageToken) == 0 {
+		return opts, nil
+	}
+	updatedAt, err := ParsePageTokenToTime(pageToken)
+	if err != nil {
+		return nil, err
+	}
+	opts = append(opts, firestore.StartAt(updatedAt))
+	return opts, nil
+}
+
+// SetMaxResults establishes the max number of items that should be returned from firestore.
+// This function includes an extra element in the MaxResults option, this last element is used for pagination.
+// The last element should be discarded before the list is returned to the user.
+// See getListAndCursor for more information.
+func SetMaxResults(opts []repository.Option, sg PageSizeGetter) ([]repository.Option, error) {
+	p := PageSize(sg)
+	if p == InvalidValue {
+		return nil, errors.New("invalid page size")
+	}
+	return append(opts, firestore.MaxResults(int(p)+1)), nil
 }
