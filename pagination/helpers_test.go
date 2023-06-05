@@ -105,6 +105,14 @@ func TestParsePageTokenToTime(t *testing.T) {
 	assert.True(t, result.Equal(updatedAt))
 }
 
+func TestGetNextPageToken(t *testing.T) {
+	var zero time.Time
+	assert.Empty(t, GetNextPageTokenFromTime(zero))
+
+	now := time.Now()
+	assert.NotEmpty(t, GetNextPageTokenFromTime(now))
+}
+
 func TestSetMaxResults(t *testing.T) {
 	var opts []repository.Option
 
@@ -113,12 +121,39 @@ func TestSetMaxResults(t *testing.T) {
 	assert.Len(t, opts, 1)
 }
 
-func TestGetNextPageToken(t *testing.T) {
-	var zero time.Time
-	assert.Empty(t, GetNextPageTokenFromTime(zero))
+func TestSetMaxResults_Empty(t *testing.T) {
+	var opts []repository.Option
 
-	now := time.Now()
-	assert.NotEmpty(t, GetNextPageTokenFromTime(now))
+	req := TestPaginationRequest{}
+
+	opts, err := setMaxResults(opts, &req)
+	assert.NoError(t, err)
+	assert.Len(t, opts, 1)
+}
+
+func TestSetMaxResults_Max(t *testing.T) {
+	var opts []repository.Option
+
+	req := TestPaginationRequest{
+		size: 1001,
+	}
+
+	opts, err := setMaxResults(opts, &req)
+	assert.NoError(t, err)
+	assert.Len(t, opts, 1)
+}
+
+func TestSetMaxResults_Invalid(t *testing.T) {
+	var opts []repository.Option
+
+	req := TestPaginationRequest{
+		size: -100,
+	}
+
+	var err error
+	opts, err = setMaxResults(opts, &req)
+	assert.Error(t, err)
+	assert.Len(t, opts, 0)
 }
 
 func TestGetListAndCursor(t *testing.T) {
