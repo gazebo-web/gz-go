@@ -112,3 +112,53 @@ func TestSetMaxResults(t *testing.T) {
 	assert.NoError(t, err)
 	assert.Len(t, opts, 1)
 }
+
+func TestGetNextPageToken(t *testing.T) {
+	var zero time.Time
+	assert.Empty(t, GetNextPageTokenFromTime(zero))
+
+	now := time.Now()
+	assert.NotEmpty(t, GetNextPageTokenFromTime(now))
+}
+
+func TestGetListAndCursor(t *testing.T) {
+	// If page size is 2, but the raw list contains 3 elements, it means that there is a next page.
+	raw := generateMockData()
+	list, last := GetListAndCursor(raw, &TestPaginationRequest{
+		size:  2,
+		token: "",
+	})
+	assert.Len(t, list, 2)
+	assert.NotZero(t, last)
+
+	// If the page size is 3, and the raw list  contains 3 elements, it means that there are no more results to show.
+	list, last = GetListAndCursor(raw, &TestPaginationRequest{
+		size:  3,
+		token: "",
+	})
+	assert.Len(t, list, 3)
+	assert.Zero(t, last)
+}
+
+type TestPaginationRequest struct {
+	size  int32
+	token string
+}
+
+func (req *TestPaginationRequest) GetPageSize() int32 {
+	return req.size
+}
+
+func (req *TestPaginationRequest) GetPageToken() string {
+	return req.token
+}
+
+type testData int
+
+func generateMockData() []testData {
+	data := make([]testData, 3)
+	for i := 0; i < 3; i++ {
+		data[i] = testData(i)
+	}
+	return data
+}
