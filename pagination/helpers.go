@@ -105,11 +105,11 @@ func ParsePageTokenToTime(token string) (time.Time, error) {
 
 // GetNextPageTokenFromTime generates a page token. This function should be used when generating a next page token
 // in a List operation on a time.Time field.
-func GetNextPageTokenFromTime(updatedAt time.Time) string {
-	if updatedAt.IsZero() {
+func GetNextPageTokenFromTime(t time.Time) string {
+	if t.IsZero() {
 		return ""
 	}
-	return NewPageToken(updatedAt)
+	return NewPageToken(t)
 }
 
 // SetCurrentPage generates a set of repository.Option to retrieve results for a specific page.
