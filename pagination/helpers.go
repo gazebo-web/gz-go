@@ -9,7 +9,7 @@ import (
 	"time"
 )
 
-// Pagination determines what are the methods needed in a request object to perform pagination.
+// Pagination determines the methods needed in a request object to perform pagination.
 type Pagination interface {
 	pageSizeGetter
 	pageTokenGetter
