@@ -198,6 +198,50 @@ func (suite *FirestoreRepositoryTestSuite) TestFind_Pagination_PageWithSize() {
 	})
 }
 
+func (suite *FirestoreRepositoryTestSuite) TestFind_NoOp() {
+	suite.setupMockData()
+
+	// Calling with noop should return all elements
+	var expected []Test
+	suite.Require().NoError(suite.repository.Find(&expected))
+
+	var found []Test
+	suite.Require().NoError(suite.repository.Find(&found, NoOp()))
+
+	suite.Assert().Len(found, len(expected))
+	suite.Assert().Equal(found, expected)
+}
+
+func (suite *FirestoreRepositoryTestSuite) TestFind_In() {
+	var found []Test
+
+	suite.setupMockData()
+
+	// Calling with "In" should return the values that match the given names
+	suite.Require().NoError(suite.repository.Find(&found, In[string]("Name", []string{"test-1", "test-2"})))
+	suite.Assert().Len(found, 2)
+	suite.Assert().Condition(func() (success bool) {
+		for _, element := range found {
+			success = element.Name == "test-1" || element.Name == "test-2"
+		}
+		return
+	})
+}
+
+func (suite *FirestoreRepositoryTestSuite) TestFind_In_EmptyValues() {
+
+	suite.setupMockData()
+
+	var expected []Test
+	suite.Require().NoError(suite.repository.Find(&expected, NoOp()))
+
+	// Calling Find with an In option that has no values should be the same as NoOp.
+	var found []Test
+	suite.Require().NoError(suite.repository.Find(&found, In[string]("Name", nil)))
+	suite.Assert().Len(found, len(expected))
+	suite.Assert().Equal(found, expected)
+}
+
 func (suite *FirestoreRepositoryTestSuite) TestFindOne() {
 	err := suite.repository.FindOne(nil)
 	suite.Assert().Error(err)

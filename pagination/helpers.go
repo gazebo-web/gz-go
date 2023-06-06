@@ -6,11 +6,26 @@ import (
 	"time"
 )
 
-// PageSizeGetter holds a method to return the amount of pages requested by users when listing items in an API call.
+// Pagination performs result pagination. 
+// It is intended to be implemented by client request types.
+type Pagination interface {
+	PageSizeGetter
+	PageTokenGetter
+}
+
+// PageSizeGetter provides the amount of results to return when paginating results.
 type PageSizeGetter interface {
 	// GetPageSize returns the desired page size. It's using int32 in order to match the method signature from the
 	// generated Go stubs that also return an int32 value.
 	GetPageSize() int32
+}
+
+// PageTokenGetter provides a page token used to paginate results.
+type PageTokenGetter interface {
+	// GetPageToken returns the requested page token. 
+	// If the user requests a specific page, this value must not be empty.
+	// For cursor-based pagination, this value must be in base64.
+	GetPageToken() string
 }
 
 // PageSizeOptions allows developers to pass new MaxSize and DefaultSize values to the PageSize function.
@@ -86,4 +101,37 @@ func ParsePageTokenToTime(token string) (time.Time, error) {
 		return time.Time{}, err
 	}
 	return result, err
+}
+
+// GetNextPageTokenFromTime generates a page token. This function should be used when generating a next page token
+// based on a `time.Time` type field.
+func GetNextPageTokenFromTime(t time.Time) string {
+	if t.IsZero() {
+		return ""
+	}
+	return NewPageToken(t)
+}
+
+// GetListAndCursor takes a slice of elements and returns a page of results in the form of a slice and a page cursor.
+// 
+// The page of results is the result of the user query and is to be returned to the user as is.
+// 
+// The page cursor is used to determine whether there are additional result pages available. 
+// The cursor is an element that is part of the collection, but not part of the current page. 
+// 
+// If the cursor:
+// 
+// * Is a non-zero value, then there are additional pages available. 
+// * Is a zero value, then the returned page is the last page.
+// 
+// The returned cursor is typically processed by `GetNextPageToken[...]()` type functions to generate a page token.
+//
+// See firestore.setMaxResults to understand why this function is being used.
+func GetListAndCursor[T any](raw []T, sg PageSizeGetter) ([]T, T) {
+	if len(raw) > 0 && len(raw) > int(PageSize(sg)) {
+		last := raw[len(raw)-1]
+		return raw[:len(raw)-1], last
+	}
+	var zero T
+	return raw, zero
 }
