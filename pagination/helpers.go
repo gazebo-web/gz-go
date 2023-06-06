@@ -19,7 +19,7 @@ type PageSizeGetter interface {
 	GetPageSize() int32
 }
 
-// PageTokenGetter holds a method to the page requested by a user.
+// PageTokenGetter provides a page token used to paginate results.
 type PageTokenGetter interface {
 	// GetPageToken returns the requested page token. If the user requests a specific page, this value is not empty.
 	// For cursor-based pagination, this value must be in base64.
