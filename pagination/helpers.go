@@ -112,12 +112,19 @@ func GetNextPageTokenFromTime(t time.Time) string {
 	return NewPageToken(t)
 }
 
-// GetListAndCursor is used for pagination. This function generates a list of elements that should be returned to the
-// user, and if there's a next page available, it returns the last element as a separate return value.
-//
-// GetListAndCursor extracts the actual list that was requested by the user, and the last element from the Find output.
-// This way the List operation checks if there's a next page available.
-// If there's not, a zero value is returned, making the GetNextPageTokenFromTime return an empty string.
+// GetListAndCursor takes a slice of elements and returns a page of results in the form of a slice and a page cursor.
+// 
+// The page of results is the result of the user query and is to be returned to the user as is.
+// 
+// The page cursor is used to determine whether there are additional result pages available. 
+// The cursor is an element that is part of the collection, but not part of the current page. 
+// 
+// If the cursor:
+// 
+// * Is a non-zero value, then there are additional pages available. 
+// * Is a zero value, then the returned page is the last page.
+// 
+// The returned cursor is typically processed by `GetNextPageToken[...]()` type functions to generate a page token.
 //
 // See firestore.setMaxResults to understand why this function is being used.
 func GetListAndCursor[T any](raw []T, sg PageSizeGetter) ([]T, T) {
