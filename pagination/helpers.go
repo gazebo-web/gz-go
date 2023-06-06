@@ -12,7 +12,7 @@ type Pagination interface {
 	PageTokenGetter
 }
 
-// PageSizeGetter holds a method to return the amount of pages requested by users when listing items in an API call.
+// PageSizeGetter provides the amount of results to return when paginating results.
 type PageSizeGetter interface {
 	// GetPageSize returns the desired page size. It's using int32 in order to match the method signature from the
 	// generated Go stubs that also return an int32 value.
