@@ -61,13 +61,3 @@ func (req *TestPaginationRequest) GetPageSize() int32 {
 func (req *TestPaginationRequest) GetPageToken() string {
 	return req.token
 }
-
-type testData int
-
-func generateMockData() []testData {
-	data := make([]testData, 3)
-	for i := 0; i < 3; i++ {
-		data[i] = testData(i)
-	}
-	return data
-}
