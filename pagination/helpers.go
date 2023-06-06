@@ -6,7 +6,8 @@ import (
 	"time"
 )
 
-// Pagination performs result pagination. It is typically implemented by client request types.
+// Pagination performs result pagination. 
+// It is intended to be implemented by client request types.
 type Pagination interface {
 	PageSizeGetter
 	PageTokenGetter
