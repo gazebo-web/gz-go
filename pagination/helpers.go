@@ -120,7 +120,6 @@ func GetNextPageTokenFromTime(t time.Time) string {
 // If there's not, a zero value is returned, making the GetNextPageTokenFromTime return an empty string.
 //
 // See firestore.setMaxResults to understand why this function is being used.
-// This function is usually used alongside GetNextPageTokenFromTime.
 func GetListAndCursor[T any](raw []T, sg PageSizeGetter) ([]T, T) {
 	if len(raw) > 0 && len(raw) > int(PageSize(sg)) {
 		last := raw[len(raw)-1]
