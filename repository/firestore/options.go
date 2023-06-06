@@ -2,6 +2,8 @@ package firestore
 
 import (
 	"cloud.google.com/go/firestore"
+	"errors"
+	"github.com/gazebo-web/gz-go/v7/pagination"
 	"github.com/gazebo-web/gz-go/v7/repository"
 )
 
@@ -99,9 +101,62 @@ func StartAfter(fieldValues ...any) repository.Option {
 //
 // list will begin at the first document where Value = <1> + 1.
 //
-// Calling StartAfter overrides a previous call to StartAfter.
+// Calling StartAt overrides a previous call to StartAt.
 func StartAt(fieldValues ...any) repository.Option {
 	return Option(func(q *firestore.Query) {
 		*q = q.StartAt(fieldValues...)
 	})
+}
+
+// NoOp is an option that performs no action.
+// It is defined so that options functions can validate inputs and choose to do nothing because of some internal logic.
+func NoOp() repository.Option {
+	return Option(func(q *firestore.Query) {})
+}
+
+// In generates a new option that allows selecting all the elements where the given field contains any of the given
+// values.
+//
+// Multiple In options can be passed to a single Repository operation. They are logically ANDed together.
+//
+//	Repository.Find(&list, In[string]("Name", []string{"Andrew", "John"]))
+func In[T any](field string, values []T) repository.Option {
+	if len(values) == 0 {
+		return NoOp()
+	}
+	return Where(field, "in", values)
+}
+
+// setMaxResults establishes the max number of items that should be returned from a firestore query
+// based on pagination configuration.
+// In order to determine whether there are additional pages of results available, this function requests one 
+// extra element than the maximum page size. If this element exists, then there is an additional page 
+// available, if not, then this is the last page.
+// The last element should be discarded before the list is returned to the user.
+// See pagination.GetListAndCursor for more information.
+func setMaxResults(opts []repository.Option, sg pagination.PageSizeGetter) ([]repository.Option, error) {
+	p := pagination.PageSize(sg)
+	if p == pagination.InvalidValue {
+		return nil, errors.New("invalid page size")
+	}
+	return append(opts, MaxResults(int(p)+1)), nil
+}
+
+// SetCurrentPage generates a set of repository.Option to retrieve results for a specific page.
+func SetCurrentPage(p pagination.Pagination) ([]repository.Option, error) {
+	var opts []repository.Option
+	opts = append(opts, OrderBy(Ascending("updated_at")))
+	opts, err := setMaxResults(opts, p)
+	if err != nil {
+		return nil, err
+	}
+	if p == nil || len(p.GetPageToken()) == 0 {
+		return opts, nil
+	}
+	updatedAt, err := pagination.ParsePageTokenToTime(p.GetPageToken())
+	if err != nil {
+		return nil, err
+	}
+	opts = append(opts, StartAt(updatedAt))
+	return opts, nil
 }
