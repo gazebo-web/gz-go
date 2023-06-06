@@ -104,7 +104,7 @@ func ParsePageTokenToTime(token string) (time.Time, error) {
 }
 
 // GetNextPageTokenFromTime generates a page token. This function should be used when generating a next page token
-// in a List operation on a time.Time field.
+// based on a `time.Time` type field.
 func GetNextPageTokenFromTime(t time.Time) string {
 	if t.IsZero() {
 		return ""
