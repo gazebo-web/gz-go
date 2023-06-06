@@ -21,7 +21,8 @@ type PageSizeGetter interface {
 
 // PageTokenGetter provides a page token used to paginate results.
 type PageTokenGetter interface {
-	// GetPageToken returns the requested page token. If the user requests a specific page, this value is not empty.
+	// GetPageToken returns the requested page token. 
+	// If the user requests a specific page, this value must not be empty.
 	// For cursor-based pagination, this value must be in base64.
 	GetPageToken() string
 }
