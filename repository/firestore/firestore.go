@@ -6,6 +6,7 @@ import (
 	"github.com/gazebo-web/gz-go/v7/errors"
 	"github.com/gazebo-web/gz-go/v7/reflect"
 	"github.com/gazebo-web/gz-go/v7/repository"
+	"google.golang.org/api/iterator"
 )
 
 // firestoreRepository implements Repository using the firestore client.
@@ -29,8 +30,9 @@ func (r *firestoreRepository[T]) CreateBulk(entities []repository.Model) ([]repo
 }
 
 // Find filters entries and stores filtered entries in output.
-// output: will contain the result of the query. It must be a pointer to a slice.
-// options: configuration options for the search.
+//
+//	output: will contain the result of the query. It must be a pointer to a slice.
+//	options: configuration options for the search.
 func (r *firestoreRepository[T]) Find(output interface{}, options ...repository.Option) error {
 	col := r.client.Collection(r.Model().TableName())
 	r.applyOptions(&col.Query, options...)
@@ -69,8 +71,57 @@ func (r *firestoreRepository[T]) Update(data interface{}, filters ...repository.
 	return errors.ErrMethodNotImplemented
 }
 
-// Delete is not implemented.
-func (r *firestoreRepository[T]) Delete(filters ...repository.Filter) error {
+// Delete soft-deletes all the entities that match the given options.
+// Delete does not delete all the records that match the given options at once, it will perform the document removal
+// in batches, to avoid
+func (r *firestoreRepository[T]) Delete(options ...repository.Option) error {
+	ctx := context.Background()
+	col := r.client.Collection(r.Model().TableName())
+	r.applyOptions(&col.Query, options...)
+
+	err := r.deleteBatch(ctx, col, 30)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// deleteBatch is a helper function that allows deleting documents in batches.
+func (r *firestoreRepository[T]) deleteBatch(ctx context.Context, col *firestore.CollectionRef, size int) error {
+	writer := r.client.BulkWriter(ctx)
+	for {
+		// Get a batch of documents
+		iter := col.Limit(size).Documents(ctx)
+
+		// Initialize the delete counter to 0
+		deleted := 0
+
+		// Iterate over the current batch of documents and delete them
+		for {
+			doc, err := iter.Next()
+			if err == iterator.Done {
+				break
+			}
+			if err != nil {
+				return err
+			}
+
+			_, err = writer.Delete(doc.Ref)
+			if err != nil {
+				return err
+			}
+			deleted++
+		}
+
+		// If there are no documents to delete, the process is over.
+		if deleted == 0 {
+			writer.End()
+			break
+		}
+
+		writer.Flush()
+	}
 	return nil
 }
 

@@ -57,9 +57,7 @@ func (r *repositoryGorm) CreateBulk(entities []repository.Model) ([]repository.M
 // Find filters entries and stores filtered entries in output.
 //
 //	output: will contain the result of the query. It must be a pointer to a slice.
-//	offset: defines the number of results to skip before loading values to output.
-//	limit: defines the maximum number of entries to return. A nil value returns infinite results.
-//	filters: filter entries by field value.
+//	options: configuration options for the search.
 func (r *repositoryGorm) Find(output interface{}, options ...repository.Option) error {
 	q := r.startQuery()
 	r.applyOptions(q, options...)
@@ -109,10 +107,10 @@ func (r *repositoryGorm) Update(data interface{}, filters ...repository.Filter) 
 
 // Delete removes all the model entries that match filters.
 //
-//	filters: filter entries that should be deleted.
-func (r *repositoryGorm) Delete(filters ...repository.Filter) error {
+//	options: configuration options for the removal.
+func (r *repositoryGorm) Delete(opts ...repository.Option) error {
 	q := r.startQuery()
-	q = r.setQueryFilters(q, filters)
+	r.applyOptions(q, opts...)
 	q = q.Delete(r.Model())
 	err := q.Error
 	if err != nil {

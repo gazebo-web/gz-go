@@ -44,6 +44,11 @@ func (suite *FirestoreRepositoryTestSuite) SetupSuite() {
 	suite.repository = NewFirestoreRepository[Test](suite.fs)
 }
 
+func (suite *FirestoreRepositoryTestSuite) TearDownSuite() {
+	suite.clearFirestoreData()
+	suite.Require().NoError(suite.fs.Close())
+}
+
 func (suite *FirestoreRepositoryTestSuite) clearFirestoreData() {
 	var client http.Client
 
@@ -261,8 +266,18 @@ func (suite *FirestoreRepositoryTestSuite) TestUpdate() {
 }
 
 func (suite *FirestoreRepositoryTestSuite) TestDelete() {
-	err := suite.repository.Delete()
+	suite.setupMockData()
+
+	var before []Test
+	suite.Require().NoError(suite.repository.Find(&before, Where("Value", "==", 1)))
+	suite.Require().NotZero(len(before))
+
+	err := suite.repository.Delete(Where("Value", "==", 1))
 	suite.Assert().NoError(err)
+
+	var after []Test
+	suite.Require().NoError(suite.repository.Find(&after, Where("Value", "==", 1)))
+	suite.Require().Len(after, len(before)-1)
 }
 
 func (suite *FirestoreRepositoryTestSuite) TestCount() {
@@ -275,23 +290,18 @@ func (suite *FirestoreRepositoryTestSuite) setupMockData() {
 	// Clear any previously existing data
 	suite.clearFirestoreData()
 
-	_, _, err := suite.fs.Collection("test").Add(context.Background(), Test{
-		Name:  "test-1",
-		Value: 1,
-	})
-	suite.Require().NoError(err)
+	writer := suite.fs.BulkWriter(context.Background())
 
-	_, _, err = suite.fs.Collection("test").Add(context.Background(), Test{
-		Name:  "test-2",
-		Value: 2,
-	})
-	suite.Require().NoError(err)
+	for i := 1; i <= 3; i++ {
+		ref := suite.fs.Collection("test").NewDoc()
+		_, err := writer.Create(ref, Test{
+			Name:  fmt.Sprintf("test-%d", i),
+			Value: i,
+		})
+		suite.Assert().NoError(err)
+	}
 
-	_, _, err = suite.fs.Collection("test").Add(context.Background(), Test{
-		Name:  "test-3",
-		Value: 3,
-	})
-	suite.Require().NoError(err)
+	writer.End()
 }
 
 type Test struct {
