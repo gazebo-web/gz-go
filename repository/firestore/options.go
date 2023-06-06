@@ -128,7 +128,9 @@ func In[T any](field string, values []T) repository.Option {
 }
 
 // setMaxResults establishes the max number of items that should be returned from firestore.
-// This function includes an extra element in the MaxResults option, this last element is used for pagination.
+// In order to determine whether there are additional pages of results available, this function requests one 
+// extra element than the maximum page size. If this element exists, then there is an additional page 
+// available, if not, then this is the last page.
 // The last element should be discarded before the list is returned to the user.
 // See pagination.GetListAndCursor for more information.
 func setMaxResults(opts []repository.Option, sg pagination.PageSizeGetter) ([]repository.Option, error) {
