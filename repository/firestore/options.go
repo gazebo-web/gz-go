@@ -2,6 +2,8 @@ package firestore
 
 import (
 	"cloud.google.com/go/firestore"
+	"errors"
+	"github.com/gazebo-web/gz-go/v7/pagination"
 	"github.com/gazebo-web/gz-go/v7/repository"
 )
 
@@ -123,4 +125,35 @@ func In[T any](field string, values []T) repository.Option {
 		return NoOp()
 	}
 	return Where(field, "in", values)
+}
+
+// setMaxResults establishes the max number of items that should be returned from firestore.
+// This function includes an extra element in the MaxResults option, this last element is used for pagination.
+// The last element should be discarded before the list is returned to the user.
+// See pagination.GetListAndCursor for more information.
+func setMaxResults(opts []repository.Option, sg pagination.PageSizeGetter) ([]repository.Option, error) {
+	p := pagination.PageSize(sg)
+	if p == pagination.InvalidValue {
+		return nil, errors.New("invalid page size")
+	}
+	return append(opts, MaxResults(int(p)+1)), nil
+}
+
+// SetCurrentPage generates a set of repository.Option to retrieve results for a specific page.
+func SetCurrentPage(p pagination.Pagination) ([]repository.Option, error) {
+	var opts []repository.Option
+	opts = append(opts, OrderBy(Ascending("updated_at")))
+	opts, err := setMaxResults(opts, p)
+	if err != nil {
+		return nil, err
+	}
+	if p == nil || len(p.GetPageToken()) == 0 {
+		return opts, nil
+	}
+	updatedAt, err := pagination.ParsePageTokenToTime(p.GetPageToken())
+	if err != nil {
+		return nil, err
+	}
+	opts = append(opts, StartAt(updatedAt))
+	return opts, nil
 }
