@@ -6,7 +6,7 @@ import (
 	"time"
 )
 
-// Pagination determines the methods needed in a request object to perform pagination.
+// Pagination performs result pagination. It is typically implemented by client request types.
 type Pagination interface {
 	PageSizeGetter
 	PageTokenGetter
