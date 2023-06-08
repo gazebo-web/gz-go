@@ -4,11 +4,9 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	grpc_middleware "github.com/grpc-ecosystem/go-grpc-middleware"
-	grpc_recovery "github.com/grpc-ecosystem/go-grpc-middleware/recovery"
-	grpc_ctxtags "github.com/grpc-ecosystem/go-grpc-middleware/tags"
-	grpc_opentracing "github.com/grpc-ecosystem/go-grpc-middleware/tracing/opentracing"
-	grpc_validator "github.com/grpc-ecosystem/go-grpc-middleware/validator"
+	grpc_recovery "github.com/grpc-ecosystem/go-grpc-middleware/v2/interceptors/recovery"
+	grpc_validator "github.com/grpc-ecosystem/go-grpc-middleware/v2/interceptors/validator"
+	grpc_tracing "go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc"
 	"google.golang.org/grpc"
 	"log"
 	"net"
@@ -108,33 +106,31 @@ func GRPC(register func(s grpc.ServiceRegistrar), streams []grpc.StreamServerInt
 // DefaultStreamInterceptorsGRPC defines the base streams interceptors we usually use for our gRPC servers.
 func DefaultStreamInterceptorsGRPC() []grpc.StreamServerInterceptor {
 	return []grpc.StreamServerInterceptor{
-		grpc_ctxtags.StreamServerInterceptor(),
-		grpc_opentracing.StreamServerInterceptor(),
+		grpc_tracing.StreamServerInterceptor(),
 		grpc_recovery.StreamServerInterceptor(),
 		grpc_validator.StreamServerInterceptor(),
 	}
 }
 
 // GenerateStreamServerInterceptorsChainWithBase appends the given interceptors to the base interceptors defined in DefaultStreamInterceptorsGRPC.
-func GenerateStreamServerInterceptorsChainWithBase(interceptors ...grpc.StreamServerInterceptor) grpc.StreamServerInterceptor {
-	base := DefaultStreamInterceptorsGRPC()
-	return grpc_middleware.ChainStreamServer(append(base, interceptors...)...)
+func GenerateStreamServerInterceptorsChainWithBase(interceptors ...grpc.StreamServerInterceptor) grpc.ServerOption {
+	interceptors = append(DefaultStreamInterceptorsGRPC(), interceptors...)
+	return grpc.ChainStreamInterceptor(interceptors...)
 }
 
 // DefaultUnaryInterceptorsGRPC defines the base streams interceptors we usually use for our gRPC servers.
 func DefaultUnaryInterceptorsGRPC() []grpc.UnaryServerInterceptor {
 	return []grpc.UnaryServerInterceptor{
-		grpc_ctxtags.UnaryServerInterceptor(),
-		grpc_opentracing.UnaryServerInterceptor(),
+		grpc_tracing.UnaryServerInterceptor(),
 		grpc_recovery.UnaryServerInterceptor(),
 		grpc_validator.UnaryServerInterceptor(),
 	}
 }
 
 // GenerateUnaryServerInterceptorsChainWithBase appends the given interceptors to the base interceptors defined in DefaultUnaryInterceptorsGRPC.
-func GenerateUnaryServerInterceptorsChainWithBase(interceptors ...grpc.UnaryServerInterceptor) grpc.UnaryServerInterceptor {
-	base := DefaultUnaryInterceptorsGRPC()
-	return grpc_middleware.ChainUnaryServer(append(base, interceptors...)...)
+func GenerateUnaryServerInterceptorsChainWithBase(interceptors ...grpc.UnaryServerInterceptor) grpc.ServerOption {
+	interceptors = append(DefaultUnaryInterceptorsGRPC(), interceptors...)
+	return grpc.ChainUnaryInterceptor(interceptors...)
 }
 
 // DefaultServerOptionsGRPC is a predefined set of gRPC server options that can be used by any Server when calling the GRPC function.
@@ -147,8 +143,8 @@ func DefaultServerOptionsGRPC() []grpc.ServerOption {
 // Calling this function already uses
 func NewServerOptionsGRPC(streams []grpc.StreamServerInterceptor, unaries []grpc.UnaryServerInterceptor) []grpc.ServerOption {
 	return []grpc.ServerOption{
-		grpc.StreamInterceptor(GenerateStreamServerInterceptorsChainWithBase(streams...)),
-		grpc.UnaryInterceptor(GenerateUnaryServerInterceptorsChainWithBase(unaries...)),
+		GenerateStreamServerInterceptorsChainWithBase(streams...),
+		GenerateUnaryServerInterceptorsChainWithBase(unaries...),
 	}
 }
 
