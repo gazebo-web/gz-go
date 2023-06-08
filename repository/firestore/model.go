@@ -9,12 +9,13 @@ import (
 // load firestore.DocumentSnapshot metadata into Model.
 type Modeler interface {
 	repository.Model
+	NewModel() Modeler
 	// SetUID sets the given UID as the document identifier.
-	SetUID(uid string) Modeler
+	SetUID(uid string)
 	// SetCreatedAt sets the given createdAt value as the creation timestamp.
-	SetCreatedAt(createdAt time.Time) Modeler
+	SetCreatedAt(createdAt time.Time)
 	// SetUpdatedAt sets the given updatedAt value as the last update timestamp.
-	SetUpdatedAt(updatedAt time.Time) Modeler
+	SetUpdatedAt(updatedAt time.Time)
 }
 
 // Model implements the repository.Model interface for firestore.
@@ -29,25 +30,26 @@ type Model struct {
 	UpdatedAt time.Time `firestore:"-"`
 }
 
+func (m *Model) NewModel() Modeler {
+	return new(Model)
+}
+
 // TableName is included to fulfill the Modeler interface. Application should override this method on each model.
-func (m Model) TableName() string {
+func (*Model) TableName() string {
 	return "default"
 }
 
 // SetUID sets the given UID as the document identifier.
-func (m Model) SetUID(uid string) Modeler {
+func (m *Model) SetUID(uid string) {
 	m.ID = uid
-	return m
 }
 
 // SetCreatedAt sets the given createdAt value as the timestamp when this document was created.
-func (m Model) SetCreatedAt(createdAt time.Time) Modeler {
+func (m *Model) SetCreatedAt(createdAt time.Time) {
 	m.CreatedAt = createdAt
-	return m
 }
 
 // SetUpdatedAt sets the given updatedAt value as the timestamp when this document was last updated.
-func (m Model) SetUpdatedAt(updatedAt time.Time) Modeler {
+func (m *Model) SetUpdatedAt(updatedAt time.Time) {
 	m.UpdatedAt = updatedAt
-	return m
 }

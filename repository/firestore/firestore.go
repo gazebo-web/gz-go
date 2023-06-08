@@ -11,7 +11,10 @@ import (
 
 // firestoreRepository implements Repository using the firestore client.
 type firestoreRepository[T Modeler] struct {
+	// client holds a reference to the firestore client in order to read, persist and modify collections.
 	client *firestore.Client
+	// newModel initializes a new model of type T
+	newModel func() T
 }
 
 // FirstOrCreate is not implemented.
@@ -42,23 +45,25 @@ func (r *firestoreRepository[T]) Find(output interface{}, options ...repository.
 		return err
 	}
 
+	var out []T
 	for _, doc := range docs {
 		element, err := r.parseSnapshot(doc)
 		if err != nil {
 			continue
 		}
 
-		if err := reflect.AppendToSlice(output, element); err != nil {
-			continue
-		}
+		out = append(out, element)
 	}
-
-	return nil
+	return reflect.SetValue(output, out)
 }
 
 func (r *firestoreRepository[T]) parseSnapshot(doc *firestore.DocumentSnapshot) (T, error) {
-	var element T
+	element := r.newModel()
 	err := doc.DataTo(&element)
+	if err != nil {
+		var zero T
+		return zero, err
+	}
 	element.SetUID(doc.Ref.ID)
 	element.SetCreatedAt(doc.CreateTime)
 	element.SetUpdatedAt(doc.UpdateTime)
@@ -159,8 +164,17 @@ func (r *firestoreRepository[T]) applyOptions(q *firestore.Query, opts ...reposi
 }
 
 // NewFirestoreRepository initializes a new Repository implementation for Firestore collections.
-func NewFirestoreRepository[T Modeler](client *firestore.Client) repository.Repository {
+// A newModel function needs to be passed in order to initialize new Modeler implementations inside this repository.
+//
+//	newModel function example:
+//	func newTestModel() Person {
+//		return Person{
+//			Model: new(Model),
+//		}
+//	}
+func NewFirestoreRepository[T Modeler](client *firestore.Client, newModel func() T) repository.Repository {
 	return &firestoreRepository[T]{
-		client: client,
+		client:   client,
+		newModel: newModel,
 	}
 }
