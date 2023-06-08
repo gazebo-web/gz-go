@@ -289,7 +289,7 @@ func (suite *FirestoreRepositoryTestSuite) TestDeleteBatch() {
 
 	repo := suite.repository.(*firestoreRepository[Test])
 	col := suite.fs.Collection("test")
-	col.Where("Value", "in", []int{1, 2})
+	col.Query = col.Where("Value", "in", []int{1, 2})
 	suite.Assert().NoError(repo.deleteBatch(context.Background(), col, 1))
 
 	var after []Test
