@@ -71,16 +71,16 @@ func (r *firestoreRepository[T]) Update(data interface{}, filters ...repository.
 	return errors.ErrMethodNotImplemented
 }
 
-// Delete deletes all the entities that match the given options. This method is not responsible for performing soft
-// deletes.
+// Delete deletes all the entities that match the given options. 
 //
+// This method is not responsible for performing soft deletes.
 // Any project using this repository must implement soft deletion at the firestore-level if they're in need of soft
 // deletes. Consider using something like https://extensions.dev/extensions/adamnathanlewis/ext-firestore-soft-deletes
 // We DO NOT recommend any third-party extension, and they're only presented here as an example of what can be used
 // to implement soft deletes.
 //
 // Delete does not remove all the records at once, it will perform the document removal in small batches. This mechanism
-// prevents having out-of-memory errors.
+// prevents running into out-of-memory errors.
 func (r *firestoreRepository[T]) Delete(options ...repository.Option) error {
 	ctx := context.Background()
 	col := r.client.Collection(r.Model().TableName())
@@ -98,10 +98,10 @@ func (r *firestoreRepository[T]) Delete(options ...repository.Option) error {
 func (r *firestoreRepository[T]) deleteBatch(ctx context.Context, col *firestore.CollectionRef, size int) error {
 	writer := r.client.BulkWriter(ctx)
 	for {
-		// Get a batch of documents
+		// Get the next batch of documents
 		iter := col.Limit(size).Documents(ctx)
 
-		// Initialize the delete counter to 0
+		// Track the number of deleted records in this batch
 		deleted := 0
 
 		// Iterate over the current batch of documents and delete them
@@ -121,7 +121,7 @@ func (r *firestoreRepository[T]) deleteBatch(ctx context.Context, col *firestore
 			deleted++
 		}
 
-		// If there are no documents to delete, the process is over.
+		// If no documents were deleted, there are no more documents available and the process is over.
 		if deleted == 0 {
 			writer.End()
 			break
