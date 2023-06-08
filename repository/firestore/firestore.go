@@ -10,7 +10,7 @@ import (
 )
 
 // firestoreRepository implements Repository using the firestore client.
-type firestoreRepository[T repository.Model] struct {
+type firestoreRepository[T Modeler] struct {
 	client *firestore.Client
 }
 
@@ -42,9 +42,9 @@ func (r *firestoreRepository[T]) Find(output interface{}, options ...repository.
 		return err
 	}
 
-	var element T
 	for _, doc := range docs {
-		if err := doc.DataTo(&element); err != nil {
+		element, err := r.parseSnapshot(doc)
+		if err != nil {
 			continue
 		}
 
@@ -54,6 +54,15 @@ func (r *firestoreRepository[T]) Find(output interface{}, options ...repository.
 	}
 
 	return nil
+}
+
+func (r *firestoreRepository[T]) parseSnapshot(doc *firestore.DocumentSnapshot) (T, error) {
+	var element T
+	err := doc.DataTo(&element)
+	element.SetUID(doc.Ref.ID)
+	element.SetCreatedAt(doc.CreateTime)
+	element.SetUpdatedAt(doc.UpdateTime)
+	return element, err
 }
 
 // FindOne is not implemented.
@@ -71,7 +80,7 @@ func (r *firestoreRepository[T]) Update(data interface{}, filters ...repository.
 	return errors.ErrMethodNotImplemented
 }
 
-// Delete deletes all the entities that match the given options. 
+// Delete deletes all the entities that match the given options.
 //
 // This method is not responsible for performing soft deletes.
 // Any project using this repository must implement soft deletion at the firestore-level if they're in need of soft
@@ -150,7 +159,7 @@ func (r *firestoreRepository[T]) applyOptions(q *firestore.Query, opts ...reposi
 }
 
 // NewFirestoreRepository initializes a new Repository implementation for Firestore collections.
-func NewFirestoreRepository[T repository.Model](client *firestore.Client) repository.Repository {
+func NewFirestoreRepository[T Modeler](client *firestore.Client) repository.Repository {
 	return &firestoreRepository[T]{
 		client: client,
 	}

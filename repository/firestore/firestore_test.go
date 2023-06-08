@@ -327,6 +327,6 @@ type Test struct {
 	Value int    `json:"value"`
 }
 
-func (t Test) TableName() string {
+func (Test) TableName() string {
 	return "test"
 }
