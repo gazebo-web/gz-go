@@ -80,7 +80,7 @@ func (r *firestoreRepository[T]) Update(data interface{}, filters ...repository.
 // to implement soft deletes.
 //
 // Delete does not remove all the records at once, it will perform the document removal in small batches. This mechanism
-// prevents having out-of-memory errors.
+// prevents running into out-of-memory errors.
 func (r *firestoreRepository[T]) Delete(options ...repository.Option) error {
 	ctx := context.Background()
 	col := r.client.Collection(r.Model().TableName())
