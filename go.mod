@@ -3,7 +3,9 @@ module github.com/gazebo-web/gz-go/v7
 go 1.19
 
 require (
+	cloud.google.com/go/firestore v1.9.0
 	cloud.google.com/go/storage v1.30.1
+	firebase.google.com/go/v4 v4.11.0
 	github.com/auth0/go-jwt-middleware v0.0.0-20200507191422-d30d7b9ece63
 	github.com/aws/aws-sdk-go v1.44.192
 	github.com/aws/aws-sdk-go-v2 v1.17.3
@@ -22,7 +24,7 @@ require (
 	github.com/go-sql-driver/mysql v1.5.0
 	github.com/golang-jwt/jwt/v5 v5.0.0
 	github.com/gorilla/mux v1.8.0
-	github.com/grpc-ecosystem/go-grpc-middleware v1.3.0
+	github.com/grpc-ecosystem/go-grpc-middleware/v2 v2.0.0-rc.5
 	github.com/jinzhu/gorm v1.9.16
 	github.com/johannesboyne/gofakes3 v0.0.0-20230108161031-df26ca44a1e9
 	github.com/jpillora/go-ogle-analytics v0.0.0-20161213085824-14b04e0594ef
@@ -54,11 +56,9 @@ require (
 	cloud.google.com/go v0.110.0 // indirect
 	cloud.google.com/go/compute v1.19.0 // indirect
 	cloud.google.com/go/compute/metadata v0.2.3 // indirect
-	cloud.google.com/go/firestore v1.9.0 // indirect
 	cloud.google.com/go/iam v0.13.0 // indirect
 	cloud.google.com/go/longrunning v0.4.1 // indirect
 	cloud.google.com/go/pubsub v1.30.0 // indirect
-	firebase.google.com/go/v4 v4.11.0 // indirect
 	github.com/MicahParks/keyfunc v1.9.0 // indirect
 	github.com/aws/aws-sdk-go-v2/aws/protocol/eventstream v1.4.10 // indirect
 	github.com/aws/aws-sdk-go-v2/feature/ec2/imds v1.12.21 // indirect
@@ -101,7 +101,6 @@ require (
 	github.com/matttproud/golang_protobuf_extensions v1.0.1 // indirect
 	github.com/modern-go/concurrent v0.0.0-20180306012644-bacd9c7ef1dd // indirect
 	github.com/modern-go/reflect2 v1.0.2 // indirect
-	github.com/opentracing/opentracing-go v1.1.0 // indirect
 	github.com/pkg/xattr v0.4.9 // indirect
 	github.com/pmezard/go-difflib v1.0.0 // indirect
 	github.com/prometheus/client_model v0.2.0 // indirect
