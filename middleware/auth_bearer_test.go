@@ -8,10 +8,9 @@ import (
 	"fmt"
 	"github.com/gazebo-web/auth/pkg/authentication"
 	"github.com/golang-jwt/jwt/v5"
-	grpc_auth "github.com/grpc-ecosystem/go-grpc-middleware/auth"
-	grpc_test "github.com/grpc-ecosystem/go-grpc-middleware/testing"
-	grpc_testproto "github.com/grpc-ecosystem/go-grpc-middleware/testing/testproto"
-	"github.com/grpc-ecosystem/go-grpc-middleware/util/metautils"
+	grpc_auth "github.com/grpc-ecosystem/go-grpc-middleware/v2/interceptors/auth"
+	"github.com/grpc-ecosystem/go-grpc-middleware/v2/metadata"
+	grpc_test "github.com/grpc-ecosystem/go-grpc-middleware/v2/testing/testpb"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
@@ -169,7 +168,7 @@ func (suite *TestAuthSuite) TestVerifyJWT_FailsNoBearer() {
 	ctx := context.Background()
 
 	client := suite.NewClient()
-	res, err := client.Ping(ctx, &grpc_testproto.PingRequest{})
+	res, err := client.Ping(ctx, &grpc_test.PingRequest{})
 	suite.Assert().Error(err)
 	suite.Assert().ErrorContains(err, "unauthenticated with bearer")
 	suite.Assert().Nil(res)
@@ -183,7 +182,7 @@ func (suite *TestAuthSuite) TestVerifyJWT_FailsVerifyJWTError() {
 	suite.auth.On("VerifyJWT", expectedCtx, "1234").Return(expectedError).Times(1)
 	client := suite.NewClient()
 
-	res, err := client.Ping(ctx, &grpc_testproto.PingRequest{})
+	res, err := client.Ping(ctx, &grpc_test.PingRequest{})
 	suite.Assert().Error(err)
 	suite.Assert().ErrorContains(err, expectedError.Error())
 	suite.Assert().Nil(res)
@@ -196,23 +195,23 @@ func (suite *TestAuthSuite) TestVerifyJWT_Success() {
 	suite.auth.On("VerifyJWT", expectedCtx, "1234").Return(error(nil)).Times(1)
 	client := suite.NewClient()
 
-	res, err := client.Ping(ctx, &grpc_testproto.PingRequest{})
+	res, err := client.Ping(ctx, &grpc_test.PingRequest{})
 	suite.Assert().NoError(err)
 	suite.Assert().NotNil(res)
 }
 
 func ctxWithToken(ctx context.Context, scheme string, token string) context.Context {
 	md := grpc_metadata.Pairs("authorization", fmt.Sprintf("%s %v", scheme, token))
-	return metautils.NiceMD(md).ToOutgoing(ctx)
+	return metadata.MD(md).ToOutgoing(ctx)
 }
 
 type testAuthService struct {
-	grpc_testproto.UnimplementedTestServiceServer
+	grpc_test.UnimplementedTestServiceServer
 	mock.Mock
 }
 
-func (s *testAuthService) Ping(_ context.Context, _ *grpc_testproto.PingRequest) (*grpc_testproto.PingResponse, error) {
-	return &grpc_testproto.PingResponse{}, nil
+func (s *testAuthService) Ping(_ context.Context, _ *grpc_test.PingRequest) (*grpc_test.PingResponse, error) {
+	return &grpc_test.PingResponse{}, nil
 }
 
 func (s *testAuthService) VerifyJWT(ctx context.Context, token string) error {
