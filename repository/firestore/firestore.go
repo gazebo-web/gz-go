@@ -98,7 +98,7 @@ func (r *firestoreRepository[T]) Delete(options ...repository.Option) error {
 func (r *firestoreRepository[T]) deleteBatch(ctx context.Context, col *firestore.CollectionRef, size int) error {
 	writer := r.client.BulkWriter(ctx)
 	for {
-		// Get a batch of documents
+		// Get the next batch of documents
 		iter := col.Limit(size).Documents(ctx)
 
 		// Track the number of deleted records in this batch
