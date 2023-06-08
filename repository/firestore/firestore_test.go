@@ -284,15 +284,16 @@ func (suite *FirestoreRepositoryTestSuite) TestDeleteBatch() {
 	suite.setupMockData()
 
 	var before []Test
-	suite.Require().NoError(suite.repository.Find(&before, Where("Value", "in", []int{1, 2})))
+	suite.Require().NoError(suite.repository.Find(&before, Where("Value", "in", []int{1, 2, 3})))
 	suite.Require().NotZero(len(before))
 
 	repo := suite.repository.(*firestoreRepository[Test])
 	col := suite.fs.Collection("test")
+	col.Where("Value", "in", []int{1, 2})
 	suite.Assert().NoError(repo.deleteBatch(context.Background(), col, 1))
 
 	var after []Test
-	suite.Require().NoError(suite.repository.Find(&after, Where("Value", "in", []int{1, 2})))
+	suite.Require().NoError(suite.repository.Find(&after, Where("Value", "in", []int{1, 2, 3})))
 	suite.Require().Len(after, len(before)-2)
 }
 
