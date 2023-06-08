@@ -74,13 +74,13 @@ func (suite *FirestoreRepositoryTestSuite) TestFirstOrCreate() {
 }
 
 func (suite *FirestoreRepositoryTestSuite) TestCreate() {
-	_, err := suite.repository.Create(nil)
+	err := suite.repository.Create(nil)
 	suite.Assert().Error(err)
 	suite.Assert().ErrorIs(err, errors.ErrMethodNotImplemented)
 }
 
 func (suite *FirestoreRepositoryTestSuite) TestCreateBulk() {
-	_, err := suite.repository.CreateBulk(nil)
+	err := suite.repository.CreateBulk(nil)
 	suite.Assert().Error(err)
 	suite.Assert().ErrorIs(err, errors.ErrMethodNotImplemented)
 }

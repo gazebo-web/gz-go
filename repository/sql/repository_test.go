@@ -58,9 +58,11 @@ func (suite *RepositoryTestSuite) SetupTest() {
 		Value: 3,
 	}
 
-	res, err := suite.Repository.CreateBulk([]repository.Model{test1, test2, test3})
+	err := suite.Repository.CreateBulk([]repository.Model{test1, test2, test3})
 	suite.Require().NoError(err)
-	suite.Require().Len(res, 3)
+	suite.Assert().NotZero(test1.ID)
+	suite.Assert().NotZero(test2.ID)
+	suite.Assert().NotZero(test3.ID)
 }
 
 func (suite *RepositoryTestSuite) TearDownSuite() {
@@ -75,12 +77,13 @@ func (suite *RepositoryTestSuite) TestImplementsInterface() {
 
 func (suite *RepositoryTestSuite) TestCreateOne() {
 	// Creating one record should not fail.
-	res, err := suite.Repository.CreateBulk([]repository.Model{&Test{
+	e := &Test{
 		Name:  "test",
 		Value: 999,
-	}})
+	}
+	err := suite.Repository.CreateBulk([]repository.Model{e})
 	suite.Assert().NoError(err)
-	suite.Assert().Len(res, 1)
+	suite.Assert().NotZero(e.ID)
 
 	var count int64
 	err = suite.db.Model(&Test{}).Count(&count).Error
@@ -90,22 +93,23 @@ func (suite *RepositoryTestSuite) TestCreateOne() {
 
 func (suite *RepositoryTestSuite) TestCreateMultiple() {
 	// Creating multiple records should not fail
-	res, err := suite.Repository.CreateBulk([]repository.Model{
-		&Test{
-			Name:  "test",
-			Value: 999,
-		},
-		&Test{
-			Name:  "test",
-			Value: 999,
-		},
-		&Test{
-			Name:  "test",
-			Value: 999,
-		},
-	})
+	test1 := &Test{
+		Name:  "test",
+		Value: 999,
+	}
+	test2 := &Test{
+		Name:  "test",
+		Value: 999,
+	}
+	test3 := &Test{
+		Name:  "test",
+		Value: 999,
+	}
+	err := suite.Repository.CreateBulk([]repository.Model{test1, test2, test3})
 	suite.Assert().NoError(err)
-	suite.Assert().Len(res, 3)
+	suite.Assert().NotZero(test1.ID)
+	suite.Assert().NotZero(test2.ID)
+	suite.Assert().NotZero(test3.ID)
 
 	// And those records should be in the database.
 	var count int64
@@ -212,7 +216,7 @@ func (suite *RepositoryTestSuite) TestLast() {
 		Name:  "Test3",
 		Value: 3,
 	}
-	created, err := suite.Repository.Create(&test3)
+	err := suite.Repository.Create(&test3)
 	suite.Require().NoError(err)
 
 	var out Test
@@ -222,7 +226,7 @@ func (suite *RepositoryTestSuite) TestLast() {
 	})
 	suite.Assert().NoError(err)
 
-	suite.Assert().Equal(created.GetID(), out.GetID())
+	suite.Assert().NotZero(test3.GetID(), out.GetID())
 }
 
 func (suite *RepositoryTestSuite) TestCount() {

@@ -28,10 +28,10 @@ type Repository interface {
 	FirstOrCreate(entity Model, filters ...Filter) error
 	// Create inserts a single entry.
 	// entity: The entry to insert.
-	Create(entity Model) (Model, error)
+	Create(entity Model) error
 	// CreateBulk creates multiple entries with a single operation.
 	// entities: should be a slice of a Model implementation.
-	CreateBulk(entities []Model) ([]Model, error)
+	CreateBulk(entities []Model) error
 	// Find filters entries and stores filtered entries in output.
 	// output: will contain the result of the query. It must be a pointer to a slice.
 	// options: configuration options for the search. Refer to the implementation's set of options to get a lit of options.

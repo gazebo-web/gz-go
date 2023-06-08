@@ -20,13 +20,13 @@ func (r *firestoreRepository[T]) FirstOrCreate(entity repository.Model, filters 
 }
 
 // Create is not implemented.
-func (r *firestoreRepository[T]) Create(entity repository.Model) (repository.Model, error) {
-	return nil, errors.ErrMethodNotImplemented
+func (r *firestoreRepository[T]) Create(entity repository.Model) error {
+	return errors.ErrMethodNotImplemented
 }
 
 // CreateBulk is not implemented.
-func (r *firestoreRepository[T]) CreateBulk(entities []repository.Model) ([]repository.Model, error) {
-	return nil, errors.ErrMethodNotImplemented
+func (r *firestoreRepository[T]) CreateBulk(entities []repository.Model) error {
+	return errors.ErrMethodNotImplemented
 }
 
 // Find filters entries and stores filtered entries in output.
