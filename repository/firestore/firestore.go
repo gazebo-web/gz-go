@@ -101,7 +101,7 @@ func (r *firestoreRepository[T]) deleteBatch(ctx context.Context, col *firestore
 		// Get a batch of documents
 		iter := col.Limit(size).Documents(ctx)
 
-		// Initialize the delete counter to 0
+		// Track the number of deleted records in this batch
 		deleted := 0
 
 		// Iterate over the current batch of documents and delete them
