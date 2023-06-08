@@ -71,9 +71,9 @@ func (r *firestoreRepository[T]) Update(data interface{}, filters ...repository.
 	return errors.ErrMethodNotImplemented
 }
 
-// Delete deletes all the entities that match the given options. This method is not responsible for performing soft
-// deletes.
+// Delete deletes all the entities that match the given options. 
 //
+// This method is not responsible for performing soft deletes.
 // Any project using this repository must implement soft deletion at the firestore-level if they're in need of soft
 // deletes. Consider using something like https://extensions.dev/extensions/adamnathanlewis/ext-firestore-soft-deletes
 // We DO NOT recommend any third-party extension, and they're only presented here as an example of what can be used
