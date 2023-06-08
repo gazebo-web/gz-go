@@ -121,7 +121,7 @@ func (r *firestoreRepository[T]) deleteBatch(ctx context.Context, col *firestore
 			deleted++
 		}
 
-		// If there are no documents to delete, the process is over.
+		// If no documents were deleted, there are no more documents available and the process is over.
 		if deleted == 0 {
 			writer.End()
 			break
