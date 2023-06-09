@@ -304,7 +304,6 @@ func (suite *FirestoreRepositoryTestSuite) TestDeleteBatch() {
 }
 
 func (suite *FirestoreRepositoryTestSuite) TestCount() {
-
 	_, err := suite.repository.Count()
 	suite.Assert().Error(err)
 	suite.Assert().ErrorIs(err, errors.ErrMethodNotImplemented)
