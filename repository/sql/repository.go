@@ -1,6 +1,7 @@
 package sql
 
 import (
+	"github.com/gazebo-web/gz-go/v7/errors"
 	"github.com/gazebo-web/gz-go/v7/reflect"
 	"github.com/gazebo-web/gz-go/v7/repository"
 	"github.com/jinzhu/gorm"
@@ -108,7 +109,7 @@ func (r *repositoryGorm) Update(data interface{}, filters ...repository.Filter) 
 // Delete removes all the model entries that match filters.
 //
 //	options: configuration options for the removal.
-func (r *repositoryGorm) Delete(opts ...repository.Option) error {
+func (r *repositoryGorm) DeleteBulk(opts ...repository.Option) error {
 	q := r.startQuery()
 	r.applyOptions(q, opts...)
 	q = q.Delete(r.Model())
@@ -139,6 +140,11 @@ func (r *repositoryGorm) Count(filters ...repository.Filter) (uint64, error) {
 		return 0, err
 	}
 	return count, nil
+}
+
+// Delete removes a single model entry that matches the given id.
+func (r *repositoryGorm) Delete(_ interface{}) error {
+	return errors.ErrMethodNotImplemented
 }
 
 // startQuery inits a sql query for this repository's model. Multiple filters are ANDd together.

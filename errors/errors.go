@@ -7,9 +7,11 @@ import (
 )
 
 var (
+	// ErrInvalidID is returned when an invalid model identifier is used in a repository operation.
+	ErrInvalidID = errors.New("invalid id")
 	// ErrMethodNotImplemented is returned when a certain method is not implemented.
 	// It can be used instead of panicking for operations that are not intended to halt execution.
-	ErrMethodNotImplemented error = errors.New("method no implemented")
+	ErrMethodNotImplemented = errors.New("method no implemented")
 )
 
 // WithFunctionContext wraps an error with information about the function that generated the error.

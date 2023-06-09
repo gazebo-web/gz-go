@@ -17,6 +17,19 @@ type firestoreRepository[T Modeler] struct {
 	newModel func() T
 }
 
+// Delete removes a single model entry that matches the given id.
+func (r *firestoreRepository[T]) Delete(id interface{}) error {
+	uid, ok := id.(string)
+	if !ok {
+		return errors.ErrInvalidID
+	}
+	_, err := r.client.Collection(r.Model().TableName()).Doc(uid).Delete(context.Background())
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
 // FirstOrCreate is not implemented.
 func (r *firestoreRepository[T]) FirstOrCreate(entity repository.Model, filters ...repository.Filter) error {
 	return errors.ErrMethodNotImplemented
@@ -85,7 +98,7 @@ func (r *firestoreRepository[T]) Update(data interface{}, filters ...repository.
 	return errors.ErrMethodNotImplemented
 }
 
-// Delete deletes all the entities that match the given options.
+// DeleteBulk deletes all the entities that match the given options.
 //
 // This method is not responsible for performing soft deletes.
 // Any project using this repository must implement soft deletion at the firestore-level if they're in need of soft
@@ -93,9 +106,9 @@ func (r *firestoreRepository[T]) Update(data interface{}, filters ...repository.
 // We DO NOT recommend any third-party extension, and they're only presented here as an example of what can be used
 // to implement soft deletes.
 //
-// Delete does not remove all the records at once, it will perform the document removal in small batches. This mechanism
+// DeleteBulk does not remove all the records at once, it will perform the document removal in small batches. This mechanism
 // prevents running into out-of-memory errors.
-func (r *firestoreRepository[T]) Delete(options ...repository.Option) error {
+func (r *firestoreRepository[T]) DeleteBulk(options ...repository.Option) error {
 	ctx := context.Background()
 	col := r.client.Collection(r.Model().TableName())
 	r.applyOptions(&col.Query, options...)

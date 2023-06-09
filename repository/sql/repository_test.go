@@ -176,14 +176,14 @@ func (suite *RepositoryTestSuite) TestDelete() {
 	}
 
 	// Deleting should not fail.
-	suite.Assert().NoError(suite.Repository.Delete(Where("name = ?", "Test1")))
+	suite.Assert().NoError(suite.Repository.DeleteBulk(Where("name = ?", "Test1")))
 
 	// Finding one should fail, the record no longer exists.
 	var t Test
 	suite.Assert().Error(suite.Repository.FindOne(&t, filter))
 
 	// Deleting is idempotent, deleting twice should not return an error.
-	suite.Assert().NoError(suite.Repository.Delete(Where("name = ?", "Test1")))
+	suite.Assert().NoError(suite.Repository.DeleteBulk(Where("name = ?", "Test1")))
 }
 
 func (suite *RepositoryTestSuite) TestFirstOrCreate() {

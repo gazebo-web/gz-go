@@ -9,7 +9,7 @@ var (
 	// after an Update operation.
 	ErrNoEntriesUpdated = errors.New("no entries were updated")
 	// ErrNoEntriesDeleted represent an error when no entries were deleted in the database
-	// after a Delete operation.
+	// after a DeleteBulk operation.
 	ErrNoEntriesDeleted = errors.New("no entries were deleted")
 )
 
@@ -46,9 +46,11 @@ type Repository interface {
 	// data: must be a map[string]interface{}
 	// filters: selection criteria for entries that should be updated.
 	Update(data interface{}, filters ...Filter) error
-	// Delete removes all the model entries that match filters.
+	// Delete removes a single model entry that matches the given id.
+	Delete(id interface{}) error
+	// DeleteBulk removes all the model entries that match filters.
 	// filters: selection criteria for entries that should be deleted.
-	Delete(opts ...Option) error
+	DeleteBulk(opts ...Option) error
 	// Count counts all the model entries that match filters.
 	// filters: selection criteria for entries that should be considered when counting entries.
 	Count(filters ...Filter) (uint64, error)

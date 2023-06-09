@@ -271,14 +271,14 @@ func (suite *FirestoreRepositoryTestSuite) TestUpdate() {
 	suite.Assert().ErrorIs(err, errors.ErrMethodNotImplemented)
 }
 
-func (suite *FirestoreRepositoryTestSuite) TestDelete() {
+func (suite *FirestoreRepositoryTestSuite) TestDeleteBulk() {
 	suite.setupMockData()
 
 	var before []Test
 	suite.Require().NoError(suite.repository.Find(&before, Where("Value", "==", 1)))
 	suite.Require().NotZero(len(before))
 
-	err := suite.repository.Delete(Where("Value", "==", 1))
+	err := suite.repository.DeleteBulk(Where("Value", "==", 1))
 	suite.Assert().NoError(err)
 
 	var after []Test
@@ -304,10 +304,22 @@ func (suite *FirestoreRepositoryTestSuite) TestDeleteBatch() {
 }
 
 func (suite *FirestoreRepositoryTestSuite) TestCount() {
-
 	_, err := suite.repository.Count()
 	suite.Assert().Error(err)
 	suite.Assert().ErrorIs(err, errors.ErrMethodNotImplemented)
+}
+
+func (suite *FirestoreRepositoryTestSuite) TestDelete() {
+	suite.setupMockData()
+	var items []Test
+	suite.Require().NoError(suite.repository.Find(&items, Where("Value", "in", []int{1})))
+	suite.Require().Len(items, 1)
+
+	err := suite.repository.Delete(items[0].Model.ID)
+	suite.Assert().NoError(err)
+
+	suite.Require().NoError(suite.repository.Find(&items, Where("Value", "in", []int{1})))
+	suite.Require().Len(items, 0)
 }
 
 func (suite *FirestoreRepositoryTestSuite) TestParseSnapshot() {
