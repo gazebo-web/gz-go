@@ -80,7 +80,7 @@ func (r *firestoreRepository[T]) parseSnapshot(doc *firestore.DocumentSnapshot) 
 	element.SetUID(doc.Ref.ID)
 	element.SetCreatedAt(doc.CreateTime)
 	element.SetUpdatedAt(doc.UpdateTime)
-	return element, err
+	return element, nil
 }
 
 // FindOne is not implemented.
@@ -180,9 +180,9 @@ func (r *firestoreRepository[T]) applyOptions(q *firestore.Query, opts ...reposi
 // A newModel function needs to be passed in order to initialize new Modeler implementations inside this repository.
 //
 //	newModel function example:
-//	func newTestModel() Person {
+//	func newPersonModel() Person {
 //		return Person{
-//			Model: new(Model),
+//			Model: new(firestore.Model),
 //		}
 //	}
 func NewFirestoreRepository[T Modeler](client *firestore.Client, newModel func() T) repository.Repository {
