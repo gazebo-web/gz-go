@@ -23,7 +23,7 @@ type Modeler interface {
 // To use it, embed it in your application-specific repository.Model implementation.
 type Model struct {
 	// ID contains the Document ID.
-	ID string
+	ID string `firestore:"-"`
 	// CreatedAt contains the date and time at which this model has been persisted.
 	CreatedAt time.Time `firestore:"-"`
 	// UpdatedAt contains the last date and time when this model has been updated.
