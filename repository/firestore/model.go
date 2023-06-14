@@ -44,6 +44,6 @@ func (m Model) FromDocumentSnapshot(doc *firestore.DocumentSnapshot) Model {
 }
 
 // TableName is included to fulfill the Modeler interface. Application should override this method on each model.
-func (*Model) TableName() string {
+func (Model) TableName() string {
 	return "default"
 }
