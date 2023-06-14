@@ -41,13 +41,7 @@ func (suite *FirestoreRepositoryTestSuite) SetupSuite() {
 	suite.fs, err = suite.client.Firestore(ctx)
 	suite.Require().NoError(err)
 
-	suite.repository = NewFirestoreRepository[Test](suite.fs, newTestModel)
-}
-
-func newTestModel() Test {
-	return Test{
-		Model: new(Model),
-	}
+	suite.repository = NewFirestoreRepository[Test](suite.fs)
 }
 
 func (suite *FirestoreRepositoryTestSuite) TearDownSuite() {
@@ -309,25 +303,6 @@ func (suite *FirestoreRepositoryTestSuite) TestCount() {
 	suite.Assert().ErrorIs(err, errors.ErrMethodNotImplemented)
 }
 
-func (suite *FirestoreRepositoryTestSuite) TestParseSnapshot() {
-	suite.setupMockData()
-
-	repo := suite.repository.(*firestoreRepository[Test])
-	col := suite.fs.Collection("test")
-	col.Query = col.Where("Value", "==", 1)
-	iter := col.Documents(context.Background())
-	snaps, err := iter.GetAll()
-	suite.Require().NoError(err)
-	suite.Require().Len(snaps, 1)
-	snap := snaps[0]
-
-	out, err := repo.parseSnapshot(snap)
-	suite.Assert().NoError(err)
-	suite.Assert().NotZero(out.ID)
-	suite.Assert().False(out.CreatedAt.IsZero())
-	suite.Assert().False(out.UpdatedAt.IsZero())
-}
-
 func (suite *FirestoreRepositoryTestSuite) setupMockData() {
 	// Clear any previously existing data
 	suite.clearFirestoreData()
@@ -337,7 +312,6 @@ func (suite *FirestoreRepositoryTestSuite) setupMockData() {
 	for i := 1; i <= 3; i++ {
 		ref := suite.fs.Collection("test").NewDoc()
 		_, err := writer.Create(ref, Test{
-			Model: new(Model),
 			Name:  fmt.Sprintf("test-%d", i),
 			Value: i,
 		})
@@ -347,10 +321,18 @@ func (suite *FirestoreRepositoryTestSuite) setupMockData() {
 	writer.End()
 }
 
+var _ Modeler[Test] = (*Test)(nil)
+
 type Test struct {
-	*Model
+	Model
 	Name  string `json:"name"`
 	Value int    `json:"value"`
+}
+
+func (t Test) FromDocumentSnapshot(doc *firestore.DocumentSnapshot) Test {
+	t.Model = t.Model.FromDocumentSnapshot(doc)
+	_ = doc.DataTo(&t)
+	return t
 }
 
 func (Test) TableName() string {
