@@ -10,11 +10,9 @@ import (
 )
 
 // firestoreRepository implements Repository using the firestore client.
-type firestoreRepository[T Modeler] struct {
+type firestoreRepository[T Modeler[T]] struct {
 	// client holds a reference to the firestore client in order to read, persist and modify collections.
 	client *firestore.Client
-	// newModel initializes a new model of type T
-	newModel func() T
 }
 
 // Delete removes a single model entry that matches the given id.
@@ -60,27 +58,11 @@ func (r *firestoreRepository[T]) Find(output interface{}, options ...repository.
 
 	var out []T
 	for _, doc := range docs {
-		element, err := r.parseSnapshot(doc)
-		if err != nil {
-			continue
-		}
-
+		var element T
+		element = element.FromDocumentSnapshot(doc)
 		out = append(out, element)
 	}
 	return reflect.SetValue(output, out)
-}
-
-func (r *firestoreRepository[T]) parseSnapshot(doc *firestore.DocumentSnapshot) (T, error) {
-	element := r.newModel()
-	err := doc.DataTo(&element)
-	if err != nil {
-		var zero T
-		return zero, err
-	}
-	element.SetUID(doc.Ref.ID)
-	element.SetCreatedAt(doc.CreateTime)
-	element.SetUpdatedAt(doc.UpdateTime)
-	return element, nil
 }
 
 // FindOne is not implemented.
@@ -177,17 +159,8 @@ func (r *firestoreRepository[T]) applyOptions(q *firestore.Query, opts ...reposi
 }
 
 // NewFirestoreRepository initializes a new Repository implementation for Firestore collections.
-// A newModel function needs to be passed in order to initialize new Modeler implementations inside this repository.
-//
-//	newModel function example:
-//	func newPersonModel() Person {
-//		return Person{
-//			Model: new(firestore.Model),
-//		}
-//	}
-func NewFirestoreRepository[T Modeler](client *firestore.Client, newModel func() T) repository.Repository {
+func NewFirestoreRepository[T Modeler[T]](client *firestore.Client) repository.Repository {
 	return &firestoreRepository[T]{
-		client:   client,
-		newModel: newModel,
+		client: client,
 	}
 }
