@@ -10,7 +10,8 @@ import (
 )
 
 // firestoreRepository implements Repository using the firestore client.
-type firestoreRepository[T repository.Model] struct {
+type firestoreRepository[T Modeler[T]] struct {
+	// client holds a reference to the firestore client in order to read, persist and modify collections.
 	client *firestore.Client
 }
 
@@ -20,13 +21,13 @@ func (r *firestoreRepository[T]) FirstOrCreate(entity repository.Model, filters 
 }
 
 // Create is not implemented.
-func (r *firestoreRepository[T]) Create(entity repository.Model) (repository.Model, error) {
-	return nil, errors.ErrMethodNotImplemented
+func (r *firestoreRepository[T]) Create(entity repository.Model) error {
+	return errors.ErrMethodNotImplemented
 }
 
 // CreateBulk is not implemented.
-func (r *firestoreRepository[T]) CreateBulk(entities []repository.Model) ([]repository.Model, error) {
-	return nil, errors.ErrMethodNotImplemented
+func (r *firestoreRepository[T]) CreateBulk(entities []repository.Model) error {
+	return errors.ErrMethodNotImplemented
 }
 
 // Find filters entries and stores filtered entries in output.
@@ -42,18 +43,13 @@ func (r *firestoreRepository[T]) Find(output interface{}, options ...repository.
 		return err
 	}
 
-	var element T
+	var out []T
 	for _, doc := range docs {
-		if err := doc.DataTo(&element); err != nil {
-			continue
-		}
-
-		if err := reflect.AppendToSlice(output, element); err != nil {
-			continue
-		}
+		var element T
+		element = element.FromDocumentSnapshot(doc)
+		out = append(out, element)
 	}
-
-	return nil
+	return reflect.SetValue(output, out)
 }
 
 // FindOne is not implemented.
@@ -71,7 +67,7 @@ func (r *firestoreRepository[T]) Update(data interface{}, filters ...repository.
 	return errors.ErrMethodNotImplemented
 }
 
-// Delete deletes all the entities that match the given options. 
+// Delete deletes all the entities that match the given options.
 //
 // This method is not responsible for performing soft deletes.
 // Any project using this repository must implement soft deletion at the firestore-level if they're in need of soft
@@ -150,7 +146,7 @@ func (r *firestoreRepository[T]) applyOptions(q *firestore.Query, opts ...reposi
 }
 
 // NewFirestoreRepository initializes a new Repository implementation for Firestore collections.
-func NewFirestoreRepository[T repository.Model](client *firestore.Client) repository.Repository {
+func NewFirestoreRepository[T Modeler[T]](client *firestore.Client) repository.Repository {
 	return &firestoreRepository[T]{
 		client: client,
 	}

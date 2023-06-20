@@ -74,13 +74,13 @@ func (suite *FirestoreRepositoryTestSuite) TestFirstOrCreate() {
 }
 
 func (suite *FirestoreRepositoryTestSuite) TestCreate() {
-	_, err := suite.repository.Create(nil)
+	err := suite.repository.Create(nil)
 	suite.Assert().Error(err)
 	suite.Assert().ErrorIs(err, errors.ErrMethodNotImplemented)
 }
 
 func (suite *FirestoreRepositoryTestSuite) TestCreateBulk() {
-	_, err := suite.repository.CreateBulk(nil)
+	err := suite.repository.CreateBulk(nil)
 	suite.Assert().Error(err)
 	suite.Assert().ErrorIs(err, errors.ErrMethodNotImplemented)
 }
@@ -321,12 +321,20 @@ func (suite *FirestoreRepositoryTestSuite) setupMockData() {
 	writer.End()
 }
 
+var _ Modeler[Test] = (*Test)(nil)
+
 type Test struct {
 	Model
 	Name  string `json:"name"`
 	Value int    `json:"value"`
 }
 
-func (t Test) TableName() string {
+func (t Test) FromDocumentSnapshot(doc *firestore.DocumentSnapshot) Test {
+	t.Model = t.Model.FromDocumentSnapshot(doc)
+	_ = doc.DataTo(&t)
+	return t
+}
+
+func (Test) TableName() string {
 	return "test"
 }

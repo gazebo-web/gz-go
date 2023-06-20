@@ -33,25 +33,25 @@ func (r *repositoryGorm) applyOptions(q *gorm.DB, opts ...repository.Option) {
 // Create inserts a single entry.
 //
 //	entity: The entry to insert.
-func (r *repositoryGorm) Create(entity repository.Model) (repository.Model, error) {
-	result, err := r.CreateBulk([]repository.Model{entity})
+func (r *repositoryGorm) Create(entity repository.Model) error {
+	err := r.CreateBulk([]repository.Model{entity})
 	if err != nil {
-		return nil, err
+		return err
 	}
-	return result[0], nil
+	return nil
 }
 
 // CreateBulk creates multiple entries with a single operation.
 //
 //	entities: should be a slice of the same data structure implementing repository.Model.
-func (r *repositoryGorm) CreateBulk(entities []repository.Model) ([]repository.Model, error) {
+func (r *repositoryGorm) CreateBulk(entities []repository.Model) error {
 	for _, entity := range entities {
 		err := r.DB.Model(r.Model()).Create(entity).Error
 		if err != nil {
-			return nil, err
+			return err
 		}
 	}
-	return entities, nil
+	return nil
 }
 
 // Find filters entries and stores filtered entries in output.
