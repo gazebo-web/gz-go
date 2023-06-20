@@ -10,6 +10,9 @@ var (
 	// ErrMethodNotImplemented is returned when a certain method is not implemented.
 	// It can be used instead of panicking for operations that are not intended to halt execution.
 	ErrMethodNotImplemented error = errors.New("method no implemented")
+
+	// ErrInvalidURL is returned when an invalid URL callback value is passed on a request.
+	ErrInvalidURL = errors.New("invalid URL")
 )
 
 // WithFunctionContext wraps an error with information about the function that generated the error.

@@ -6,11 +6,13 @@ import (
 	"errors"
 	"fmt"
 	"github.com/dgrijalva/jwt-go"
+	gzerrors "github.com/gazebo-web/gz-go/v7/errors"
 	htmlTemplate "html/template"
 	"io"
 	"log"
 	"math/rand"
 	"net/http"
+	"net/url"
 	"os"
 	"path/filepath"
 	"regexp"
@@ -405,6 +407,18 @@ func RemoveIfFound(path string) error {
 		if err := os.Remove(path); err != nil {
 			return err
 		}
+	}
+	return nil
+}
+
+// ValidateURL validates if a raw URL string is well-formed or not.
+func ValidateURL(raw string) error {
+	u, err := url.ParseRequestURI(raw)
+	if err != nil {
+		return err
+	}
+	if u.Scheme == "" && u.Host == "" {
+		return gzerrors.ErrInvalidURL
 	}
 	return nil
 }
