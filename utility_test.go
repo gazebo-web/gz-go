@@ -59,9 +59,32 @@ func TestRemoveIfFound(t *testing.T) {
 	require.NoError(t, os.RemoveAll(path))
 }
 
-func TestValidateURL(t *testing.T) {
-	assert.Error(t, ValidateURL("wrong"))
-	assert.Error(t, ValidateURL("1234"))
-	assert.NoError(t, ValidateURL("http://localhost:3333"))
-	assert.NoError(t, ValidateURL("https://gazebosim.org"))
+func TestParseURL(t *testing.T) {
+	u, err := ParseURL("wrong")
+	assert.Error(t, err)
+	assert.Nil(t, u)
+
+	u, err = ParseURL("1234")
+	assert.Error(t, err)
+	assert.Nil(t, u)
+
+	u, err = ParseURL("http://localhost:3333")
+	assert.NoError(t, err)
+	assert.NotNil(t, u)
+
+	u, err = ParseURL("https://gazebosim.org")
+	assert.NoError(t, err)
+	assert.NotNil(t, u)
+
+	u, err = ParseURL("ws://gazebosim.org/simulations/123456")
+	assert.NoError(t, err)
+	assert.NotNil(t, u)
+
+	u, err = ParseURL("wss://gazebosim.org/simulations/123456")
+	assert.NoError(t, err)
+	assert.NotNil(t, u)
+
+	u, err = ParseURL("s3://gazebosim.org/simulations/123456")
+	assert.NoError(t, err)
+	assert.NotNil(t, u)
 }

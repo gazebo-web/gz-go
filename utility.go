@@ -411,12 +411,21 @@ func RemoveIfFound(path string) error {
 	return nil
 }
 
-// ValidateURL validates if a raw URL string is well-formed or not.
-func ValidateURL(raw string) error {
-	u, err := url.ParseRequestURI(raw)
+// ParseURL parses the given raw URL in string format to an url.URL.
+func ParseURL(raw string) (*url.URL, error) {
+	u, err := url.Parse(raw)
 	if err != nil {
-		return err
+		return nil, err
 	}
+	err = ValidateURL(u)
+	if err != nil {
+		return nil, err
+	}
+	return u, nil
+}
+
+// ValidateURL validates if the given URL is well-formed or not.
+func ValidateURL(u *url.URL) error {
 	if u.Scheme == "" && u.Host == "" {
 		return gzerrors.ErrInvalidURL
 	}
