@@ -18,7 +18,7 @@ require (
 	github.com/dgrijalva/jwt-go v3.2.0+incompatible
 	github.com/fatih/structtag v1.2.0
 	github.com/fsouza/fake-gcs-server v1.44.2
-	github.com/gazebo-web/auth v0.5.0
+	github.com/gazebo-web/auth v0.5.1-0.20230622151731-fe5050011146
 	github.com/go-chi/chi/v5 v5.0.7
 	github.com/go-chi/render v1.0.1
 	github.com/go-sql-driver/mysql v1.5.0
@@ -34,7 +34,7 @@ require (
 	github.com/rollbar/rollbar-go v1.2.0
 	github.com/rs/cors v1.9.0
 	github.com/satori/go.uuid v1.2.0
-	github.com/stretchr/testify v1.8.2
+	github.com/stretchr/testify v1.8.3
 	github.com/urfave/negroni v1.0.0
 	gitlab.com/ignitionrobotics/web/scheduler v0.5.0
 	go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc v0.32.0

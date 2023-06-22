@@ -32,7 +32,7 @@ func newTokenMiddleware(verify authentication.TokenAuthentication, extractors ..
 				http.Error(w, "No token provided", http.StatusBadRequest)
 				return
 			}
-			err = verify(r.Context(), token)
+			_, err = verify(r.Context(), token)
 			if err != nil {
 				http.Error(w, fmt.Sprintf("Failed to verify token: %s", err), http.StatusUnauthorized)
 				return
