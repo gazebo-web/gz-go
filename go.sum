@@ -133,6 +133,8 @@ github.com/fsouza/fake-gcs-server v1.45.2 h1:m4hkghNBY7lmPtpgE41nZa1mOo2PedAZnw3
 github.com/fsouza/fake-gcs-server v1.45.2/go.mod h1:JDINLKL72GbpnqrtS5cptlcIUDQJlI4iNj4lmh7EvmQ=
 github.com/gazebo-web/auth v0.5.0 h1:/T6owcseCd6iZ9HNoZEKigQ2xsPLVcIto2m9aAmlP5E=
 github.com/gazebo-web/auth v0.5.0/go.mod h1:PJeFwk6n2vDCfwvtxdHuOQNab7ajVEBGTJ6Lot6voQg=
+github.com/gazebo-web/auth v0.6.0 h1:nIwWF0k7ADRteL+v04cQk6bafJobCWEsIQyQr7+0ghA=
+github.com/gazebo-web/auth v0.6.0/go.mod h1:EJ7cP4JJxkQShjYTpyp/suQ8CkfKKkr+deDdtd85Gzw=
 github.com/getkin/kin-openapi v0.76.0/go.mod h1:660oXbgy5JFMKreazJaQTw7o+X00qeSyhcnluiMv+Xg=
 github.com/ghodss/yaml v1.0.0/go.mod h1:4dBDuWmgqj2HViK6kFavaiC9ZROes6MMH2rRYeMEF04=
 github.com/go-chi/chi/v5 v5.0.7 h1:rDTPXLDHGATaeHvVlLcR4Qe0zftYethFucbjVQ1PxU8=

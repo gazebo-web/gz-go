@@ -18,7 +18,7 @@ require (
 	github.com/dgrijalva/jwt-go v3.2.0+incompatible
 	github.com/fatih/structtag v1.2.0
 	github.com/fsouza/fake-gcs-server v1.45.2
-	github.com/gazebo-web/auth v0.5.0
+	github.com/gazebo-web/auth v0.6.0
 	github.com/go-chi/chi/v5 v5.0.7
 	github.com/go-chi/render v1.0.1
 	github.com/go-sql-driver/mysql v1.5.0
