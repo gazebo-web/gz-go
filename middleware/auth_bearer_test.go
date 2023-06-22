@@ -93,6 +93,7 @@ func TestBearerToken(t *testing.T) {
 	handler := setupBearerTokenTest(t)
 
 	token := jwt.NewWithClaims(jwt.SigningMethodRS256, jwt.MapClaims(map[string]interface{}{
+		"sub": "gazebo-web",
 		"exp": time.Hour,
 		"iat": time.Now(),
 	}))
@@ -179,7 +180,7 @@ func (suite *TestAuthSuite) TestVerifyJWT_FailsVerifyJWTError() {
 	expectedError := errors.New("failed to verify token")
 
 	expectedCtx := mock.AnythingOfType("*context.valueCtx")
-	suite.auth.On("VerifyJWT", expectedCtx, "1234").Return(expectedError).Times(1)
+	suite.auth.On("VerifyJWT", expectedCtx, "1234").Return(jwt.Claims(&jwt.MapClaims{}), expectedError).Once()
 	client := suite.NewClient()
 
 	res, err := client.Ping(ctx, &grpc_test.PingRequest{})
@@ -192,12 +193,14 @@ func (suite *TestAuthSuite) TestVerifyJWT_Success() {
 	ctx := ctxWithToken(context.Background(), "bearer", "1234")
 
 	expectedCtx := mock.AnythingOfType("*context.valueCtx")
-	suite.auth.On("VerifyJWT", expectedCtx, "1234").Return(error(nil)).Times(1)
+	suite.auth.On("VerifyJWT", expectedCtx, "1234").Return(authentication.NewFirebaseClaims(authentication.NewFirebaseTestToken()), error(nil)).Once()
 	client := suite.NewClient()
 
 	res, err := client.Ping(ctx, &grpc_test.PingRequest{})
 	suite.Assert().NoError(err)
 	suite.Assert().NotNil(res)
+	suite.Assert().NotEmpty(res.GetValue())
+	suite.Assert().Equal("gazebo-web", res.GetValue())
 }
 
 func ctxWithToken(ctx context.Context, scheme string, token string) context.Context {
@@ -210,13 +213,19 @@ type testAuthService struct {
 	mock.Mock
 }
 
-func (s *testAuthService) Ping(_ context.Context, _ *grpc_test.PingRequest) (*grpc_test.PingResponse, error) {
-	return &grpc_test.PingResponse{}, nil
+func (s *testAuthService) Ping(ctx context.Context, _ *grpc_test.PingRequest) (*grpc_test.PingResponse, error) {
+	sub, err := ExtractGRPCAuthSubject(ctx)
+	if err != nil {
+		return nil, err
+	}
+	return &grpc_test.PingResponse{
+		Value: sub,
+	}, nil
 }
 
-func (s *testAuthService) VerifyJWT(ctx context.Context, token string) error {
+func (s *testAuthService) VerifyJWT(ctx context.Context, token string) (jwt.Claims, error) {
 	args := s.Called(ctx, token)
-	return args.Error(0)
+	return args.Get(0).(jwt.Claims), args.Error(1)
 }
 
 func newTestAuthentication() *testAuthService {

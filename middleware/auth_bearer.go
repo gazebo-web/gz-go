@@ -27,13 +27,18 @@ func BearerToken(authentication authentication.Authentication) Middleware {
 //	)
 func BearerAuthFuncGRPC(auth authentication.Authentication) grpc_auth.AuthFunc {
 	return func(ctx context.Context) (context.Context, error) {
-		token, err := grpc_auth.AuthFromMD(ctx, "bearer")
+		raw, err := grpc_auth.AuthFromMD(ctx, "bearer")
 		if err != nil {
 			return nil, err
 		}
-		if err := auth.VerifyJWT(ctx, token); err != nil {
+		token, err := auth.VerifyJWT(ctx, raw)
+		if err != nil {
 			return nil, status.Error(codes.Unauthenticated, err.Error())
 		}
-		return ctx, nil
+		sub, err := token.GetSubject()
+		if err != nil {
+			return nil, status.Error(codes.Unauthenticated, err.Error())
+		}
+		return InjectGRPCAuthSubject(ctx, sub), nil
 	}
 }
