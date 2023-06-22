@@ -128,8 +128,8 @@ github.com/fsnotify/fsnotify v1.4.7/go.mod h1:jwhsz4b93w/PPRr/qN1Yymfu8t87LnFCMo
 github.com/fsnotify/fsnotify v1.4.9/go.mod h1:znqG4EE+3YCdAaPaxE2ZRY/06pZUdp0tY4IgpuI1SZQ=
 github.com/fsouza/fake-gcs-server v1.44.2 h1:i0SFjrC3ALr5FmxWdUgeQQ5myXFY+VMCPGVDj25XXXo=
 github.com/fsouza/fake-gcs-server v1.44.2/go.mod h1:eKmKIfPvl24wxEWVng4Hsh/+BwUTMhrFtQkNJxLAgSI=
-github.com/gazebo-web/auth v0.5.1-0.20230622151731-fe5050011146 h1:8Qewd+3wrDXCJPd6PAV2KxEDtFljU/Dl1frqFqKw6r0=
-github.com/gazebo-web/auth v0.5.1-0.20230622151731-fe5050011146/go.mod h1:EJ7cP4JJxkQShjYTpyp/suQ8CkfKKkr+deDdtd85Gzw=
+github.com/gazebo-web/auth v0.6.0 h1:nIwWF0k7ADRteL+v04cQk6bafJobCWEsIQyQr7+0ghA=
+github.com/gazebo-web/auth v0.6.0/go.mod h1:EJ7cP4JJxkQShjYTpyp/suQ8CkfKKkr+deDdtd85Gzw=
 github.com/getkin/kin-openapi v0.76.0/go.mod h1:660oXbgy5JFMKreazJaQTw7o+X00qeSyhcnluiMv+Xg=
 github.com/ghodss/yaml v1.0.0/go.mod h1:4dBDuWmgqj2HViK6kFavaiC9ZROes6MMH2rRYeMEF04=
 github.com/go-chi/chi/v5 v5.0.7 h1:rDTPXLDHGATaeHvVlLcR4Qe0zftYethFucbjVQ1PxU8=
