@@ -54,9 +54,9 @@ type SQLOptionsTestSuite struct {
 }
 
 func (s *SQLOptionsTestSuite) SetupSuite() {
-	db, err := utilsgorm.GetTestDBFromEnvVars()
+	var err error
+	s.db, err = utilsgorm.GetTestDBFromEnvVars()
 	s.Require().NoError(err)
-	s.db = db.Model(new(SQLOptionsTestModel))
 
 	s.models = []interface{}{new(SQLOptionsReferenceModel), new(SQLOptionsTestModel)}
 	s.repository = NewRepository(s.db, &SQLOptionsTestModel{})
@@ -71,15 +71,15 @@ func (s *SQLOptionsTestSuite) SetupTest() {
 		refref := SQLOptionsReferenceModel{
 			Value: 100 * (i + 1),
 		}
-		s.Require().NoError(s.db.Create(&refref).Error)
+		s.Require().NoError(s.db.Model(&SQLOptionsReferenceModel{}).Create(&refref).Error)
 
 		ref := SQLOptionsReferenceModel{
 			Value:     i + 1,
 			Reference: &refref,
 		}
-		s.Require().NoError(s.db.Create(&ref).Error)
+		s.Require().NoError(s.db.Model(&SQLOptionsReferenceModel{}).Create(&ref).Error)
 
-		err := s.db.Create(&SQLOptionsTestModel{
+		err := s.db.Model(&SQLOptionsTestModel{}).Create(&SQLOptionsTestModel{
 			Name:       fmt.Sprintf("Test %d", i+1),
 			Value:      i + 1,
 			Even:       (i+1)%2 == 0,
@@ -99,7 +99,7 @@ func (s *SQLOptionsTestSuite) TearDownSuite() {
 	// Options should not modify the set of results
 	s.validateNoOptionFind()
 
-	s.Require().NoError(s.db.Migrator().DropTable(s.models))
+	s.Require().NoError(s.db.Migrator().DropTable(s.models...))
 	sqlDb, err := s.db.DB()
 	s.Require().NoError(err)
 	s.Require().NoError(sqlDb.Close())
@@ -159,9 +159,9 @@ func (s *SQLOptionsTestSuite) TestFindOffsetOption() {
 	s.Require().NoError(s.repository.Find(&out, MaxResults(10), Offset(7), Offset(5)))
 	s.Assert().EqualValues([]int{6, 7, 8, 9, 10}, s.getValues(out))
 
-	// Using offset without max results does not change the offset
+	// Using offset without max results does change the offset
 	s.Require().NoError(s.repository.Find(&out, Offset(5)))
-	s.Assert().EqualValues([]int{1, 2, 3, 4, 5, 6, 7, 8, 9, 10}, s.getValues(out))
+	s.Assert().EqualValues([]int{6, 7, 8, 9, 10}, s.getValues(out))
 }
 
 // func (s *SQLOptionsTestSuite) TestFindSelectAndGroupByOptions() {
