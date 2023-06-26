@@ -131,7 +131,7 @@ func (suite *RepositoryTestSuite) TestFindOne() {
 	var t Test
 
 	// Finding one should not fail.
-	suite.Assert().NoError(suite.Repository.FindOne(&t, repository.Filter{
+	suite.Assert().NoError(suite.Repository.FindOne(context.Background(), &t, repository.Filter{
 		Template: "name = ?",
 		Values:   []interface{}{"Test1"},
 	}, repository.Filter{
