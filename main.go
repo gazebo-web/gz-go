@@ -402,13 +402,10 @@ func connectDb(driver, dsn string, cfg *DatabaseConfig) (*gorm.DB, error) {
 	queryCreate := fmt.Sprintf("CREATE DATABASE %s", cfg.Name)
 	queryUse := fmt.Sprintf("USE %s", cfg.Name)
 
-	// Error message
-	errUseDb := fmt.Sprintf("[ERROR] Unable to use the %s database", cfg.Name)
-
 	// Open db connection
 	sqlDB, err := sql.Open(driver, dsn)
 	if err != nil {
-		return nil, fmt.Errorf("unable to connect to the database system: %w", err)
+		return nil, fmt.Errorf("unable to connect to the database: %w", err)
 	}
 
 	// Execute db creation
@@ -425,12 +422,16 @@ func connectDb(driver, dsn string, cfg *DatabaseConfig) (*gorm.DB, error) {
 
 	// If there was an error, it means that the database is not available
 	if err != nil {
-		return nil, errors.New(errUseDb)
+		return nil, errors.New("unable to interact with the new database")
 	}
 
 	// Close and reopen the DB to the correct database.
 	_ = sqlDB.Close()
 	dsn = fmt.Sprintf("%s:%s@tcp(%s)/%s?charset=utf8&parseTime=True&loc=UTC", cfg.UserName, cfg.Password, cfg.Address, cfg.Name)
+	sqlDB, err = sql.Open(driver, dsn)
+	if err != nil {
+		return nil, fmt.Errorf("unable to connect to the database: %w", err)
+	}
 
 	db, err := gorm.Open(mysql.New(mysql.Config{
 		Conn: sqlDB,
