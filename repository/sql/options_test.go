@@ -159,9 +159,9 @@ func (s *SQLOptionsTestSuite) TestFindOffsetOption() {
 	s.Require().NoError(s.repository.Find(&out, MaxResults(10), Offset(7), Offset(5)))
 	s.Assert().EqualValues([]int{6, 7, 8, 9, 10}, s.getValues(out))
 
-	// Using offset without max results does change the offset
+	// Using offset without max results does not change the offset
 	s.Require().NoError(s.repository.Find(&out, Offset(5)))
-	s.Assert().EqualValues([]int{6, 7, 8, 9, 10}, s.getValues(out))
+	s.Assert().EqualValues([]int{1, 2, 3, 4, 5, 6, 7, 8, 9, 10}, s.getValues(out))
 }
 
 // func (s *SQLOptionsTestSuite) TestFindSelectAndGroupByOptions() {
