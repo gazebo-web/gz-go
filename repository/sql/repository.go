@@ -3,7 +3,7 @@ package sql
 import (
 	"github.com/gazebo-web/gz-go/v7/reflect"
 	"github.com/gazebo-web/gz-go/v7/repository"
-	"github.com/jinzhu/gorm"
+	"gorm.io/gorm"
 )
 
 // NewRepository initializes a new repository.Repository implementation for SQL databases.
@@ -101,7 +101,7 @@ func (r *repositoryGorm) Last(output repository.Model, filters ...repository.Fil
 func (r *repositoryGorm) Update(data interface{}, filters ...repository.Filter) error {
 	q := r.startQuery()
 	q = r.setQueryFilters(q, filters)
-	q = q.Update(data)
+	q = q.Updates(data)
 	return q.Error
 }
 
@@ -132,13 +132,13 @@ func (r *repositoryGorm) FirstOrCreate(entity repository.Model, filters ...repos
 //
 //	filters: selection criteria for entries that should be considered when counting entries.
 func (r *repositoryGorm) Count(filters ...repository.Filter) (uint64, error) {
-	var count uint64
+	var count int64
 	q := r.startQuery()
 	q = r.setQueryFilters(q, filters)
 	if err := q.Count(&count).Error; err != nil {
 		return 0, err
 	}
-	return count, nil
+	return uint64(count), nil
 }
 
 // startQuery inits a sql query for this repository's model. Multiple filters are ANDd together.

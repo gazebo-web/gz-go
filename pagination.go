@@ -2,7 +2,7 @@ package gz
 
 import (
 	"fmt"
-	"github.com/jinzhu/gorm"
+	"gorm.io/gorm"
 	"net/http"
 	"net/url"
 	"strconv"
@@ -40,9 +40,9 @@ type PaginationRequest struct {
 	// Flag that indicates if the request included a "page" argument.
 	PageRequested bool
 	// The requested page number (value >= 1)
-	Page int64
+	Page int
 	// The requested number of items per page.
-	PerPage int64
+	PerPage int
 	// The original request URL
 	URL string
 }
@@ -55,7 +55,6 @@ func NewPaginationRequest(r *http.Request) (*PaginationRequest, *ErrMsg) {
 		PerPage:       defaultPageSize,
 		URL:           r.URL.String(),
 	}
-	var err error
 
 	// Parse request arguments
 
@@ -63,10 +62,11 @@ func NewPaginationRequest(r *http.Request) (*PaginationRequest, *ErrMsg) {
 	pageStr := r.URL.Query().Get(pageArgName)
 	if pageStr != "" {
 		pageRequest.PageRequested = true
-		pageRequest.Page, err = strconv.ParseInt(pageStr, 10, 64)
+		v, err := strconv.ParseInt(pageStr, 10, 64)
 		if err != nil {
 			return nil, NewErrorMessageWithArgs(ErrorInvalidPaginationRequest, err, []string{pageArgName})
 		}
+		pageRequest.Page = int(v)
 		if pageRequest.Page <= 0 {
 			return nil, NewErrorMessageWithArgs(ErrorInvalidPaginationRequest, nil, []string{pageArgName})
 		}
@@ -75,10 +75,11 @@ func NewPaginationRequest(r *http.Request) (*PaginationRequest, *ErrMsg) {
 	// Process "per_page" argument
 	perPageStr := r.URL.Query().Get(perPageArgName)
 	if perPageStr != "" {
-		pageRequest.PerPage, err = strconv.ParseInt(perPageStr, 10, 64)
+		v, err := strconv.ParseInt(perPageStr, 10, 64)
 		if err != nil {
 			return nil, NewErrorMessageWithArgs(ErrorInvalidPaginationRequest, err, []string{perPageArgName})
 		}
+		pageRequest.PerPage = int(v)
 		if pageRequest.PerPage <= 0 {
 			return nil, NewErrorMessageWithArgs(ErrorInvalidPaginationRequest, err, []string{perPageArgName})
 		}
@@ -94,9 +95,9 @@ func NewPaginationRequest(r *http.Request) (*PaginationRequest, *ErrMsg) {
 // PaginationResult represents the actual pagination output.
 type PaginationResult struct {
 	// Page number
-	Page int64
+	Page int
 	// Page size
-	PerPage int64
+	PerPage int
 	// Original request' url
 	URL string
 	// Query "total" count (ie. this is NOT the "page" count)
@@ -113,9 +114,9 @@ func newPaginationResult() PaginationResult {
 
 //////////////////////////////////////
 
-func computeLastPage(page *PaginationResult) int64 {
-	mod := page.QueryCount % page.PerPage
-	lastPage := page.QueryCount / page.PerPage
+func computeLastPage(page *PaginationResult) int {
+	mod := int(page.QueryCount) % page.PerPage
+	lastPage := int(page.QueryCount) / page.PerPage
 	if mod > 0 {
 		lastPage++
 	}
@@ -128,7 +129,7 @@ func computeLastPage(page *PaginationResult) int64 {
 // Param[in] p The pagination request
 // Returns a PaginationResult describing the returned page.
 func PaginateQuery(q *gorm.DB, result interface{}, p PaginationRequest) (*PaginationResult, error) {
-	q = q.Limit(int(p.PerPage))
+	q = q.Limit(p.PerPage)
 	q = q.Offset((Max(p.Page, 1) - 1) * p.PerPage)
 	q = q.Find(result)
 	if err := q.Error; err != nil {
@@ -136,7 +137,7 @@ func PaginateQuery(q *gorm.DB, result interface{}, p PaginationRequest) (*Pagina
 	}
 	q = q.Limit(-1)
 	q = q.Offset(-1)
-	count := 0
+	var count int64
 	if err := q.Count(&count).Error; err != nil {
 		return nil, err
 	}
@@ -159,7 +160,7 @@ func PaginateQuery(q *gorm.DB, result interface{}, p PaginationRequest) (*Pagina
 //////////////////////////////////////
 
 // newLinkStr is a helper function to create a page link header string.
-func newLinkStr(u *url.URL, page int64, name string) string {
+func newLinkStr(u *url.URL, page int, name string) string {
 	params := u.Query()
 	params.Set(pageArgName, fmt.Sprint(page))
 	u.RawQuery = params.Encode()

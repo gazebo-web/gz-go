@@ -4,8 +4,8 @@ import (
 	"fmt"
 	utilsgorm "github.com/gazebo-web/gz-go/v7/database/gorm"
 	"github.com/gazebo-web/gz-go/v7/repository"
-	"github.com/jinzhu/gorm"
 	"github.com/stretchr/testify/suite"
+	"gorm.io/gorm"
 	"testing"
 )
 
@@ -64,8 +64,8 @@ func (s *SQLOptionsTestSuite) SetupSuite() {
 
 func (s *SQLOptionsTestSuite) SetupTest() {
 
-	s.Require().NoError(s.db.DropTableIfExists(s.models...).Error)
-	s.Require().NoError(s.db.AutoMigrate(s.models...).Error)
+	s.Require().NoError(s.db.Migrator().DropTable(s.models...))
+	s.Require().NoError(s.db.AutoMigrate(s.models...))
 	// Create test entries
 	for i := 0; i < 10; i++ {
 		refref := SQLOptionsReferenceModel{
@@ -98,8 +98,10 @@ func (s *SQLOptionsTestSuite) TearDownSuite() {
 	// Options should not modify the set of results
 	s.validateNoOptionFind()
 
-	s.Require().NoError(s.db.DropTableIfExists(s.models).Error)
-	s.Require().NoError(s.db.Close())
+	s.Require().NoError(s.db.Migrator().DropTable(s.models))
+	sqlDb, err := s.db.DB()
+	s.Require().NoError(err)
+	s.Require().NoError(sqlDb.Close())
 }
 
 func (s *SQLOptionsTestSuite) TestSQLOptionImplementsOption() {
