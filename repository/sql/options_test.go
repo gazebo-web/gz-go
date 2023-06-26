@@ -55,9 +55,9 @@ type SQLOptionsTestSuite struct {
 }
 
 func (s *SQLOptionsTestSuite) SetupSuite() {
-	db, err := utilsgorm.GetTestDBFromEnvVars()
+	var err error
+	s.db, err = utilsgorm.GetTestDBFromEnvVars()
 	s.Require().NoError(err)
-	s.db = db.Model(new(SQLOptionsTestModel))
 
 	s.models = []interface{}{new(SQLOptionsReferenceModel), new(SQLOptionsTestModel)}
 	s.repository = NewRepository(s.db, &SQLOptionsTestModel{})
@@ -72,15 +72,15 @@ func (s *SQLOptionsTestSuite) SetupTest() {
 		refref := SQLOptionsReferenceModel{
 			Value: 100 * (i + 1),
 		}
-		s.db.Create(&refref)
+		s.Require().NoError(s.db.Model(&SQLOptionsReferenceModel{}).Create(&refref).Error)
 
 		ref := SQLOptionsReferenceModel{
 			Value:     i + 1,
 			Reference: &refref,
 		}
-		s.db.Create(&ref)
+		s.Require().NoError(s.db.Model(&SQLOptionsReferenceModel{}).Create(&ref).Error)
 
-		s.db.Create(&SQLOptionsTestModel{
+		err := s.db.Model(&SQLOptionsTestModel{}).Create(&SQLOptionsTestModel{
 			Name:       fmt.Sprintf("Test %d", i+1),
 			Value:      i + 1,
 			Even:       (i+1)%2 == 0,
@@ -88,7 +88,8 @@ func (s *SQLOptionsTestSuite) SetupTest() {
 			Reference1: &ref,
 			Reference2: &ref,
 			Reference3: &ref,
-		})
+		}).Error
+		s.Require().NoError(err)
 	}
 
 	// Check that the set of results is as expected
@@ -99,7 +100,7 @@ func (s *SQLOptionsTestSuite) TearDownSuite() {
 	// Options should not modify the set of results
 	s.validateNoOptionFind()
 
-	s.Require().NoError(s.db.Migrator().DropTable(s.models))
+	s.Require().NoError(s.db.Migrator().DropTable(s.models...))
 	sqlDb, err := s.db.DB()
 	s.Require().NoError(err)
 	s.Require().NoError(sqlDb.Close())
@@ -109,7 +110,7 @@ func (s *SQLOptionsTestSuite) TestSQLOptionImplementsOption() {
 	s.Assert().Implements((*repository.Option)(nil), new(Option))
 }
 
-func (s *SQLOptionsTestSuite) getValues(values []*SQLOptionsTestModel) (out []int) {
+func (s *SQLOptionsTestSuite) getValues(values []SQLOptionsTestModel) (out []int) {
 	for _, v := range values {
 		out = append(out, v.Value)
 	}
@@ -117,13 +118,13 @@ func (s *SQLOptionsTestSuite) getValues(values []*SQLOptionsTestModel) (out []in
 }
 
 func (s *SQLOptionsTestSuite) validateNoOptionFind() {
-	var out []*SQLOptionsTestModel
+	var out []SQLOptionsTestModel
 	s.Require().NoError(s.repository.Find(context.Background(), &out))
 	s.Assert().EqualValues([]int{1, 2, 3, 4, 5, 6, 7, 8, 9, 10}, s.getValues(out))
 }
 
 func (s *SQLOptionsTestSuite) TestFindWhereOption() {
-	var out []*SQLOptionsTestModel
+	var out []SQLOptionsTestModel
 
 	// Single condition
 	s.Require().NoError(s.repository.Find(context.Background(), &out, Where("value % ? = 0", 2)))
@@ -135,7 +136,7 @@ func (s *SQLOptionsTestSuite) TestFindWhereOption() {
 }
 
 func (s *SQLOptionsTestSuite) TestFindMaxResultsOption() {
-	var out []*SQLOptionsTestModel
+	var out []SQLOptionsTestModel
 
 	// Single option truncates number of results
 	expected := 5
@@ -149,7 +150,7 @@ func (s *SQLOptionsTestSuite) TestFindMaxResultsOption() {
 }
 
 func (s *SQLOptionsTestSuite) TestFindOffsetOption() {
-	var out []*SQLOptionsTestModel
+	var out []SQLOptionsTestModel
 
 	// Single offset
 	s.Require().NoError(s.repository.Find(context.Background(), &out, MaxResults(10), Offset(5)))
@@ -159,13 +160,13 @@ func (s *SQLOptionsTestSuite) TestFindOffsetOption() {
 	s.Require().NoError(s.repository.Find(context.Background(), &out, MaxResults(10), Offset(7), Offset(5)))
 	s.Assert().EqualValues([]int{6, 7, 8, 9, 10}, s.getValues(out))
 
-	// Using offset without max results does not change the offset
+	// Using offset without max results does change the offset
 	s.Require().NoError(s.repository.Find(context.Background(), &out, Offset(5)))
-	s.Assert().EqualValues([]int{1, 2, 3, 4, 5, 6, 7, 8, 9, 10}, s.getValues(out))
+	s.Assert().EqualValues([]int{6, 7, 8, 9, 10}, s.getValues(out))
 }
 
 // func (s *SQLOptionsTestSuite) TestFindSelectAndGroupByOptions() {
-//	var out []*SQLOptionsTestModel
+//	var out []SQLOptionsTestModel
 //
 //	// GroupBy fails if unaggregated fields are returned
 //	s.Assert().Error(s.repository.Find(context.Background(), &out, GroupBy("even")))
@@ -180,7 +181,7 @@ func (s *SQLOptionsTestSuite) TestFindOffsetOption() {
 // }
 
 func (s *SQLOptionsTestSuite) TestFindPreloadOption() {
-	var out []*SQLOptionsTestModel
+	var out []SQLOptionsTestModel
 
 	// No related field should be present by default
 	s.Assert().NoError(s.repository.Find(context.Background(), &out, Where("id = ?", 1)))
@@ -223,7 +224,7 @@ func (s *SQLOptionsTestSuite) TestFindPreloadOption() {
 }
 
 func (s *SQLOptionsTestSuite) TestFindOrderByOption() {
-	var out []*SQLOptionsTestModel
+	var out []SQLOptionsTestModel
 
 	// Single descending order
 	s.Require().NoError(s.repository.Find(context.Background(), &out, OrderBy(Descending("even"))))
