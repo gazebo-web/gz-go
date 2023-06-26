@@ -1,6 +1,7 @@
 package sql
 
 import (
+	context2 "context"
 	"fmt"
 	utilsgorm "github.com/gazebo-web/gz-go/v7/database/gorm"
 	"github.com/gazebo-web/gz-go/v7/repository"
@@ -117,7 +118,7 @@ func (s *SQLOptionsTestSuite) getValues(values []*SQLOptionsTestModel) (out []in
 
 func (s *SQLOptionsTestSuite) validateNoOptionFind() {
 	var out []*SQLOptionsTestModel
-	s.Require().NoError(s.repository.Find(&out))
+	s.Require().NoError(s.repository.Find(context2.Background(), &out))
 	s.Assert().EqualValues([]int{1, 2, 3, 4, 5, 6, 7, 8, 9, 10}, s.getValues(out))
 }
 
@@ -125,11 +126,11 @@ func (s *SQLOptionsTestSuite) TestFindWhereOption() {
 	var out []*SQLOptionsTestModel
 
 	// Single condition
-	s.Require().NoError(s.repository.Find(&out, Where("value % ? = 0", 2)))
+	s.Require().NoError(s.repository.Find(context2.Background(), &out, Where("value % ? = 0", 2)))
 	s.Assert().EqualValues([]int{2, 4, 6, 8, 10}, s.getValues(out))
 
 	// Multiple conditions
-	s.Require().NoError(s.repository.Find(&out, Where("value % ? = 0 AND (value < ? OR value > ?)", 2, 5, 7)))
+	s.Require().NoError(s.repository.Find(context2.Background(), &out, Where("value % ? = 0 AND (value < ? OR value > ?)", 2, 5, 7)))
 	s.Assert().EqualValues([]int{2, 4, 8, 10}, s.getValues(out))
 }
 
@@ -138,7 +139,7 @@ func (s *SQLOptionsTestSuite) TestFindMaxResultsOption() {
 
 	// Single option truncates number of results
 	expected := 5
-	s.Require().NoError(s.repository.Find(&out, MaxResults(expected)))
+	s.Require().NoError(s.repository.Find(context2.Background(), &out, MaxResults(expected)))
 	s.Assert().Len(out, expected)
 
 	// Multiple options passed uses the latest one
@@ -155,11 +156,11 @@ func (s *SQLOptionsTestSuite) TestFindOffsetOption() {
 	s.Assert().EqualValues([]int{6, 7, 8, 9, 10}, s.getValues(out))
 
 	// Multiple offsets uses the latest one
-	s.Require().NoError(s.repository.Find(&out, MaxResults(10), Offset(7), Offset(5)))
+	s.Require().NoError(s.repository.Find(context2.Background(), &out, MaxResults(10), Offset(7), Offset(5)))
 	s.Assert().EqualValues([]int{6, 7, 8, 9, 10}, s.getValues(out))
 
 	// Using offset without max results does not change the offset
-	s.Require().NoError(s.repository.Find(&out, Offset(5)))
+	s.Require().NoError(s.repository.Find(context2.Background(), &out, Offset(5)))
 	s.Assert().EqualValues([]int{1, 2, 3, 4, 5, 6, 7, 8, 9, 10}, s.getValues(out))
 }
 
@@ -182,7 +183,7 @@ func (s *SQLOptionsTestSuite) TestFindPreloadOption() {
 	var out []*SQLOptionsTestModel
 
 	// No related field should be present by default
-	s.Assert().NoError(s.repository.Find(&out, Where("id = ?", 1)))
+	s.Assert().NoError(s.repository.Find(context2.Background(), &out, Where("id = ?", 1)))
 	s.Assert().Nil(out[0].Reference1)
 	s.Assert().Nil(out[0].Reference2)
 	s.Assert().Nil(out[0].Reference3)
@@ -196,7 +197,7 @@ func (s *SQLOptionsTestSuite) TestFindPreloadOption() {
 	s.Assert().Equal(out[0].Reference1.Value, out[0].Value)
 
 	// Multiple preloads should bring all references and its related fields should not be present
-	s.Assert().NoError(s.repository.Find(&out, Where("id = ?", 1), Preload("Reference1"), Preload("Reference2")))
+	s.Assert().NoError(s.repository.Find(context2.Background(), &out, Where("id = ?", 1), Preload("Reference1"), Preload("Reference2")))
 	s.Assert().NotNil(out[0].Reference1)
 	s.Assert().Nil(out[0].Reference1.Reference)
 	s.Assert().NotNil(out[0].Reference2)
@@ -225,15 +226,15 @@ func (s *SQLOptionsTestSuite) TestFindOrderByOption() {
 	var out []*SQLOptionsTestModel
 
 	// Single descending order
-	s.Require().NoError(s.repository.Find(&out, OrderBy(Descending("even"))))
+	s.Require().NoError(s.repository.Find(context2.Background(), &out, OrderBy(Descending("even"))))
 	s.Assert().EqualValues([]int{2, 4, 6, 8, 10, 1, 3, 5, 7, 9}, s.getValues(out))
 
 	// Single ascending order
-	s.Require().NoError(s.repository.Find(&out, OrderBy(Ascending("even"))))
+	s.Require().NoError(s.repository.Find(context2.Background(), &out, OrderBy(Ascending("even"))))
 	s.Assert().EqualValues([]int{1, 3, 5, 7, 9, 2, 4, 6, 8, 10}, s.getValues(out))
 
 	// // Multiple orders in a single call should stack
-	s.Require().NoError(s.repository.Find(&out, OrderBy(Descending("even"), Descending("value"))))
+	s.Require().NoError(s.repository.Find(context2.Background(), &out, OrderBy(Descending("even"), Descending("value"))))
 	s.Assert().EqualValues([]int{10, 8, 6, 4, 2, 9, 7, 5, 3, 1}, s.getValues(out))
 
 	// Multiple orders in multiple calls should be combined in the order the options were applied

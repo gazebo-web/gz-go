@@ -68,19 +68,19 @@ func (suite *FirestoreRepositoryTestSuite) clearFirestoreData() {
 }
 
 func (suite *FirestoreRepositoryTestSuite) TestFirstOrCreate() {
-	err := suite.repository.FirstOrCreate(nil)
+	err := suite.repository.FirstOrCreate(context.Background(), nil)
 	suite.Assert().Error(err)
 	suite.Assert().ErrorIs(err, errors.ErrMethodNotImplemented)
 }
 
 func (suite *FirestoreRepositoryTestSuite) TestCreate() {
-	_, err := suite.repository.Create(nil)
+	_, err := suite.repository.Create(context.Background(), nil)
 	suite.Assert().Error(err)
 	suite.Assert().ErrorIs(err, errors.ErrMethodNotImplemented)
 }
 
 func (suite *FirestoreRepositoryTestSuite) TestCreateBulk() {
-	_, err := suite.repository.CreateBulk(nil)
+	_, err := suite.repository.CreateBulk(context.Background(), nil)
 	suite.Assert().Error(err)
 	suite.Assert().ErrorIs(err, errors.ErrMethodNotImplemented)
 }
@@ -90,7 +90,7 @@ func (suite *FirestoreRepositoryTestSuite) TestFind_All() {
 
 	suite.setupMockData()
 
-	suite.Require().NoError(suite.repository.Find(&found))
+	suite.Require().NoError(suite.repository.Find(context.Background(), &found))
 	suite.Assert().Len(found, 3)
 }
 
@@ -100,7 +100,7 @@ func (suite *FirestoreRepositoryTestSuite) TestFind_MaxResults() {
 	suite.setupMockData()
 
 	// Calling with max results should return the same amount of elements
-	suite.Require().NoError(suite.repository.Find(&found, MaxResults(1)))
+	suite.Require().NoError(suite.repository.Find(context.Background(), &found, MaxResults(1)))
 	suite.Assert().Len(found, 1)
 }
 
@@ -110,7 +110,7 @@ func (suite *FirestoreRepositoryTestSuite) TestFind_Offset() {
 	suite.setupMockData()
 
 	// Calling with offset should return total - offset elements.
-	suite.Require().NoError(suite.repository.Find(&found, Offset(1)))
+	suite.Require().NoError(suite.repository.Find(context.Background(), &found, Offset(1)))
 	suite.Assert().Len(found, 2)
 }
 
@@ -119,7 +119,7 @@ func (suite *FirestoreRepositoryTestSuite) TestFind_OrderBy_Ascending() {
 
 	suite.setupMockData()
 
-	suite.Require().NoError(suite.repository.Find(&found, OrderBy(
+	suite.Require().NoError(suite.repository.Find(context.Background(), &found, OrderBy(
 		Ascending("Value"),
 	)))
 	suite.Assert().Len(found, 3)
@@ -133,7 +133,7 @@ func (suite *FirestoreRepositoryTestSuite) TestFind_OrderBy_Descending() {
 
 	suite.setupMockData()
 
-	suite.Require().NoError(suite.repository.Find(&found, OrderBy(
+	suite.Require().NoError(suite.repository.Find(context.Background(), &found, OrderBy(
 		Descending("Value"),
 	)))
 	suite.Assert().Len(found, 3)
@@ -147,7 +147,7 @@ func (suite *FirestoreRepositoryTestSuite) TestFind_Where() {
 
 	suite.setupMockData()
 
-	suite.Require().NoError(suite.repository.Find(&found, Where("Value", "==", 1)))
+	suite.Require().NoError(suite.repository.Find(context.Background(), &found, Where("Value", "==", 1)))
 	suite.Assert().Len(found, 1)
 	suite.Assert().Equal(1, found[0].Value)
 }
@@ -156,7 +156,7 @@ func (suite *FirestoreRepositoryTestSuite) TestFind_Pagination_PageWithStartAfte
 	suite.setupMockData()
 
 	var found []Test
-	suite.Require().NoError(suite.repository.Find(&found, OrderBy(Descending("Value")), StartAfter(3), MaxResults(100)))
+	suite.Require().NoError(suite.repository.Find(context.Background(), &found, OrderBy(Descending("Value")), StartAfter(3), MaxResults(100)))
 	suite.Assert().Len(found, 2)
 	suite.Assert().Equal(2, found[0].Value)
 	suite.Assert().Equal(1, found[1].Value)
@@ -166,7 +166,7 @@ func (suite *FirestoreRepositoryTestSuite) TestFind_Pagination_PageWithStartAt()
 	suite.setupMockData()
 
 	var found []Test
-	suite.Require().NoError(suite.repository.Find(&found, OrderBy(Descending("Value")), StartAt(2), MaxResults(100)))
+	suite.Require().NoError(suite.repository.Find(context.Background(), &found, OrderBy(Descending("Value")), StartAt(2), MaxResults(100)))
 	suite.Assert().Len(found, 2)
 	suite.Assert().Equal(2, found[0].Value)
 	suite.Assert().Equal(1, found[1].Value)
@@ -177,28 +177,28 @@ func (suite *FirestoreRepositoryTestSuite) TestFind_Pagination_PageWithSize() {
 
 	suite.Run("page=0/size=1/order=value", func() {
 		var found []Test
-		suite.Require().NoError(suite.repository.Find(&found, Offset(0), MaxResults(1), OrderBy(Descending("Value"))))
+		suite.Require().NoError(suite.repository.Find(context.Background(), &found, Offset(0), MaxResults(1), OrderBy(Descending("Value"))))
 		suite.Assert().Len(found, 1)
 		suite.Assert().Equal(3, found[0].Value)
 	})
 
 	suite.Run("page=1/size=1/order=value", func() {
 		var found []Test
-		suite.Require().NoError(suite.repository.Find(&found, Offset(1), MaxResults(1), OrderBy(Descending("Value"))))
+		suite.Require().NoError(suite.repository.Find(context.Background(), &found, Offset(1), MaxResults(1), OrderBy(Descending("Value"))))
 		suite.Assert().Len(found, 1)
 		suite.Assert().Equal(2, found[0].Value)
 	})
 
 	suite.Run("page=2/size=1/order=value", func() {
 		var found []Test
-		suite.Require().NoError(suite.repository.Find(&found, Offset(2), MaxResults(1), OrderBy(Descending("Value"))))
+		suite.Require().NoError(suite.repository.Find(context.Background(), &found, Offset(2), MaxResults(1), OrderBy(Descending("Value"))))
 		suite.Assert().Len(found, 1)
 		suite.Assert().Equal(1, found[0].Value)
 	})
 
 	suite.Run("page=3/size=1/order=value", func() {
 		var found []Test
-		suite.Require().NoError(suite.repository.Find(&found, Offset(3), MaxResults(1), OrderBy(Descending("Value"))))
+		suite.Require().NoError(suite.repository.Find(context.Background(), &found, Offset(3), MaxResults(1), OrderBy(Descending("Value"))))
 		suite.Assert().Len(found, 0)
 	})
 }
@@ -208,10 +208,10 @@ func (suite *FirestoreRepositoryTestSuite) TestFind_NoOp() {
 
 	// Calling with noop should return all elements
 	var expected []Test
-	suite.Require().NoError(suite.repository.Find(&expected))
+	suite.Require().NoError(suite.repository.Find(context.Background(), &expected))
 
 	var found []Test
-	suite.Require().NoError(suite.repository.Find(&found, NoOp()))
+	suite.Require().NoError(suite.repository.Find(context.Background(), &found, NoOp()))
 
 	suite.Assert().Len(found, len(expected))
 	suite.Assert().Equal(found, expected)
@@ -223,7 +223,7 @@ func (suite *FirestoreRepositoryTestSuite) TestFind_In() {
 	suite.setupMockData()
 
 	// Calling with "In" should return the values that match the given names
-	suite.Require().NoError(suite.repository.Find(&found, In[string]("Name", []string{"test-1", "test-2"})))
+	suite.Require().NoError(suite.repository.Find(context.Background(), &found, In[string]("Name", []string{"test-1", "test-2"})))
 	suite.Assert().Len(found, 2)
 	suite.Assert().Condition(func() (success bool) {
 		for _, element := range found {
@@ -238,29 +238,29 @@ func (suite *FirestoreRepositoryTestSuite) TestFind_In_EmptyValues() {
 	suite.setupMockData()
 
 	var expected []Test
-	suite.Require().NoError(suite.repository.Find(&expected, NoOp()))
+	suite.Require().NoError(suite.repository.Find(context.Background(), &expected, NoOp()))
 
 	// Calling Find with an In option that has no values should be the same as NoOp.
 	var found []Test
-	suite.Require().NoError(suite.repository.Find(&found, In[string]("Name", nil)))
+	suite.Require().NoError(suite.repository.Find(context.Background(), &found, In[string]("Name", nil)))
 	suite.Assert().Len(found, len(expected))
 	suite.Assert().Equal(found, expected)
 }
 
 func (suite *FirestoreRepositoryTestSuite) TestFindOne() {
-	err := suite.repository.FindOne(nil)
+	err := suite.repository.FindOne(context.Background(), nil)
 	suite.Assert().Error(err)
 	suite.Assert().ErrorIs(err, errors.ErrMethodNotImplemented)
 }
 
 func (suite *FirestoreRepositoryTestSuite) TestLast() {
-	err := suite.repository.Last(nil)
+	err := suite.repository.Last(context.Background(), nil)
 	suite.Assert().Error(err)
 	suite.Assert().ErrorIs(err, errors.ErrMethodNotImplemented)
 }
 
 func (suite *FirestoreRepositoryTestSuite) TestUpdate() {
-	err := suite.repository.Update(nil)
+	err := suite.repository.Update(context.Background(), nil)
 	suite.Assert().Error(err)
 	suite.Assert().ErrorIs(err, errors.ErrMethodNotImplemented)
 }
@@ -269,14 +269,14 @@ func (suite *FirestoreRepositoryTestSuite) TestDelete() {
 	suite.setupMockData()
 
 	var before []Test
-	suite.Require().NoError(suite.repository.Find(&before, Where("Value", "==", 1)))
+	suite.Require().NoError(suite.repository.Find(context.Background(), &before, Where("Value", "==", 1)))
 	suite.Require().NotZero(len(before))
 
-	err := suite.repository.Delete(Where("Value", "==", 1))
+	err := suite.repository.Delete(context.Background(), Where("Value", "==", 1))
 	suite.Assert().NoError(err)
 
 	var after []Test
-	suite.Require().NoError(suite.repository.Find(&after, Where("Value", "==", 1)))
+	suite.Require().NoError(suite.repository.Find(context.Background(), &after, Where("Value", "==", 1)))
 	suite.Require().Len(after, len(before)-1)
 }
 
@@ -284,7 +284,7 @@ func (suite *FirestoreRepositoryTestSuite) TestDeleteBatch() {
 	suite.setupMockData()
 
 	var before []Test
-	suite.Require().NoError(suite.repository.Find(&before, Where("Value", "in", []int{1, 2, 3})))
+	suite.Require().NoError(suite.repository.Find(context.Background(), &before, Where("Value", "in", []int{1, 2, 3})))
 	suite.Require().NotZero(len(before))
 
 	repo := suite.repository.(*firestoreRepository[Test])
@@ -293,12 +293,12 @@ func (suite *FirestoreRepositoryTestSuite) TestDeleteBatch() {
 	suite.Assert().NoError(repo.deleteBatch(context.Background(), col, 1))
 
 	var after []Test
-	suite.Require().NoError(suite.repository.Find(&after, Where("Value", "in", []int{1, 2, 3})))
+	suite.Require().NoError(suite.repository.Find(context.Background(), &after, Where("Value", "in", []int{1, 2, 3})))
 	suite.Require().Len(after, len(before)-2)
 }
 
 func (suite *FirestoreRepositoryTestSuite) TestCount() {
-	_, err := suite.repository.Count()
+	_, err := suite.repository.Count(context.Background())
 	suite.Assert().Error(err)
 	suite.Assert().ErrorIs(err, errors.ErrMethodNotImplemented)
 }
