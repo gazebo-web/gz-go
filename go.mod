@@ -19,7 +19,7 @@ require (
 	github.com/fatih/structtag v1.2.0
 	github.com/fsouza/fake-gcs-server v1.45.2
 	github.com/gazebo-web/auth v0.6.0
-	github.com/go-chi/chi/v5 v5.0.7
+	github.com/go-chi/chi/v5 v5.0.8
 	github.com/go-chi/render v1.0.1
 	github.com/go-sql-driver/mysql v1.7.1
 	github.com/golang-jwt/jwt/v5 v5.0.0
