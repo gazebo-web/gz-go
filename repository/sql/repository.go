@@ -35,7 +35,7 @@ func (r *repositoryGorm) applyOptions(q *gorm.DB, opts ...repository.Option) {
 //
 //	entity: The entry to insert.
 func (r *repositoryGorm) Create(ctx context.Context, entity repository.Model) (repository.Model, error) {
-	result, err := r.CreateBulk(context.Background(), []repository.Model{entity})
+	result, err := r.CreateBulk(ctx, []repository.Model{entity})
 	if err != nil {
 		return nil, err
 	}
