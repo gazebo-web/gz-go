@@ -20,7 +20,7 @@ require (
 	github.com/fsouza/fake-gcs-server v1.45.2
 	github.com/gazebo-web/auth v0.6.0
 	github.com/go-chi/chi/v5 v5.0.8
-	github.com/go-chi/render v1.0.1
+	github.com/go-chi/render v1.0.2
 	github.com/go-sql-driver/mysql v1.7.1
 	github.com/golang-jwt/jwt/v5 v5.0.0
 	github.com/gorilla/mux v1.8.0
@@ -60,6 +60,7 @@ require (
 	cloud.google.com/go/longrunning v0.4.2 // indirect
 	cloud.google.com/go/pubsub v1.31.0 // indirect
 	github.com/MicahParks/keyfunc v1.9.0 // indirect
+	github.com/ajg/form v1.5.1 // indirect
 	github.com/aws/aws-sdk-go-v2/aws/protocol/eventstream v1.4.10 // indirect
 	github.com/aws/aws-sdk-go-v2/feature/ec2/imds v1.12.21 // indirect
 	github.com/aws/aws-sdk-go-v2/internal/configsources v1.1.27 // indirect
