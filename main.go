@@ -19,9 +19,6 @@ import (
 	"strconv"
 	"strings"
 	"time"
-
-	// Needed by dbInit
-	_ "gorm.io/driver/mysql"
 )
 
 // Server encapsulates information needed by a downstream application
