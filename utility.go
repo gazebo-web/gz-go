@@ -119,15 +119,15 @@ func UnzipImpl(reader *zip.Reader, dest string, verbose bool) error {
 // parameter is the number of stack frames to skip, with 1 identifying the
 // Trace frame itself. Skip will be set to 1 if the passed in value is <= 0.
 // Ref: http://stackoverflow.com/questions/25927660/golang-get-current-scope-of-function-name
-func Trace(skip int64) string {
-	skip = Max(skip, int64(1))
+func Trace(skip int) string {
+	skip = Max(skip, 1)
 
 	// At least one entry needed
 	pc := make([]uintptr, 10)
-	count := Min(int64(runtime.Callers(int(skip), pc)), int64(10))
+	count := Min(runtime.Callers(skip, pc), 10)
 
 	result := ""
-	for i := int64(0); i < count; i++ {
+	for i := 0; i < count; i++ {
 		f := runtime.FuncForPC(pc[i])
 		file, line := f.FileLine(pc[i])
 		result = fmt.Sprintf("%s%d  %s : %d in %s\n", result, i,
@@ -151,7 +151,7 @@ func RandomString(strlen int) string {
 
 // Min is an implementation of "int" Min
 // See https://mrekucci.blogspot.com.ar/2015/07/dont-abuse-mathmax-mathmin.html
-func Min(x, y int64) int64 {
+func Min(x, y int) int {
 	if x < y {
 		return x
 	}
@@ -160,7 +160,7 @@ func Min(x, y int64) int64 {
 
 // Max is an implementation of "int" Max
 // See https://mrekucci.blogspot.com.ar/2015/07/dont-abuse-mathmax-mathmin.html
-func Max(x, y int64) int64 {
+func Max(x, y int) int {
 	if x > y {
 		return x
 	}

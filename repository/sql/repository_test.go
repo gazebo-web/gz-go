@@ -3,8 +3,8 @@ package sql
 import (
 	utilsgorm "github.com/gazebo-web/gz-go/v7/database/gorm"
 	"github.com/gazebo-web/gz-go/v7/repository"
-	"github.com/jinzhu/gorm"
 	"github.com/stretchr/testify/suite"
+	"gorm.io/gorm"
 	"testing"
 )
 
@@ -41,8 +41,8 @@ func (suite *RepositoryTestSuite) SetupSuite() {
 }
 
 func (suite *RepositoryTestSuite) SetupTest() {
-	suite.Require().NoError(suite.db.DropTableIfExists(&Test{}).Error)
-	suite.Require().NoError(suite.db.AutoMigrate(&Test{}).Error)
+	suite.Require().NoError(suite.db.Migrator().DropTable(&Test{}))
+	suite.Require().NoError(suite.db.AutoMigrate(&Test{}))
 
 	test1 := &Test{
 		Name:  "Test1",
@@ -64,8 +64,10 @@ func (suite *RepositoryTestSuite) SetupTest() {
 }
 
 func (suite *RepositoryTestSuite) TearDownSuite() {
-	suite.Require().NoError(suite.db.DropTableIfExists(&Test{}).Error)
-	suite.Require().NoError(suite.db.Close())
+	suite.Require().NoError(suite.db.Migrator().DropTable(&Test{}))
+	sqlDB, err := suite.db.DB()
+	suite.Require().NoError(err)
+	suite.Require().NoError(sqlDB.Close())
 }
 
 func (suite *RepositoryTestSuite) TestImplementsInterface() {

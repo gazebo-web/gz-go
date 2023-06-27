@@ -3,8 +3,8 @@ package gz
 import (
 	"crypto/rand"
 	"encoding/base64"
-	"github.com/jinzhu/gorm"
 	"golang.org/x/crypto/bcrypt"
+	"gorm.io/gorm"
 	"strings"
 	"time"
 )
