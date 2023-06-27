@@ -2,7 +2,7 @@ package sql
 
 import (
 	"fmt"
-	"github.com/gazebo-web/gz-go/v7/repository"
+	"github.com/gazebo-web/gz-go/v8/repository"
 	"gorm.io/gorm"
 	"strings"
 )

@@ -78,7 +78,7 @@ func example() {
 ## Installing
 ### Using Go CLI
 ```
-go get github.com/gazebo-web/gz-go/v7
+go get github.com/gazebo-web/gz-go/v8
 ```
 
 ## Contribute

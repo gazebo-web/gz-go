@@ -4,7 +4,7 @@ import (
 	"cloud.google.com/go/storage"
 	"context"
 	"fmt"
-	"github.com/gazebo-web/gz-go/v7"
+	"github.com/gazebo-web/gz-go/v8"
 	"io"
 	"os"
 	"time"

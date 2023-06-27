@@ -2,7 +2,7 @@ package net
 
 import (
 	"context"
-	"github.com/gazebo-web/gz-go/v7/encoders"
+	"github.com/gazebo-web/gz-go/v8/encoders"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"io"

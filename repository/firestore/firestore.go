@@ -3,9 +3,9 @@ package firestore
 import (
 	"cloud.google.com/go/firestore"
 	"context"
-	"github.com/gazebo-web/gz-go/v7/errors"
-	"github.com/gazebo-web/gz-go/v7/reflect"
-	"github.com/gazebo-web/gz-go/v7/repository"
+	"github.com/gazebo-web/gz-go/v8/errors"
+	"github.com/gazebo-web/gz-go/v8/reflect"
+	"github.com/gazebo-web/gz-go/v8/repository"
 	"google.golang.org/api/iterator"
 )
 

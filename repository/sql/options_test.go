@@ -3,8 +3,8 @@ package sql
 import (
 	"context"
 	"fmt"
-	utilsgorm "github.com/gazebo-web/gz-go/v7/database/gorm"
-	"github.com/gazebo-web/gz-go/v7/repository"
+	utilsgorm "github.com/gazebo-web/gz-go/v8/database/gorm"
+	"github.com/gazebo-web/gz-go/v8/repository"
 	"github.com/stretchr/testify/suite"
 	"gorm.io/gorm"
 	"testing"
