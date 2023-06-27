@@ -93,6 +93,7 @@ func TestParseURL(t *testing.T) {
 func TestNewDateTime(t *testing.T) {
 	now := time.Now()
 	date := NewDateTime(now)
+	require.NotNil(t, date)
 	assert.NotEmpty(t, date.GetTimeZone().String())
 	assert.Equal(t, now.Year(), int(date.GetYear()))
 	assert.Equal(t, int(now.Month()), int(date.GetMonth()))

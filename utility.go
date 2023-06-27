@@ -436,9 +436,10 @@ func ValidateURL(u *url.URL) error {
 
 // NewDateTime initializes a new datetime.DateTime from the current time.Time.
 // It infers the datetime.DateTime's timezone from the current location.
-func NewDateTime(t time.Time) datetime.DateTime {
+// NOTE: datetime.DateTime is a protobuf message.
+func NewDateTime(t time.Time) *datetime.DateTime {
 	_, offset := t.Zone()
-	return datetime.DateTime{
+	return &datetime.DateTime{
 		Year:       int32(t.Year()),
 		Month:      int32(t.Month()),
 		Day:        int32(t.Day()),
