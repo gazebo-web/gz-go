@@ -1,10 +1,11 @@
 package sql
 
 import (
-	utilsgorm "github.com/gazebo-web/gz-go/v7/database/gorm"
-	"github.com/gazebo-web/gz-go/v7/repository"
-	"github.com/jinzhu/gorm"
+	"context"
+	utilsgorm "github.com/gazebo-web/gz-go/v8/database/gorm"
+	"github.com/gazebo-web/gz-go/v8/repository"
 	"github.com/stretchr/testify/suite"
+	"gorm.io/gorm"
 	"testing"
 )
 
@@ -41,8 +42,8 @@ func (suite *RepositoryTestSuite) SetupSuite() {
 }
 
 func (suite *RepositoryTestSuite) SetupTest() {
-	suite.Require().NoError(suite.db.DropTableIfExists(&Test{}).Error)
-	suite.Require().NoError(suite.db.AutoMigrate(&Test{}).Error)
+	suite.Require().NoError(suite.db.Migrator().DropTable(&Test{}))
+	suite.Require().NoError(suite.db.AutoMigrate(&Test{}))
 
 	test1 := &Test{
 		Name:  "Test1",
@@ -58,14 +59,16 @@ func (suite *RepositoryTestSuite) SetupTest() {
 		Value: 3,
 	}
 
-	res, err := suite.Repository.CreateBulk([]repository.Model{test1, test2, test3})
+	res, err := suite.Repository.CreateBulk(context.Background(), []repository.Model{test1, test2, test3})
 	suite.Require().NoError(err)
 	suite.Require().Len(res, 3)
 }
 
 func (suite *RepositoryTestSuite) TearDownSuite() {
-	suite.Require().NoError(suite.db.DropTableIfExists(&Test{}).Error)
-	suite.Require().NoError(suite.db.Close())
+	suite.Require().NoError(suite.db.Migrator().DropTable(&Test{}))
+	sqlDB, err := suite.db.DB()
+	suite.Require().NoError(err)
+	suite.Require().NoError(sqlDB.Close())
 }
 
 func (suite *RepositoryTestSuite) TestImplementsInterface() {
@@ -75,7 +78,7 @@ func (suite *RepositoryTestSuite) TestImplementsInterface() {
 
 func (suite *RepositoryTestSuite) TestCreateOne() {
 	// Creating one record should not fail.
-	res, err := suite.Repository.CreateBulk([]repository.Model{&Test{
+	res, err := suite.Repository.CreateBulk(context.Background(), []repository.Model{&Test{
 		Name:  "test",
 		Value: 999,
 	}})
@@ -90,7 +93,7 @@ func (suite *RepositoryTestSuite) TestCreateOne() {
 
 func (suite *RepositoryTestSuite) TestCreateMultiple() {
 	// Creating multiple records should not fail
-	res, err := suite.Repository.CreateBulk([]repository.Model{
+	res, err := suite.Repository.CreateBulk(context.Background(), []repository.Model{
 		&Test{
 			Name:  "test",
 			Value: 999,
@@ -118,7 +121,7 @@ func (suite *RepositoryTestSuite) TestFind() {
 	var t []Test
 
 	// Finding multiple records should not fail.
-	err := suite.Repository.Find(&t, Where("name IN (?)", []string{"Test1", "Test2"}))
+	err := suite.Repository.Find(context.Background(), &t, Where("name IN (?)", []string{"Test1", "Test2"}))
 	suite.Require().NoError(err)
 
 	suite.Assert().Len(t, 2)
@@ -128,7 +131,7 @@ func (suite *RepositoryTestSuite) TestFindOne() {
 	var t Test
 
 	// Finding one should not fail.
-	suite.Assert().NoError(suite.Repository.FindOne(&t, repository.Filter{
+	suite.Assert().NoError(suite.Repository.FindOne(context.Background(), &t, repository.Filter{
 		Template: "name = ?",
 		Values:   []interface{}{"Test1"},
 	}, repository.Filter{
@@ -147,15 +150,15 @@ func (suite *RepositoryTestSuite) TestUpdate() {
 	}
 
 	// Update record using filters should not fail.
-	suite.Assert().NoError(suite.Repository.Update(map[string]interface{}{"name": "Test111", "value": 12345}, filter))
+	suite.Assert().NoError(suite.Repository.Update(context.Background(), map[string]interface{}{"name": "Test111", "value": 12345}, filter))
 
 	var t Test
 
 	// Finding the old record should fail.
-	suite.Assert().Error(suite.Repository.FindOne(&t, filter))
+	suite.Assert().Error(suite.Repository.FindOne(context.Background(), &t, filter))
 
 	// Finding the correct record should not fail.
-	suite.Assert().NoError(suite.Repository.FindOne(&t, repository.Filter{
+	suite.Assert().NoError(suite.Repository.FindOne(context.Background(), &t, repository.Filter{
 		Template: "name = ?",
 		Values:   []interface{}{"Test111"},
 	}))
@@ -172,19 +175,19 @@ func (suite *RepositoryTestSuite) TestDelete() {
 	}
 
 	// Deleting should not fail.
-	suite.Assert().NoError(suite.Repository.Delete(Where("name = ?", "Test1")))
+	suite.Assert().NoError(suite.Repository.Delete(context.Background(), Where("name = ?", "Test1")))
 
 	// Finding one should fail, the record no longer exists.
 	var t Test
-	suite.Assert().Error(suite.Repository.FindOne(&t, filter))
+	suite.Assert().Error(suite.Repository.FindOne(context.Background(), &t, filter))
 
 	// Deleting is idempotent, deleting twice should not return an error.
-	suite.Assert().NoError(suite.Repository.Delete(Where("name = ?", "Test1")))
+	suite.Assert().NoError(suite.Repository.Delete(context.Background(), Where("name = ?", "Test1")))
 }
 
 func (suite *RepositoryTestSuite) TestFirstOrCreate() {
 	var test Test
-	suite.Require().NoError(suite.Repository.FirstOrCreate(&test, repository.Filter{
+	suite.Require().NoError(suite.Repository.FirstOrCreate(context.Background(), &test, repository.Filter{
 		Template: "value = ?",
 		Values:   []interface{}{1},
 	}))
@@ -197,7 +200,7 @@ func (suite *RepositoryTestSuite) TestFirstOrCreate() {
 		Value: 4,
 	}
 
-	suite.Require().NoError(suite.Repository.FirstOrCreate(&test, repository.Filter{
+	suite.Require().NoError(suite.Repository.FirstOrCreate(context.Background(), &test, repository.Filter{
 		Template: "value = ?",
 		Values:   []interface{}{4},
 	}))
@@ -212,11 +215,11 @@ func (suite *RepositoryTestSuite) TestLast() {
 		Name:  "Test3",
 		Value: 3,
 	}
-	created, err := suite.Repository.Create(&test3)
+	created, err := suite.Repository.Create(context.Background(), &test3)
 	suite.Require().NoError(err)
 
 	var out Test
-	err = suite.Repository.Last(&out, repository.Filter{
+	err = suite.Repository.Last(context.Background(), &out, repository.Filter{
 		Template: "name = ?",
 		Values:   []interface{}{"Test3"},
 	})
@@ -226,14 +229,14 @@ func (suite *RepositoryTestSuite) TestLast() {
 }
 
 func (suite *RepositoryTestSuite) TestCount() {
-	count, err := suite.Repository.Count(repository.Filter{
+	count, err := suite.Repository.Count(context.Background(), repository.Filter{
 		Template: "name = ?",
 		Values:   []interface{}{"Test3"},
 	})
 	suite.Assert().NoError(err)
 	suite.Assert().Equal(uint64(1), count)
 
-	count, err = suite.Repository.Count(repository.Filter{
+	count, err = suite.Repository.Count(context.Background(), repository.Filter{
 		Template: "name LIKE ?",
 		Values:   []interface{}{"Test%"},
 	})

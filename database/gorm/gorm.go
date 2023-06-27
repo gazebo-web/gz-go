@@ -2,8 +2,8 @@ package gorm
 
 import (
 	"errors"
-	"github.com/gazebo-web/gz-go/v7"
-	"github.com/jinzhu/gorm"
+	"github.com/gazebo-web/gz-go/v8"
+	"gorm.io/gorm"
 	"log"
 )
 
@@ -79,7 +79,7 @@ func DropModels(tx *gorm.DB, models ...interface{}) error {
 	}
 
 	log.Printf("DropModels: Dropping models: %v\n", models)
-	if err := tx.DropTableIfExists(models...).Error; err != nil {
+	if err := tx.Migrator().DropTable(models...); err != nil {
 		log.Println("DropModels: Error while running DropTableIfExists, error:", err)
 		return err
 	}
@@ -96,7 +96,7 @@ func MigrateModels(tx *gorm.DB, models ...interface{}) error {
 	}
 
 	log.Printf("MigrateModels: Migrating tables: %v\n", models)
-	if err := tx.AutoMigrate(models...).Error; err != nil {
+	if err := tx.AutoMigrate(models...); err != nil {
 		log.Println("MigrateModels: Error while running AutoMigrate, error:", err)
 		return err
 	}

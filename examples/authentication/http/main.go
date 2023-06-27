@@ -2,7 +2,7 @@ package main
 
 import (
 	"github.com/gazebo-web/auth/pkg/authentication"
-	"github.com/gazebo-web/gz-go/v7/middleware"
+	"github.com/gazebo-web/gz-go/v8/middleware"
 	"github.com/rs/cors"
 	"log"
 	"net/http"

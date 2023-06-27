@@ -1,11 +1,11 @@
 package gz
 
 import (
-	"github.com/gazebo-web/gz-go/v7/monitoring"
-	"github.com/gazebo-web/gz-go/v7/monitoring/prometheus"
+	"github.com/gazebo-web/gz-go/v8/monitoring"
+	"github.com/gazebo-web/gz-go/v8/monitoring/prometheus"
 	"github.com/gorilla/mux"
-	"github.com/jinzhu/gorm"
 	"github.com/stretchr/testify/suite"
+	"gorm.io/gorm"
 	"net/http"
 	"net/http/httptest"
 	"testing"
