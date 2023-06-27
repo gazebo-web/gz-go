@@ -1,8 +1,9 @@
 package sql
 
 import (
-	"github.com/gazebo-web/gz-go/v7/reflect"
-	"github.com/gazebo-web/gz-go/v7/repository"
+	"context"
+	"github.com/gazebo-web/gz-go/v8/reflect"
+	"github.com/gazebo-web/gz-go/v8/repository"
 	"gorm.io/gorm"
 )
 
@@ -33,8 +34,8 @@ func (r *repositoryGorm) applyOptions(q *gorm.DB, opts ...repository.Option) {
 // Create inserts a single entry.
 //
 //	entity: The entry to insert.
-func (r *repositoryGorm) Create(entity repository.Model) (repository.Model, error) {
-	result, err := r.CreateBulk([]repository.Model{entity})
+func (r *repositoryGorm) Create(ctx context.Context, entity repository.Model) (repository.Model, error) {
+	result, err := r.CreateBulk(ctx, []repository.Model{entity})
 	if err != nil {
 		return nil, err
 	}
@@ -44,7 +45,7 @@ func (r *repositoryGorm) Create(entity repository.Model) (repository.Model, erro
 // CreateBulk creates multiple entries with a single operation.
 //
 //	entities: should be a slice of the same data structure implementing repository.Model.
-func (r *repositoryGorm) CreateBulk(entities []repository.Model) ([]repository.Model, error) {
+func (r *repositoryGorm) CreateBulk(ctx context.Context, entities []repository.Model) ([]repository.Model, error) {
 	for _, entity := range entities {
 		err := r.DB.Model(r.Model()).Create(entity).Error
 		if err != nil {
@@ -58,8 +59,8 @@ func (r *repositoryGorm) CreateBulk(entities []repository.Model) ([]repository.M
 //
 //	output: will contain the result of the query. It must be a pointer to a slice.
 //	options: configuration options for the search.
-func (r *repositoryGorm) Find(output interface{}, options ...repository.Option) error {
-	q := r.startQuery()
+func (r *repositoryGorm) Find(ctx context.Context, output interface{}, options ...repository.Option) error {
+	q := r.startQuery(ctx)
 	r.applyOptions(q, options...)
 	q = q.Find(output)
 	err := q.Error
@@ -71,11 +72,11 @@ func (r *repositoryGorm) Find(output interface{}, options ...repository.Option) 
 
 // FindOne filters entries and stores the first filtered entry in output, it must be a pointer to
 // a data structure implementing repository.Model.
-func (r *repositoryGorm) FindOne(output repository.Model, filters ...repository.Filter) error {
+func (r *repositoryGorm) FindOne(ctx context.Context, output repository.Model, filters ...repository.Filter) error {
 	if len(filters) == 0 {
 		return repository.ErrNoFilter
 	}
-	q := r.startQuery()
+	q := r.startQuery(ctx)
 	q = r.setQueryFilters(q, filters)
 	q = q.First(output)
 	return q.Error
@@ -84,11 +85,11 @@ func (r *repositoryGorm) FindOne(output repository.Model, filters ...repository.
 // Last gets the last record ordered by primary key desc.
 //
 //	output: must be a pointer to a repository.Model implementation.
-func (r *repositoryGorm) Last(output repository.Model, filters ...repository.Filter) error {
+func (r *repositoryGorm) Last(ctx context.Context, output repository.Model, filters ...repository.Filter) error {
 	if len(filters) == 0 {
 		return repository.ErrNoFilter
 	}
-	q := r.startQuery()
+	q := r.startQuery(ctx)
 	q = r.setQueryFilters(q, filters)
 	q = q.Last(output)
 	return q.Error
@@ -98,8 +99,8 @@ func (r *repositoryGorm) Last(output repository.Model, filters ...repository.Fil
 //
 //		data: must be a map[string]interface{}
 //	 filters: filter entries that should be updated.
-func (r *repositoryGorm) Update(data interface{}, filters ...repository.Filter) error {
-	q := r.startQuery()
+func (r *repositoryGorm) Update(ctx context.Context, data interface{}, filters ...repository.Filter) error {
+	q := r.startQuery(ctx)
 	q = r.setQueryFilters(q, filters)
 	q = q.Updates(data)
 	return q.Error
@@ -108,8 +109,8 @@ func (r *repositoryGorm) Update(data interface{}, filters ...repository.Filter) 
 // Delete removes all the model entries that match filters.
 //
 //	options: configuration options for the removal.
-func (r *repositoryGorm) Delete(opts ...repository.Option) error {
-	q := r.startQuery()
+func (r *repositoryGorm) Delete(ctx context.Context, opts ...repository.Option) error {
+	q := r.startQuery(ctx)
 	r.applyOptions(q, opts...)
 	q = q.Delete(r.Model())
 	err := q.Error
@@ -122,8 +123,8 @@ func (r *repositoryGorm) Delete(opts ...repository.Option) error {
 // FirstOrCreate inserts a new entry if the given filters don't find any existing record.
 //
 //	entity: must be a pointer to a repository.Model implementation. Results will be saved in this argument if the record exists.
-func (r *repositoryGorm) FirstOrCreate(entity repository.Model, filters ...repository.Filter) error {
-	q := r.startQuery()
+func (r *repositoryGorm) FirstOrCreate(ctx context.Context, entity repository.Model, filters ...repository.Filter) error {
+	q := r.startQuery(ctx)
 	q = r.setQueryFilters(q, filters)
 	return q.FirstOrCreate(entity).Error
 }
@@ -131,9 +132,9 @@ func (r *repositoryGorm) FirstOrCreate(entity repository.Model, filters ...repos
 // Count counts all the model entries that match filters.
 //
 //	filters: selection criteria for entries that should be considered when counting entries.
-func (r *repositoryGorm) Count(filters ...repository.Filter) (uint64, error) {
+func (r *repositoryGorm) Count(ctx context.Context, filters ...repository.Filter) (uint64, error) {
 	var count int64
-	q := r.startQuery()
+	q := r.startQuery(ctx)
 	q = r.setQueryFilters(q, filters)
 	if err := q.Count(&count).Error; err != nil {
 		return 0, err
@@ -142,8 +143,9 @@ func (r *repositoryGorm) Count(filters ...repository.Filter) (uint64, error) {
 }
 
 // startQuery inits a sql query for this repository's model. Multiple filters are ANDd together.
-func (r *repositoryGorm) startQuery() *gorm.DB {
-	return r.DB.Model(r.Model())
+func (r *repositoryGorm) startQuery(ctx context.Context) *gorm.DB {
+
+	return r.DB.Model(r.Model()).WithContext(ctx)
 }
 
 // setQueryFilters applies the given filters to a sql query.

@@ -5,7 +5,7 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
-	"github.com/gazebo-web/gz-go/v7/monitoring"
+	"github.com/gazebo-web/gz-go/v8/monitoring"
 	"github.com/gorilla/mux"
 	"github.com/rollbar/rollbar-go"
 	"gorm.io/driver/mysql"
@@ -19,8 +19,6 @@ import (
 	"strconv"
 	"strings"
 	"time"
-
-	// Needed by dbInit
 )
 
 // Server encapsulates information needed by a downstream application

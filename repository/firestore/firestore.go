@@ -3,9 +3,9 @@ package firestore
 import (
 	"cloud.google.com/go/firestore"
 	"context"
-	"github.com/gazebo-web/gz-go/v7/errors"
-	"github.com/gazebo-web/gz-go/v7/reflect"
-	"github.com/gazebo-web/gz-go/v7/repository"
+	"github.com/gazebo-web/gz-go/v8/errors"
+	"github.com/gazebo-web/gz-go/v8/reflect"
+	"github.com/gazebo-web/gz-go/v8/repository"
 	"google.golang.org/api/iterator"
 )
 
@@ -15,17 +15,17 @@ type firestoreRepository[T repository.Model] struct {
 }
 
 // FirstOrCreate is not implemented.
-func (r *firestoreRepository[T]) FirstOrCreate(entity repository.Model, filters ...repository.Filter) error {
+func (r *firestoreRepository[T]) FirstOrCreate(ctx context.Context, entity repository.Model, filters ...repository.Filter) error {
 	return errors.ErrMethodNotImplemented
 }
 
 // Create is not implemented.
-func (r *firestoreRepository[T]) Create(entity repository.Model) (repository.Model, error) {
+func (r *firestoreRepository[T]) Create(ctx context.Context, entity repository.Model) (repository.Model, error) {
 	return nil, errors.ErrMethodNotImplemented
 }
 
 // CreateBulk is not implemented.
-func (r *firestoreRepository[T]) CreateBulk(entities []repository.Model) ([]repository.Model, error) {
+func (r *firestoreRepository[T]) CreateBulk(ctx context.Context, entities []repository.Model) ([]repository.Model, error) {
 	return nil, errors.ErrMethodNotImplemented
 }
 
@@ -33,10 +33,10 @@ func (r *firestoreRepository[T]) CreateBulk(entities []repository.Model) ([]repo
 //
 //	output: will contain the result of the query. It must be a pointer to a slice.
 //	options: configuration options for the search.
-func (r *firestoreRepository[T]) Find(output interface{}, options ...repository.Option) error {
+func (r *firestoreRepository[T]) Find(ctx context.Context, output interface{}, options ...repository.Option) error {
 	col := r.client.Collection(r.Model().TableName())
 	r.applyOptions(&col.Query, options...)
-	iter := col.Documents(context.Background())
+	iter := col.Documents(ctx)
 	docs, err := iter.GetAll()
 	if err != nil {
 		return err
@@ -57,21 +57,21 @@ func (r *firestoreRepository[T]) Find(output interface{}, options ...repository.
 }
 
 // FindOne is not implemented.
-func (r *firestoreRepository[T]) FindOne(output repository.Model, filters ...repository.Filter) error {
+func (r *firestoreRepository[T]) FindOne(ctx context.Context, output repository.Model, filters ...repository.Filter) error {
 	return errors.ErrMethodNotImplemented
 }
 
 // Last is not implemented.
-func (r *firestoreRepository[T]) Last(output repository.Model, filters ...repository.Filter) error {
+func (r *firestoreRepository[T]) Last(ctx context.Context, output repository.Model, filters ...repository.Filter) error {
 	return errors.ErrMethodNotImplemented
 }
 
 // Update is not implemented.
-func (r *firestoreRepository[T]) Update(data interface{}, filters ...repository.Filter) error {
+func (r *firestoreRepository[T]) Update(ctx context.Context, data interface{}, filters ...repository.Filter) error {
 	return errors.ErrMethodNotImplemented
 }
 
-// Delete deletes all the entities that match the given options. 
+// Delete deletes all the entities that match the given options.
 //
 // This method is not responsible for performing soft deletes.
 // Any project using this repository must implement soft deletion at the firestore-level if they're in need of soft
@@ -81,10 +81,9 @@ func (r *firestoreRepository[T]) Update(data interface{}, filters ...repository.
 //
 // Delete does not remove all the records at once, it will perform the document removal in small batches. This mechanism
 // prevents running into out-of-memory errors.
-func (r *firestoreRepository[T]) Delete(options ...repository.Option) error {
-	ctx := context.Background()
+func (r *firestoreRepository[T]) Delete(ctx context.Context, opts ...repository.Option) error {
 	col := r.client.Collection(r.Model().TableName())
-	r.applyOptions(&col.Query, options...)
+	r.applyOptions(&col.Query, opts...)
 
 	err := r.deleteBatch(ctx, col, 30)
 	if err != nil {
@@ -133,7 +132,7 @@ func (r *firestoreRepository[T]) deleteBatch(ctx context.Context, col *firestore
 }
 
 // Count is not implemented.
-func (r *firestoreRepository[T]) Count(filters ...repository.Filter) (uint64, error) {
+func (r *firestoreRepository[T]) Count(ctx context.Context, filters ...repository.Filter) (uint64, error) {
 	return 0, errors.ErrMethodNotImplemented
 }
 
