@@ -8,7 +8,7 @@ require (
 	firebase.google.com/go/v4 v4.11.0
 	github.com/auth0/go-jwt-middleware v0.0.0-20200507191422-d30d7b9ece63
 	github.com/aws/aws-sdk-go v1.44.192
-	github.com/aws/aws-sdk-go-v2 v1.17.3
+	github.com/aws/aws-sdk-go-v2 v1.18.1
 	github.com/aws/aws-sdk-go-v2/config v1.18.10
 	github.com/aws/aws-sdk-go-v2/credentials v1.13.10
 	github.com/aws/aws-sdk-go-v2/service/s3 v1.30.1
