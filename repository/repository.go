@@ -1,6 +1,9 @@
 package repository
 
-import "errors"
+import (
+	"context"
+	"errors"
+)
 
 var (
 	// ErrNoFilter represents an error when no filter are provided.
@@ -25,33 +28,33 @@ type Option interface {
 type Repository interface {
 	// FirstOrCreate inserts a new entry if the given filters don't find any existing record.
 	// entity: must be a pointer to a Model implementation. Results will be saved in this argument if the record exists.
-	FirstOrCreate(entity Model, filters ...Filter) error
+	FirstOrCreate(ctx context.Context, entity Model, filters ...Filter) error
 	// Create inserts a single entry.
 	// entity: The entry to insert.
-	Create(entity Model) (Model, error)
+	Create(ctx context.Context, entity Model) (Model, error)
 	// CreateBulk creates multiple entries with a single operation.
 	// entities: should be a slice of a Model implementation.
-	CreateBulk(entities []Model) ([]Model, error)
+	CreateBulk(ctx context.Context, entities []Model) ([]Model, error)
 	// Find filters entries and stores filtered entries in output.
 	// output: will contain the result of the query. It must be a pointer to a slice.
 	// options: configuration options for the search. Refer to the implementation's set of options to get a lit of options.
-	Find(output interface{}, options ...Option) error
+	Find(ctx context.Context, output interface{}, options ...Option) error
 	// FindOne filters entries and stores the first filtered entry in output.
 	// output: must be a pointer to a Model implementation.
-	FindOne(output Model, filters ...Filter) error
+	FindOne(ctx context.Context, output Model, filters ...Filter) error
 	// Last gets the last record ordered by primary key desc.
 	// output: must be a pointer to a Model implementation.
-	Last(output Model, filters ...Filter) error
+	Last(ctx context.Context, output Model, filters ...Filter) error
 	// Update updates all model entries that match the provided filters with the given data.
 	// data: must be a map[string]interface{}
 	// filters: selection criteria for entries that should be updated.
-	Update(data interface{}, filters ...Filter) error
+	Update(ctx context.Context, data interface{}, filters ...Filter) error
 	// Delete removes all the model entries that match filters.
 	// filters: selection criteria for entries that should be deleted.
-	Delete(opts ...Option) error
+	Delete(ctx context.Context, opts ...Option) error
 	// Count counts all the model entries that match filters.
 	// filters: selection criteria for entries that should be considered when counting entries.
-	Count(filters ...Filter) (uint64, error)
+	Count(ctx context.Context, filters ...Filter) (uint64, error)
 	// Model returns this repository's model.
 	Model() Model
 }

@@ -19,8 +19,6 @@ import (
 	"strconv"
 	"strings"
 	"time"
-
-	// Needed by dbInit
 )
 
 // Server encapsulates information needed by a downstream application
