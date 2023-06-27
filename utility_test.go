@@ -8,6 +8,7 @@ import (
 	"path/filepath"
 	"strings"
 	"testing"
+	"time"
 )
 
 // Tests for utility file
@@ -87,4 +88,23 @@ func TestParseURL(t *testing.T) {
 	u, err = ParseURL("s3://gazebosim.org/simulations/123456")
 	assert.NoError(t, err)
 	assert.NotNil(t, u)
+}
+
+func TestNewDateTime(t *testing.T) {
+	now := time.Now()
+	date := NewDateTime(now)
+	require.NotNil(t, date)
+	assert.NotEmpty(t, date.GetTimeZone().String())
+	assert.Equal(t, now.Year(), int(date.GetYear()))
+	assert.Equal(t, int(now.Month()), int(date.GetMonth()))
+	assert.Equal(t, now.Day(), int(date.GetDay()))
+	assert.Equal(t, now.Hour(), int(date.GetHours()))
+	assert.Equal(t, now.Minute(), int(date.GetMinutes()))
+	assert.Equal(t, now.Second(), int(date.GetSeconds()))
+	assert.Equal(t, now.Nanosecond(), int(date.GetNanos()))
+	assert.NotNil(t, date.TimeOffset)
+
+	_, offset := now.Zone()
+	assert.Equal(t, time.Duration(offset)*time.Second, date.GetUtcOffset().AsDuration())
+	t.Log("Offset:", offset, "Got:", date.GetUtcOffset().AsDuration().String())
 }
