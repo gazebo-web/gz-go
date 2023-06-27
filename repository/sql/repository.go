@@ -2,8 +2,8 @@ package sql
 
 import (
 	"context"
-	"github.com/gazebo-web/gz-go/v7/reflect"
-	"github.com/gazebo-web/gz-go/v7/repository"
+	"github.com/gazebo-web/gz-go/v8/reflect"
+	"github.com/gazebo-web/gz-go/v8/repository"
 	"gorm.io/gorm"
 )
 

@@ -3,8 +3,8 @@ package firestore
 import (
 	"cloud.google.com/go/firestore"
 	"errors"
-	"github.com/gazebo-web/gz-go/v7/pagination"
-	"github.com/gazebo-web/gz-go/v7/repository"
+	"github.com/gazebo-web/gz-go/v8/pagination"
+	"github.com/gazebo-web/gz-go/v8/repository"
 )
 
 // Option is a Firestore-specific repository.Option implementation.

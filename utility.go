@@ -6,7 +6,7 @@ import (
 	"errors"
 	"fmt"
 	"github.com/dgrijalva/jwt-go"
-	gzerrors "github.com/gazebo-web/gz-go/v7/errors"
+	gzerrors "github.com/gazebo-web/gz-go/v8/errors"
 	htmlTemplate "html/template"
 	"io"
 	"log"

@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/codegangsta/negroni"
-	"github.com/gazebo-web/gz-go/v7/monitoring"
+	"github.com/gazebo-web/gz-go/v8/monitoring"
 	"github.com/gorilla/mux"
 	"net/http"
 	"regexp"
