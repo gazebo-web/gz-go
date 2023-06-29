@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"github.com/auth0/go-jwt-middleware"
 	"github.com/codegangsta/negroni"
-	"github.com/dgrijalva/jwt-go"
+	"github.com/form3tech-oss/jwt-go"
 	"github.com/jpillora/go-ogle-analytics"
 	"github.com/mssola/user_agent"
 	"github.com/satori/go.uuid"
@@ -352,7 +352,7 @@ func getRequestID(r *http.Request) string {
 	return reqID
 }
 
-// ///////////////////////////////////////////////
+/////////////////////////////////////////////////
 // logger creates a middleware used to output HTTP requests.
 func logger(inner http.Handler, name string) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -378,7 +378,7 @@ func logger(inner http.Handler, name string) http.Handler {
 	})
 }
 
-// ///////////////////////////////////////////////
+/////////////////////////////////////////////////
 // newGaEventTracking creates a new middleware to send events to Google Analytics.
 // Events will be automatically created using route information.
 // This middleware requires IGN_GA_TRACKING_ID and IGN_GA_APP_NAME
