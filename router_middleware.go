@@ -67,7 +67,7 @@ func JSONListResult(wrapper string, handler HandlerWithResult) TypeJSONResult {
 	return TypeJSONResult{wrapper, handler, true}
 }
 
-// ///////////////////////////////////////////////
+/////////////////////////////////////////////////
 
 func (fn Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	txFunc := dbTransactionWrapper(handlerToHandlerWithResult(fn))
@@ -76,7 +76,7 @@ func (fn Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-// ///////////////////////////////////////////////
+/////////////////////////////////////////////////
 
 // basicHandlerWith represents a basic handler function that returns a result and an error.
 type basicHandlerWithResult func(w http.ResponseWriter, r *http.Request) (interface{}, *ErrMsg)
@@ -169,7 +169,7 @@ func (t TypeJSONResult) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-// ///////////////////////////////////////////////
+/////////////////////////////////////////////////
 
 func (fn ProtoResult) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	txFunc := dbTransactionWrapper(HandlerWithResult(fn))
@@ -191,7 +191,7 @@ func (fn ProtoResult) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	_, _ = w.Write(data)
 }
 
-// ///////////////////////////////////////////////
+/////////////////////////////////////////////////
 
 // ReportJSONError logs an error message and return an HTTP error including
 // JSON payload
@@ -219,7 +219,7 @@ func reportError(w http.ResponseWriter, msg string, errCode int) {
 	http.Error(w, msg, errCode)
 }
 
-// ///////////////////////////////////////////////
+/////////////////////////////////////////////////
 
 // JWTMiddlewareIgn wraps jwtmiddleware.JWTMiddleware so that we can create
 // a custom AccessTokenHandler that first checks for a Private-Token and then
@@ -352,7 +352,7 @@ func getRequestID(r *http.Request) string {
 	return reqID
 }
 
-// ///////////////////////////////////////////////
+/////////////////////////////////////////////////
 // logger creates a middleware used to output HTTP requests.
 func logger(inner http.Handler, name string) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -378,7 +378,7 @@ func logger(inner http.Handler, name string) http.Handler {
 	})
 }
 
-// ///////////////////////////////////////////////
+/////////////////////////////////////////////////
 // newGaEventTracking creates a new middleware to send events to Google Analytics.
 // Events will be automatically created using route information.
 // This middleware requires IGN_GA_TRACKING_ID and IGN_GA_APP_NAME
