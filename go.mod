@@ -15,8 +15,8 @@ require (
 	github.com/caarlos0/env/v6 v6.10.1
 	github.com/codegangsta/negroni v1.0.0
 	github.com/creasty/defaults v1.7.0
-	github.com/dgrijalva/jwt-go v3.2.0+incompatible
 	github.com/fatih/structtag v1.2.0
+	github.com/form3tech-oss/jwt-go v3.2.2+incompatible
 	github.com/fsouza/fake-gcs-server v1.45.2
 	github.com/gazebo-web/auth v0.6.0
 	github.com/go-chi/chi/v5 v5.0.8
@@ -80,7 +80,6 @@ require (
 	github.com/cespare/xxhash/v2 v2.2.0 // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/felixge/httpsnoop v1.0.3 // indirect
-	github.com/form3tech-oss/jwt-go v3.2.2+incompatible // indirect
 	github.com/go-logr/logr v1.2.4 // indirect
 	github.com/go-logr/stdr v1.2.2 // indirect
 	github.com/go-playground/locales v0.14.1 // indirect
