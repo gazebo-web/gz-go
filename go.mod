@@ -6,7 +6,7 @@ require (
 	cloud.google.com/go/firestore v1.10.0
 	cloud.google.com/go/storage v1.30.1
 	firebase.google.com/go/v4 v4.11.0
-	github.com/auth0/go-jwt-middleware v0.0.0-20200507191422-d30d7b9ece63
+	github.com/auth0/go-jwt-middleware v1.0.1
 	github.com/aws/aws-sdk-go v1.44.192
 	github.com/aws/aws-sdk-go-v2 v1.18.1
 	github.com/aws/aws-sdk-go-v2/config v1.18.27
@@ -80,6 +80,7 @@ require (
 	github.com/cespare/xxhash/v2 v2.2.0 // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/felixge/httpsnoop v1.0.3 // indirect
+	github.com/form3tech-oss/jwt-go v3.2.2+incompatible // indirect
 	github.com/go-logr/logr v1.2.4 // indirect
 	github.com/go-logr/stdr v1.2.2 // indirect
 	github.com/go-playground/locales v0.14.1 // indirect
