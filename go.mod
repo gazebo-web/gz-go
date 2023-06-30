@@ -7,7 +7,7 @@ require (
 	cloud.google.com/go/storage v1.30.1
 	firebase.google.com/go/v4 v4.11.0
 	github.com/auth0/go-jwt-middleware v1.0.1
-	github.com/aws/aws-sdk-go v1.44.192
+	github.com/aws/aws-sdk-go v1.44.293
 	github.com/aws/aws-sdk-go-v2 v1.18.1
 	github.com/aws/aws-sdk-go-v2/config v1.18.27
 	github.com/aws/aws-sdk-go-v2/credentials v1.13.26
