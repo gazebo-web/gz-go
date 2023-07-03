@@ -112,6 +112,8 @@ func TestNewDateTime(t *testing.T) {
 func TestNewMoney(t *testing.T) {
 	m := NewMoney("usd", 0)
 
+	assert.NotNil(t, m)
+
 	// If `units` is zero, `nanos` can be positive, zero, or negative.
 	assert.Equal(t, "usd", m.GetCurrencyCode())
 	assert.Equal(t, int64(0), m.GetUnits())
