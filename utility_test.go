@@ -4,6 +4,8 @@ import (
 	"errors"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+	"google.golang.org/genproto/googleapis/type/money"
+	"math"
 	"os"
 	"path/filepath"
 	"strings"
@@ -107,4 +109,59 @@ func TestNewDateTime(t *testing.T) {
 	_, offset := now.Zone()
 	assert.Equal(t, time.Duration(offset)*time.Second, date.GetUtcOffset().AsDuration())
 	t.Log("Offset:", offset, "Got:", date.GetUtcOffset().AsDuration().String())
+}
+
+// NewMoney converts the given cents into a money.Money value.
+func NewMoney(currency string, cents int64) *money.Money {
+	u := cents / 100
+	n := int32(cents-(u*100)) * int32(math.Pow10(7))
+	return &money.Money{
+		CurrencyCode: currency,
+		Units:        u,
+		Nanos:        n,
+	}
+}
+
+func TestNewMoney(t *testing.T) {
+	m := NewMoney("usd", 0)
+
+	// If `units` is zero, `nanos` can be positive, zero, or negative.
+	assert.Equal(t, "usd", m.GetCurrencyCode())
+	assert.Equal(t, int64(0), m.GetUnits())
+	assert.Equal(t, int32(0), m.GetNanos())
+
+	// $-1.75 is represented as `units`=-1 and `nanos`=-750,000,000.
+	m = NewMoney("usd", -175)
+	assert.Equal(t, "usd", m.GetCurrencyCode())
+	assert.Equal(t, int64(-1), m.GetUnits())
+	assert.Equal(t, int32(-750_000_000), m.GetNanos())
+
+	// $99.99 is represented as `units`=99 and `nanos`=990,000,000.
+	m = NewMoney("usd", 9999)
+	assert.Equal(t, "usd", m.GetCurrencyCode())
+	assert.Equal(t, int64(99), m.GetUnits())
+	assert.Equal(t, int32(990_000_000), m.GetNanos())
+
+	// $19.99 is represented as `units`=19 and `nanos`=990,000,000.
+	m = NewMoney("usd", 1999)
+	assert.Equal(t, "usd", m.GetCurrencyCode())
+	assert.Equal(t, int64(19), m.GetUnits())
+	assert.Equal(t, int32(990_000_000), m.GetNanos())
+
+	// $9.99 is represented as `units`=9 and `nanos`=990,000,000.
+	m = NewMoney("usd", 999)
+	assert.Equal(t, "usd", m.GetCurrencyCode())
+	assert.Equal(t, int64(9), m.GetUnits())
+	assert.Equal(t, int32(990_000_000), m.GetNanos())
+}
+
+func FuzzNewMoney(f *testing.F) {
+	f.Add("usd", int64(175))
+	f.Add("usd", int64(990))
+	f.Add("usd", int64(1999))
+	f.Add("usd", int64(9990))
+	f.Add("usd", int64(99990))
+	f.Fuzz(func(t *testing.T, c string, v int64) {
+		NewMoney(c, v)
+	})
 }
