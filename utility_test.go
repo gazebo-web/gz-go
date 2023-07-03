@@ -4,8 +4,6 @@ import (
 	"errors"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
-	"google.golang.org/genproto/googleapis/type/money"
-	"math"
 	"os"
 	"path/filepath"
 	"strings"
@@ -109,17 +107,6 @@ func TestNewDateTime(t *testing.T) {
 	_, offset := now.Zone()
 	assert.Equal(t, time.Duration(offset)*time.Second, date.GetUtcOffset().AsDuration())
 	t.Log("Offset:", offset, "Got:", date.GetUtcOffset().AsDuration().String())
-}
-
-// NewMoney converts the given cents into a money.Money value.
-func NewMoney(currency string, cents int64) *money.Money {
-	u := cents / 100
-	n := int32(cents-(u*100)) * int32(math.Pow10(7))
-	return &money.Money{
-		CurrencyCode: currency,
-		Units:        u,
-		Nanos:        n,
-	}
 }
 
 func TestNewMoney(t *testing.T) {
