@@ -8,7 +8,8 @@ import (
 )
 
 // LoggerGRPC adapts zap logger to interceptor logger.
-// Code copied from: https://github.com/grpc-ecosystem/go-grpc-middleware/blob/main/interceptors/logging/examples/zap/example_test.go#L17
+// Code copied from: 
+//   https://github.com/grpc-ecosystem/go-grpc-middleware/blob/a18e1e2bacb23afca0f52b228f6b4efbb5f57822/interceptors/logging/examples/zap/example_test.go#L17
 func LoggerGRPC(l *zap.Logger) grpc_logging.Logger {
 	return grpc_logging.LoggerFunc(func(ctx context.Context, lvl grpc_logging.Level, msg string, fields ...any) {
 		f := make([]zap.Field, 0, len(fields)/2)
