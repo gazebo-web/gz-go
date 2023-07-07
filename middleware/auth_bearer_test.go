@@ -20,6 +20,7 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"os"
+	"strings"
 	"testing"
 	"time"
 )
@@ -193,14 +194,15 @@ func (suite *TestAuthSuite) TestVerifyJWT_Success() {
 	ctx := ctxWithToken(context.Background(), "bearer", "1234")
 
 	expectedCtx := mock.AnythingOfType("*context.valueCtx")
-	suite.auth.On("VerifyJWT", expectedCtx, "1234").Return(authentication.NewFirebaseClaims(authentication.NewFirebaseTestToken()), error(nil)).Once()
+	testToken := authentication.NewFirebaseTestToken()
+	suite.auth.On("VerifyJWT", expectedCtx, "1234").Return(authentication.NewFirebaseClaims(testToken), error(nil)).Once()
 	client := suite.NewClient()
 
 	res, err := client.Ping(ctx, &grpc_test.PingRequest{})
 	suite.Assert().NoError(err)
 	suite.Assert().NotNil(res)
 	suite.Assert().NotEmpty(res.GetValue())
-	suite.Assert().Equal("gazebo-web", res.GetValue())
+	suite.Assert().Equal("gazebo-web;test@gazebosim.org", res.GetValue())
 }
 
 func ctxWithToken(ctx context.Context, scheme string, token string) context.Context {
@@ -218,8 +220,12 @@ func (s *testAuthService) Ping(ctx context.Context, _ *grpc_test.PingRequest) (*
 	if err != nil {
 		return nil, err
 	}
+	email, err := ExtractGRPCAuthEmail(ctx)
+	if err != nil {
+		return nil, err
+	}
 	return &grpc_test.PingResponse{
-		Value: sub,
+		Value: strings.Join([]string{sub, email}, ";"),
 	}, nil
 }
 
