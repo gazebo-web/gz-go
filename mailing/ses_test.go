@@ -8,7 +8,7 @@ import (
 	"testing"
 )
 
-func TestEmailReturnsErrWhenRecipientsIsEmpty(t *testing.T) {
+func TestSES_ReturnsErrWhenRecipientsIsEmpty(t *testing.T) {
 	s := NewSimpleEmailServiceSender(nil)
 
 	err := s.Send(nil, "example@test.org", "Some test", "test.template", nil)
@@ -16,7 +16,7 @@ func TestEmailReturnsErrWhenRecipientsIsEmpty(t *testing.T) {
 	assert.Equal(t, ErrEmptyRecipientList, err)
 }
 
-func TestEmailReturnsErrWhenSenderIsEmpty(t *testing.T) {
+func TestSES_ReturnsErrWhenSenderIsEmpty(t *testing.T) {
 	s := NewSimpleEmailServiceSender(nil)
 
 	err := s.Send([]string{"recipient@test.org"}, "", "Some test", "test.template", nil)
@@ -24,7 +24,7 @@ func TestEmailReturnsErrWhenSenderIsEmpty(t *testing.T) {
 	assert.Equal(t, ErrEmptySender, err)
 }
 
-func TestEmailReturnsErrWhenRecipientIsInvalid(t *testing.T) {
+func TestSES_ReturnsErrWhenRecipientIsInvalid(t *testing.T) {
 	s := NewSimpleEmailServiceSender(nil)
 
 	err := s.Send([]string{"ThisIsNotAValidEmail"}, "example@test.org", "Some test", "test.template", nil)
@@ -32,7 +32,7 @@ func TestEmailReturnsErrWhenRecipientIsInvalid(t *testing.T) {
 	assert.Equal(t, ErrInvalidRecipient, err)
 }
 
-func TestEmailReturnsErrWhenSenderIsInvalid(t *testing.T) {
+func TestSES_ReturnsErrWhenSenderIsInvalid(t *testing.T) {
 	s := NewSimpleEmailServiceSender(nil)
 
 	err := s.Send([]string{"recipient@test.org"}, "InvalidSenderEmail", "Some test", "test.template", nil)
@@ -40,22 +40,22 @@ func TestEmailReturnsErrWhenSenderIsInvalid(t *testing.T) {
 	assert.Equal(t, ErrInvalidSender, err)
 }
 
-func TestEmailReturnsErrWhenInvalidPath(t *testing.T) {
+func TestSES_ReturnsErrWhenInvalidPath(t *testing.T) {
 	s := NewSimpleEmailServiceSender(nil)
 
 	err := s.Send([]string{"recipient@test.org"}, "example@test.org", "Some test", "test", nil)
 	assert.Error(t, err)
 }
 
-func TestEmailReturnsErrWhenDataIsNil(t *testing.T) {
-	s := NewSimpleEmailServiceSender(&fakeSender{})
+func TestSES_ReturnsErrWhenDataIsNil(t *testing.T) {
+	s := NewSimpleEmailServiceSender(&fakeSESSender{})
 	err := s.Send([]string{"recipient@test.org"}, "example@test.org", "Some test", "testdata/template.gohtml", nil)
 	assert.Error(t, err)
 	assert.Equal(t, ErrInvalidData, err)
 }
 
-func TestEmailSendingSuccess(t *testing.T) {
-	fake := fakeSender{}
+func TestSES_SendingSuccess(t *testing.T) {
+	fake := fakeSESSender{}
 	s := NewSimpleEmailServiceSender(&fake)
 	err := s.Send([]string{"recipient@test.org"}, "example@test.org", "Some test", "testdata/template.gohtml", struct {
 		Test string
@@ -67,15 +67,15 @@ func TestEmailSendingSuccess(t *testing.T) {
 	assert.Equal(t, 1, fake.Called)
 }
 
-// fakeSender fakes the sesiface.SESAPI interface.
-type fakeSender struct {
+// fakeSESSender fakes the sesiface.SESAPI interface.
+type fakeSESSender struct {
 	returnError bool
 	Called      int
 	sesiface.SESAPI
 }
 
 // SendEmail mocks the SendEmail method from the sesiface.SESAPI.
-func (s *fakeSender) SendEmail(input *ses.SendEmailInput) (*ses.SendEmailOutput, error) {
+func (s *fakeSESSender) SendEmail(input *ses.SendEmailInput) (*ses.SendEmailOutput, error) {
 	s.Called++
 	if s.returnError {
 		return nil, errors.New("fake error")
