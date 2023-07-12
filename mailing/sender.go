@@ -1,6 +1,11 @@
 package mailing
 
-import "errors"
+import (
+	"context"
+	"errors"
+	"github.com/sendgrid/rest"
+	"github.com/sendgrid/sendgrid-go/helpers/mail"
+)
 
 // charset is the default email encoding.
 const charset = "UTF-8"
@@ -22,5 +27,9 @@ var (
 type Sender interface {
 	// Send sends an email from sender to the given recipients. The email body is described by a template
 	// that contains the information passed through data.
-	Send(recipients []string, sender, subject, template string, data any) error
+	Send(ctx context.Context, recipients []string, sender, subject, template string, data any) error
+}
+
+type sendgridSender interface {
+	SendWithContext(ctx context.Context, email *mail.SGMailV3) (*rest.Response, error)
 }

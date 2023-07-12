@@ -1,6 +1,7 @@
 package mailing
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"github.com/aws/aws-sdk-go/aws"
@@ -10,15 +11,20 @@ import (
 	"github.com/gazebo-web/gz-go/v8"
 )
 
-// simpleEmailService implements the Sender interface using AWS Simple Email Service API.
-type simpleEmailService struct {
+// awsSimpleEmailService implements the Sender interface using AWS Simple Email Service API.
+// This implementation uses the AWS SDK v1.
+//
+//	References:
+//	- AWS SDK V1: https://github.com/aws/aws-sdk-go
+//	- AWS SES SDK V1: https://pkg.go.dev/github.com/aws/aws-sdk-go/service/ses
+type awsSimpleEmailService struct {
 	API sesiface.SESAPI
 }
 
 // Send sends an email to the given recipients from the given sender.
 // A template will be parsed with the given data in order to fill the email's body.
 // It returns an error when validation fails or sending an email fails.
-func (e *simpleEmailService) Send(recipients []string, sender, subject, template string, data interface{}) error {
+func (e *awsSimpleEmailService) Send(ctx context.Context, recipients []string, sender, subject, template string, data any) error {
 	err := validEmail(recipients, sender, data)
 	if err != nil {
 		return err
@@ -29,7 +35,7 @@ func (e *simpleEmailService) Send(recipients []string, sender, subject, template
 		return err
 	}
 
-	err = e.send(sender, recipients, subject, content)
+	err = e.send(ctx, sender, recipients, subject, content)
 	if err != nil {
 		return err
 	}
@@ -38,7 +44,7 @@ func (e *simpleEmailService) Send(recipients []string, sender, subject, template
 }
 
 // send attempts to send an email using the AWS SES service.
-func (e *simpleEmailService) send(sender string, recipients []string, subject string, content string) error {
+func (e *awsSimpleEmailService) send(_ context.Context, sender string, recipients []string, subject string, content string) error {
 	input := ses.SendEmailInput{
 		Destination: &ses.Destination{
 			CcAddresses: []*string{},
@@ -59,7 +65,7 @@ func (e *simpleEmailService) send(sender string, recipients []string, subject st
 		Source: aws.String(sender),
 	}
 
-	// Attempt to send the simpleEmailService.
+	// Attempt to send the awsSimpleEmailService.
 	_, err := e.API.SendEmail(&input)
 	if err != nil {
 		if aerr, ok := err.(awserr.Error); ok {
@@ -84,7 +90,7 @@ func (e *simpleEmailService) send(sender string, recipients []string, subject st
 
 // NewSimpleEmailServiceSender returns a Sender implementation using AWS Simple Email Service.
 func NewSimpleEmailServiceSender(api sesiface.SESAPI) Sender {
-	return &simpleEmailService{
+	return &awsSimpleEmailService{
 		API: api,
 	}
 }
