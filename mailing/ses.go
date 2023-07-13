@@ -34,7 +34,7 @@ func (e *awsSimpleEmailService) Send(ctx context.Context, sender string, recipie
 		return err
 	}
 
-	err = e.send(ctx, sender, recipients, nil, nil, subject, content)
+	err = e.send(ctx, sender, recipients, cc, bcc, subject, content)
 	if err != nil {
 		return err
 	}
