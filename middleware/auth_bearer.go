@@ -3,6 +3,7 @@ package middleware
 import (
 	"context"
 	"github.com/gazebo-web/auth/pkg/authentication"
+	"github.com/golang-jwt/jwt/v5"
 	"github.com/golang-jwt/jwt/v5/request"
 	grpc_auth "github.com/grpc-ecosystem/go-grpc-middleware/v2/interceptors/auth"
 	"google.golang.org/grpc/codes"
@@ -35,10 +36,30 @@ func BearerAuthFuncGRPC(auth authentication.Authentication) grpc_auth.AuthFunc {
 		if err != nil {
 			return nil, status.Error(codes.Unauthenticated, err.Error())
 		}
-		sub, err := token.GetSubject()
+		return injectClaims(ctx, token)
+
+	}
+}
+
+// injectClaims injects claims from token into the given context.
+// It returns the context with the claims injected, or an error if the claims could not be obtained.
+// Values injected:
+//   - Subject (mandatory): jwt.Claims.
+//   - Email address (optional): authentication.EmailClaimer.
+func injectClaims(ctx context.Context, token jwt.Claims) (context.Context, error) {
+	sub, err := token.GetSubject()
+	if err != nil {
+		return nil, status.Error(codes.Unauthenticated, err.Error())
+	}
+	ctx = InjectGRPCAuthSubject(ctx, sub)
+
+	// Only inject the email claim if the given token fulfills the authentication.EmailClaimer interface.
+	if emailClaim, ok := token.(authentication.EmailClaimer); ok {
+		email, err := emailClaim.GetEmail()
 		if err != nil {
 			return nil, status.Error(codes.Unauthenticated, err.Error())
 		}
-		return InjectGRPCAuthSubject(ctx, sub), nil
+		ctx = InjectGRPCAuthEmail(ctx, email)
 	}
+	return ctx, nil
 }
