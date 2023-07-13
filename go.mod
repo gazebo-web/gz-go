@@ -16,7 +16,7 @@ require (
 	github.com/codegangsta/negroni v1.0.0
 	github.com/creasty/defaults v1.7.0
 	github.com/fatih/structtag v1.2.0
-	github.com/form3tech-oss/jwt-go v3.2.2+incompatible
+	github.com/form3tech-oss/jwt-go v3.2.5+incompatible
 	github.com/fsouza/fake-gcs-server v1.45.2
 	github.com/gazebo-web/auth v0.6.1-0.20230707200612-c200ad57a600
 	github.com/go-chi/chi/v5 v5.0.8
