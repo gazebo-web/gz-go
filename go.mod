@@ -5,7 +5,7 @@ go 1.19
 require (
 	cloud.google.com/go/firestore v1.10.0
 	cloud.google.com/go/storage v1.30.1
-	firebase.google.com/go/v4 v4.11.0
+	firebase.google.com/go/v4 v4.12.0
 	github.com/auth0/go-jwt-middleware v1.0.1
 	github.com/aws/aws-sdk-go v1.44.293
 	github.com/aws/aws-sdk-go-v2 v1.18.1
@@ -18,7 +18,7 @@ require (
 	github.com/fatih/structtag v1.2.0
 	github.com/form3tech-oss/jwt-go v3.2.5+incompatible
 	github.com/fsouza/fake-gcs-server v1.45.2
-	github.com/gazebo-web/auth v0.6.1-0.20230707200612-c200ad57a600
+	github.com/gazebo-web/auth v0.7.0
 	github.com/go-chi/chi/v5 v5.0.8
 	github.com/go-chi/render v1.0.2
 	github.com/golang-jwt/jwt/v5 v5.0.0
@@ -32,7 +32,7 @@ require (
 	github.com/rollbar/rollbar-go v1.2.0
 	github.com/rs/cors v1.9.0
 	github.com/satori/go.uuid v1.2.0
-	github.com/stretchr/testify v1.8.3
+	github.com/stretchr/testify v1.8.4
 	github.com/urfave/negroni v1.0.0
 	gitlab.com/ignitionrobotics/web/scheduler v0.5.0
 	go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc v0.42.0
