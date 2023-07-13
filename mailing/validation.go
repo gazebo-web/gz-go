@@ -8,8 +8,8 @@ func validateEmailAddress(email string) bool {
 	return exp.MatchString(email)
 }
 
-// validEmail validates that the given parameters for an email are valid.
-func validEmail(recipients []string, sender string, data any) error {
+// validateEmail validates that the given parameters for an email are valid.
+func validateEmail(recipients []string, sender string, data any) error {
 	if len(recipients) == 0 {
 		return ErrEmptyRecipientList
 	}

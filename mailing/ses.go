@@ -24,7 +24,7 @@ type awsSimpleEmailService struct {
 // Send sends an email from sender to the given recipients. The email body is composed by an HTML template
 // that is filled in with values provided in data.
 func (e *awsSimpleEmailService) Send(ctx context.Context, sender string, recipients, cc, bcc []string, subject, template string, data any) error {
-	err := validEmail(recipients, sender, data)
+	err := validateEmail(recipients, sender, data)
 	if err != nil {
 		return err
 	}

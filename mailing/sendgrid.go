@@ -18,8 +18,9 @@ type sendgridEmailService struct {
 // Send sends an email from sender to the given recipients. The email body is composed by an HTML template
 // that is filled in with values provided in data.
 func (s *sendgridEmailService) Send(ctx context.Context, sender string, recipients, cc, bcc []string, subject, template string, data any) error {
-	if len(recipients) == 0 {
-		return nil
+	err := validateEmail(recipients, sender, data)
+	if err != nil {
+		return err
 	}
 
 	htmlContent, err := gz.ParseHTMLTemplate(template, data)
