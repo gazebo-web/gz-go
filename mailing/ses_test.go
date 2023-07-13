@@ -1,7 +1,7 @@
 package mailing
 
 import (
-	context2 "context"
+	"context"
 	"errors"
 	"github.com/aws/aws-sdk-go/service/ses"
 	"github.com/aws/aws-sdk-go/service/ses/sesiface"
@@ -12,7 +12,7 @@ import (
 func TestSES_ReturnsErrWhenRecipientsIsEmpty(t *testing.T) {
 	s := NewSimpleEmailServiceSender(nil)
 
-	err := s.Send(context2.Background(), nil, "example@test.org", "Some test", "test.template", nil)
+	err := s.Send(context.Background(), "example@test.org", nil, nil, nil, "Some test", "test.template", nil)
 	assert.Error(t, err)
 	assert.Equal(t, ErrEmptyRecipientList, err)
 }
@@ -20,7 +20,7 @@ func TestSES_ReturnsErrWhenRecipientsIsEmpty(t *testing.T) {
 func TestSES_ReturnsErrWhenSenderIsEmpty(t *testing.T) {
 	s := NewSimpleEmailServiceSender(nil)
 
-	err := s.Send(context2.Background(), []string{"recipient@test.org"}, "", "Some test", "test.template", nil)
+	err := s.Send(context.Background(), "", []string{"recipient@test.org"}, nil, nil, "Some test", "test.template", nil)
 	assert.Error(t, err)
 	assert.Equal(t, ErrEmptySender, err)
 }
@@ -28,7 +28,7 @@ func TestSES_ReturnsErrWhenSenderIsEmpty(t *testing.T) {
 func TestSES_ReturnsErrWhenRecipientIsInvalid(t *testing.T) {
 	s := NewSimpleEmailServiceSender(nil)
 
-	err := s.Send(context2.Background(), []string{"ThisIsNotAValidEmail"}, "example@test.org", "Some test", "test.template", nil)
+	err := s.Send(context.Background(), "example@test.org", []string{"ThisIsNotAValidEmail"}, nil, nil, "Some test", "test.template", nil)
 	assert.Error(t, err)
 	assert.Equal(t, ErrInvalidRecipient, err)
 }
@@ -36,7 +36,7 @@ func TestSES_ReturnsErrWhenRecipientIsInvalid(t *testing.T) {
 func TestSES_ReturnsErrWhenSenderIsInvalid(t *testing.T) {
 	s := NewSimpleEmailServiceSender(nil)
 
-	err := s.Send(context2.Background(), []string{"recipient@test.org"}, "InvalidSenderEmail", "Some test", "test.template", nil)
+	err := s.Send(context.Background(), "InvalidSenderEmail", []string{"recipient@test.org"}, nil, nil, "Some test", "test.template", nil)
 	assert.Error(t, err)
 	assert.Equal(t, ErrInvalidSender, err)
 }
@@ -44,13 +44,13 @@ func TestSES_ReturnsErrWhenSenderIsInvalid(t *testing.T) {
 func TestSES_ReturnsErrWhenInvalidPath(t *testing.T) {
 	s := NewSimpleEmailServiceSender(nil)
 
-	err := s.Send(context2.Background(), []string{"recipient@test.org"}, "example@test.org", "Some test", "test", nil)
+	err := s.Send(context.Background(), "example@test.org", []string{"recipient@test.org"}, nil, nil, "Some test", "test", nil)
 	assert.Error(t, err)
 }
 
 func TestSES_ReturnsErrWhenDataIsNil(t *testing.T) {
 	s := NewSimpleEmailServiceSender(&fakeSESSender{})
-	err := s.Send(context2.Background(), []string{"recipient@test.org"}, "example@test.org", "Some test", templatePath, nil)
+	err := s.Send(context.Background(), "example@test.org", []string{"recipient@test.org"}, nil, nil, "Some test", templatePath, nil)
 	assert.Error(t, err)
 	assert.Equal(t, ErrInvalidData, err)
 }
@@ -58,7 +58,7 @@ func TestSES_ReturnsErrWhenDataIsNil(t *testing.T) {
 func TestSES_SendingSuccess(t *testing.T) {
 	fake := fakeSESSender{}
 	s := NewSimpleEmailServiceSender(&fake)
-	err := s.Send(context2.Background(), []string{"recipient@test.org"}, "example@test.org", "Some test", templatePath, struct {
+	err := s.Send(context.Background(), "example@test.org", []string{"recipient@test.org"}, nil, nil, "Some test", templatePath, struct {
 		Test string
 	}{
 		Test: "Hello there!",

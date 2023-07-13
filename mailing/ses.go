@@ -21,10 +21,9 @@ type awsSimpleEmailService struct {
 	API sesiface.SESAPI
 }
 
-// Send sends an email to the given recipients from the given sender.
-// A template will be parsed with the given data in order to fill the email's body.
-// It returns an error when validation fails or sending an email fails.
-func (e *awsSimpleEmailService) Send(ctx context.Context, recipients []string, sender, subject, template string, data any) error {
+// Send sends an email from sender to the given recipients. The email body is composed by an HTML template
+// that is filled in with values provided in data.
+func (e *awsSimpleEmailService) Send(ctx context.Context, sender string, recipients, cc, bcc []string, subject, template string, data any) error {
 	err := validEmail(recipients, sender, data)
 	if err != nil {
 		return err

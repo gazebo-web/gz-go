@@ -25,11 +25,14 @@ var (
 
 // Sender allows sending emails through an email service.
 type Sender interface {
-	// Send sends an email from sender to the given recipients. The email body is described by a template
-	// that contains the information passed through data.
-	Send(ctx context.Context, recipients []string, sender, subject, template string, data any) error
+	// Send sends an email from sender to the given recipients. The email body is composed by an HTML template
+	// that is filled in with values provided in data.
+	Send(ctx context.Context, sender string, recipients, cc, bcc []string, subject, template string, data any) error
 }
 
+// sendgridSender defines the method used by sendgrid to send emails.
+// This interface allow us to mock sending emails in tests.
 type sendgridSender interface {
+	// SendWithContext sends the given email using Sendgrid.
 	SendWithContext(ctx context.Context, email *mail.SGMailV3) (*rest.Response, error)
 }
