@@ -55,17 +55,17 @@ func prepareSendgridMailV3(sender string, recipients []string, cc []string, bcc 
 	return m
 }
 
-// NewSendgridEmailSender initializes a new Sender with a sendgrid client.
-func NewSendgridEmailSender(client sendgridSender) Sender {
-	return &sendgridEmailService{
-		client: client,
-	}
-}
-
 func parseSendgridEmails(emails []string) []*mail.Email {
 	out := make([]*mail.Email, len(emails))
 	for i := 0; i < len(emails); i++ {
 		out[i] = mail.NewEmail("", emails[i])
 	}
 	return out
+}
+
+// NewSendgridEmailSender initializes a new Sender with a sendgrid client.
+func NewSendgridEmailSender(client sendgridSender) Sender {
+	return &sendgridEmailService{
+		client: client,
+	}
 }
