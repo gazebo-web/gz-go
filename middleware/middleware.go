@@ -48,6 +48,7 @@ func newTokenMiddleware(verify authentication.TokenAuthentication, extractors ..
 
 const (
 	metadataSubjectKey = "subject"
+	metadataEmailKey   = "email"
 )
 
 // ExtractGRPCAuthSubject extracts the authentication subject (sub) claim from the context metadata. This claim is
@@ -70,6 +71,24 @@ func ExtractGRPCAuthSubject(ctx context.Context) (string, error) {
 // See ExtractGRPCAuthSubject for information on how to extract this value.
 func InjectGRPCAuthSubject(ctx context.Context, sub string) context.Context {
 	return injectGRPCMetadata(ctx, metadataSubjectKey, sub)
+}
+
+// ExtractGRPCAuthEmail extracts the custom email (email) claim from the context metadata. This claim is
+// usually injected in a middleware such as BearerToken or BearerAuthFuncGRPC, if present.
+//
+// This claim is expected in those provider that inject an email address in their JWT. Not all providers
+// do such thing.
+//
+// This function only works with gRPC requests. It returns an error if the metadata couldn't be parsed or the email
+// is not present.
+func ExtractGRPCAuthEmail(ctx context.Context) (string, error) {
+	return extractGRPCMetadata(ctx, metadataEmailKey)
+}
+
+// InjectGRPCAuthEmail injects the custom email (email) claim into the given context metadata.
+// See ExtractGRPCAuthSubject for information on how to extract this value.
+func InjectGRPCAuthEmail(ctx context.Context, email string) context.Context {
+	return injectGRPCMetadata(ctx, metadataEmailKey, email)
 }
 
 // extractGRPCMetadata extracts the first value of the given key. This only works for gRPC servers, not clients.
