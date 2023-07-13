@@ -67,6 +67,12 @@ func ExtractGRPCAuthSubject(ctx context.Context) (string, error) {
 	return extractGRPCMetadata(ctx, metadataSubjectKey)
 }
 
+// InjectGRPCAuthSubject injects the authentication subject (sub) claim into the given context metadata.
+// See ExtractGRPCAuthSubject for information on how to extract this value.
+func InjectGRPCAuthSubject(ctx context.Context, sub string) context.Context {
+	return injectGRPCMetadata(ctx, metadataSubjectKey, sub)
+}
+
 // ExtractGRPCAuthEmail extracts the custom email (email) claim from the context metadata. This claim is
 // usually injected in a middleware such as BearerToken or BearerAuthFuncGRPC, if present.
 //
@@ -77,12 +83,6 @@ func ExtractGRPCAuthSubject(ctx context.Context) (string, error) {
 // is not present.
 func ExtractGRPCAuthEmail(ctx context.Context) (string, error) {
 	return extractGRPCMetadata(ctx, metadataEmailKey)
-}
-
-// InjectGRPCAuthSubject injects the authentication subject (sub) claim into the given context metadata.
-// See ExtractGRPCAuthSubject for information on how to extract this value.
-func InjectGRPCAuthSubject(ctx context.Context, sub string) context.Context {
-	return injectGRPCMetadata(ctx, metadataSubjectKey, sub)
 }
 
 // InjectGRPCAuthEmail injects the custom email (email) claim into the given context metadata.
