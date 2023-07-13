@@ -42,7 +42,7 @@ func (suite *SendgridTestSuite) TestSendEmail_NoRecipients() {
 	htmlContent, err := gz.ParseHTMLTemplate(templatePath, data)
 	suite.Require().NoError(err)
 
-	m := prepareSendgridMailV3(sender, nil, subject, htmlContent)
+	m := prepareSendgridMailV3(sender, nil, nil, nil, subject, htmlContent)
 
 	suite.Assert().Error(suite.emailSender.Send(ctx, sender, []string{}, nil, nil, subject, templatePath, data))
 
@@ -63,7 +63,7 @@ func (suite *SendgridTestSuite) TestSendEmail_InvalidSenderEmail() {
 	htmlContent, err := gz.ParseHTMLTemplate(templatePath, data)
 	suite.Require().NoError(err)
 
-	m := prepareSendgridMailV3(sender, nil, subject, htmlContent)
+	m := prepareSendgridMailV3(sender, nil, nil, nil, subject, htmlContent)
 
 	suite.Assert().Error(suite.emailSender.Send(ctx, sender, []string{}, nil, nil, subject, templatePath, data))
 	suite.client.AssertNotCalled(suite.T(), "SendWithContext", ctx, m)
@@ -84,9 +84,53 @@ func (suite *SendgridTestSuite) TestSendEmail_RecipientEmail() {
 	htmlContent, err := gz.ParseHTMLTemplate(templatePath, data)
 	suite.Require().NoError(err)
 
-	m := prepareSendgridMailV3(sender, nil, subject, htmlContent)
+	m := prepareSendgridMailV3(sender, nil, nil, nil, subject, htmlContent)
 
 	suite.Assert().Error(suite.emailSender.Send(ctx, sender, recipients, nil, nil, subject, templatePath, data))
+	suite.client.AssertNotCalled(suite.T(), "SendWithContext", ctx, m)
+}
+
+func (suite *SendgridTestSuite) TestSendEmail_CCEmail() {
+	const sender = "test@gazebosim.org"
+	const subject = "Test email"
+	recipients := []string{"test@gazebosim.org"}
+	cc := []string{"test.org"}
+	ctx := context.Background()
+
+	type emailData struct {
+		Test string
+	}
+
+	data := emailData{Test: "Hello there!"}
+
+	htmlContent, err := gz.ParseHTMLTemplate(templatePath, data)
+	suite.Require().NoError(err)
+
+	m := prepareSendgridMailV3(sender, recipients, cc, nil, subject, htmlContent)
+
+	suite.Assert().Error(suite.emailSender.Send(ctx, sender, recipients, cc, nil, subject, templatePath, data))
+	suite.client.AssertNotCalled(suite.T(), "SendWithContext", ctx, m)
+}
+
+func (suite *SendgridTestSuite) TestSendEmail_BCCEmail() {
+	const sender = "test@gazebosim.org"
+	const subject = "Test email"
+	recipients := []string{"test@gazebosim.org"}
+	bcc := []string{"test.org"}
+	ctx := context.Background()
+
+	type emailData struct {
+		Test string
+	}
+
+	data := emailData{Test: "Hello there!"}
+
+	htmlContent, err := gz.ParseHTMLTemplate(templatePath, data)
+	suite.Require().NoError(err)
+
+	m := prepareSendgridMailV3(sender, recipients, nil, bcc, subject, htmlContent)
+
+	suite.Assert().Error(suite.emailSender.Send(ctx, sender, recipients, nil, bcc, subject, templatePath, data))
 	suite.client.AssertNotCalled(suite.T(), "SendWithContext", ctx, m)
 }
 
@@ -105,7 +149,7 @@ func (suite *SendgridTestSuite) TestSendEmail_Error() {
 	htmlContent, err := gz.ParseHTMLTemplate(templatePath, data)
 	suite.Require().NoError(err)
 
-	m := prepareSendgridMailV3(sender, recipients, subject, htmlContent)
+	m := prepareSendgridMailV3(sender, recipients, nil, nil, subject, htmlContent)
 
 	expectedError := errors.New("sendgrid failure")
 	suite.client.On("SendWithContext", ctx, m).Return((*rest.Response)(nil), expectedError)
@@ -132,7 +176,7 @@ func (suite *SendgridTestSuite) TestSendEmail_StatusCode() {
 	htmlContent, err := gz.ParseHTMLTemplate(templatePath, data)
 	suite.Require().NoError(err)
 
-	m := prepareSendgridMailV3(sender, recipients, subject, htmlContent)
+	m := prepareSendgridMailV3(sender, recipients, nil, nil, subject, htmlContent)
 
 	suite.client.On("SendWithContext", ctx, m).Return(&rest.Response{StatusCode: http.StatusServiceUnavailable}, error(nil))
 	suite.Assert().Error(suite.emailSender.Send(ctx, sender, recipients, nil, nil, subject, templatePath, data))
@@ -155,7 +199,7 @@ func (suite *SendgridTestSuite) TestSendEmail_Success() {
 	htmlContent, err := gz.ParseHTMLTemplate(templatePath, data)
 	suite.Require().NoError(err)
 
-	m := prepareSendgridMailV3(sender, recipients, subject, htmlContent)
+	m := prepareSendgridMailV3(sender, recipients, nil, nil, subject, htmlContent)
 
 	suite.client.On("SendWithContext", ctx, m).Return(&rest.Response{StatusCode: http.StatusOK}, error(nil))
 	suite.Assert().NoError(suite.emailSender.Send(ctx, sender, recipients, nil, nil, subject, templatePath, data))
@@ -165,6 +209,8 @@ func (suite *SendgridTestSuite) TestSendEmail_Success() {
 
 func (suite *SendgridTestSuite) TestSendEmail_MultipleEmails_Success() {
 	recipients := []string{"test2@gazebosim.org", "test3@gazebosim.org"}
+	cc := []string{"test4@gazebosim.org", "test5@gazebosim.org"}
+	bcc := []string{"test6@gazebosim.org", "test7@gazebosim.org"}
 	const sender = "test@gazebosim.org"
 	const subject = "Test email"
 	ctx := context.Background()
@@ -178,10 +224,10 @@ func (suite *SendgridTestSuite) TestSendEmail_MultipleEmails_Success() {
 	htmlContent, err := gz.ParseHTMLTemplate(templatePath, data)
 	suite.Require().NoError(err)
 
-	m := prepareSendgridMailV3(sender, recipients, subject, htmlContent)
+	m := prepareSendgridMailV3(sender, recipients, cc, bcc, subject, htmlContent)
 
 	suite.client.On("SendWithContext", ctx, m).Return(&rest.Response{StatusCode: http.StatusOK}, error(nil))
-	suite.Assert().NoError(suite.emailSender.Send(ctx, sender, recipients, nil, nil, subject, templatePath, data))
+	suite.Assert().NoError(suite.emailSender.Send(ctx, sender, recipients, cc, bcc, subject, templatePath, data))
 
 	suite.client.AssertCalled(suite.T(), "SendWithContext", ctx, m)
 }

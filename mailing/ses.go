@@ -24,7 +24,7 @@ type awsSimpleEmailService struct {
 // Send sends an email from sender to the given recipients. The email body is composed by an HTML template
 // that is filled in with values provided in data.
 func (e *awsSimpleEmailService) Send(ctx context.Context, sender string, recipients, cc, bcc []string, subject, template string, data any) error {
-	err := validateEmail(recipients, sender, data)
+	err := validateEmail(sender, recipients, cc, bcc, data)
 	if err != nil {
 		return err
 	}
@@ -34,7 +34,7 @@ func (e *awsSimpleEmailService) Send(ctx context.Context, sender string, recipie
 		return err
 	}
 
-	err = e.send(ctx, sender, recipients, subject, content)
+	err = e.send(ctx, sender, recipients, nil, nil, subject, content)
 	if err != nil {
 		return err
 	}
@@ -43,11 +43,12 @@ func (e *awsSimpleEmailService) Send(ctx context.Context, sender string, recipie
 }
 
 // send attempts to send an email using the AWS SES service.
-func (e *awsSimpleEmailService) send(_ context.Context, sender string, recipients []string, subject string, content string) error {
+func (e *awsSimpleEmailService) send(_ context.Context, sender string, recipients []string, cc []string, bcc []string, subject string, content string) error {
 	input := ses.SendEmailInput{
 		Destination: &ses.Destination{
-			CcAddresses: []*string{},
-			ToAddresses: aws.StringSlice(recipients),
+			CcAddresses:  aws.StringSlice(cc),
+			BccAddresses: aws.StringSlice(bcc),
+			ToAddresses:  aws.StringSlice(recipients),
 		},
 		Message: &ses.Message{
 			Body: &ses.Body{

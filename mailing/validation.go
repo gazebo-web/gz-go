@@ -9,7 +9,7 @@ func validateEmailAddress(email string) bool {
 }
 
 // validateEmail validates that the given parameters for an email are valid.
-func validateEmail(recipients []string, sender string, data any) error {
+func validateEmail(sender string, recipients []string, cc []string, bcc []string, data any) error {
 	if len(recipients) == 0 {
 		return ErrEmptyRecipientList
 	}
@@ -24,6 +24,17 @@ func validateEmail(recipients []string, sender string, data any) error {
 	if ok := validateEmailAddress(sender); !ok {
 		return ErrInvalidSender
 	}
+	for _, r := range cc {
+		if ok := validateEmailAddress(r); !ok {
+			return ErrInvalidRecipient
+		}
+	}
+	for _, r := range bcc {
+		if ok := validateEmailAddress(r); !ok {
+			return ErrInvalidRecipient
+		}
+	}
+
 	if data == nil {
 		return ErrInvalidData
 	}

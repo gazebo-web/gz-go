@@ -18,7 +18,7 @@ type sendgridEmailService struct {
 // Send sends an email from sender to the given recipients. The email body is composed by an HTML template
 // that is filled in with values provided in data.
 func (s *sendgridEmailService) Send(ctx context.Context, sender string, recipients, cc, bcc []string, subject, template string, data any) error {
-	err := validateEmail(recipients, sender, data)
+	err := validateEmail(sender, recipients, cc, bcc, data)
 	if err != nil {
 		return err
 	}
@@ -28,7 +28,7 @@ func (s *sendgridEmailService) Send(ctx context.Context, sender string, recipien
 		return err
 	}
 
-	m := prepareSendgridMailV3(sender, recipients, subject, htmlContent)
+	m := prepareSendgridMailV3(sender, recipients, cc, bcc, subject, htmlContent)
 
 	res, err := s.client.SendWithContext(ctx, m)
 	if err != nil {
@@ -41,10 +41,12 @@ func (s *sendgridEmailService) Send(ctx context.Context, sender string, recipien
 }
 
 // prepareSendgridMailV3 prepares the input values used for sending an email.
-func prepareSendgridMailV3(sender string, recipients []string, subject string, htmlContent string) *mail.SGMailV3 {
+func prepareSendgridMailV3(sender string, recipients []string, cc []string, bcc []string, subject string, htmlContent string) *mail.SGMailV3 {
 	p := mail.NewPersonalization()
 	p.AddFrom(mail.NewEmail("", sender))
 	p.AddTos(parseSendgridEmails(recipients)...)
+	p.AddCCs(parseSendgridEmails(cc)...)
+	p.AddBCCs(parseSendgridEmails(bcc)...)
 	p.Subject = subject
 
 	m := mail.NewV3Mail()

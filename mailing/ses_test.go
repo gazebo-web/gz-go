@@ -55,6 +55,20 @@ func TestSES_ReturnsErrWhenDataIsNil(t *testing.T) {
 	assert.Equal(t, ErrInvalidData, err)
 }
 
+func TestSES_ReturnsErrWhenCCIsInvalid(t *testing.T) {
+	s := NewSimpleEmailServiceSender(&fakeSESSender{})
+	err := s.Send(context.Background(), "example@test.org", []string{"recipient@test.org"}, []string{"test.org"}, nil, "Some test", templatePath, nil)
+	assert.Error(t, err)
+	assert.Equal(t, ErrInvalidRecipient, err)
+}
+
+func TestSES_ReturnsErrWhenBCCIsInvalid(t *testing.T) {
+	s := NewSimpleEmailServiceSender(&fakeSESSender{})
+	err := s.Send(context.Background(), "example@test.org", []string{"recipient@test.org"}, nil, []string{"test.org"}, "Some test", templatePath, nil)
+	assert.Error(t, err)
+	assert.Equal(t, ErrInvalidRecipient, err)
+}
+
 func TestSES_SendingSuccess(t *testing.T) {
 	fake := fakeSESSender{}
 	s := NewSimpleEmailServiceSender(&fake)
