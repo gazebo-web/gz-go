@@ -16,7 +16,7 @@ func TestWithTemplates(t *testing.T) {
 
 type TemplatesTestSuite struct {
 	suite.Suite
-	sender     *templateWrapper
+	sender     *templateSender
 	client     sendgridMock
 	baseSender Sender
 }
@@ -24,9 +24,9 @@ type TemplatesTestSuite struct {
 func (suite *TemplatesTestSuite) SetupTest() {
 	suite.client = sendgridMock{}
 	suite.baseSender = NewSendgridEmailSender(&suite.client)
-	suite.sender = NewTemplateWrapper(suite.baseSender, map[string]string{
+	suite.sender = NewTemplateSender(suite.baseSender, map[string]string{
 		"test": "./testdata/template.gohtml",
-	}).(*templateWrapper)
+	}).(*templateSender)
 }
 
 func (suite *TemplatesTestSuite) TearDownTest() {
