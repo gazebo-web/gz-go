@@ -8,7 +8,7 @@ require (
 	firebase.google.com/go/v4 v4.12.0
 	github.com/auth0/go-jwt-middleware v1.0.1
 	github.com/aws/aws-sdk-go v1.44.293
-	github.com/aws/aws-sdk-go-v2 v1.18.1
+	github.com/aws/aws-sdk-go-v2 v1.20.0
 	github.com/aws/aws-sdk-go-v2/config v1.18.27
 	github.com/aws/aws-sdk-go-v2/credentials v1.13.26
 	github.com/aws/aws-sdk-go-v2/service/s3 v1.30.1
@@ -32,6 +32,8 @@ require (
 	github.com/rollbar/rollbar-go v1.2.0
 	github.com/rs/cors v1.9.0
 	github.com/satori/go.uuid v1.2.0
+	github.com/sendgrid/rest v2.6.9+incompatible
+	github.com/sendgrid/sendgrid-go v3.12.0+incompatible
 	github.com/stretchr/testify v1.8.4
 	github.com/urfave/negroni v1.0.0
 	gitlab.com/ignitionrobotics/web/scheduler v0.5.0
@@ -76,7 +78,7 @@ require (
 	github.com/aws/aws-sdk-go-v2/service/sso v1.12.12 // indirect
 	github.com/aws/aws-sdk-go-v2/service/ssooidc v1.14.12 // indirect
 	github.com/aws/aws-sdk-go-v2/service/sts v1.19.2 // indirect
-	github.com/aws/smithy-go v1.13.5 // indirect
+	github.com/aws/smithy-go v1.14.0 // indirect
 	github.com/beorn7/perks v1.0.1 // indirect
 	github.com/cespare/xxhash/v2 v2.2.0 // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect
@@ -112,8 +114,6 @@ require (
 	github.com/prometheus/common v0.10.0 // indirect
 	github.com/prometheus/procfs v0.1.3 // indirect
 	github.com/ryszard/goskiplist v0.0.0-20150312221310-2dfbae5fcf46 // indirect
-	github.com/sendgrid/rest v2.6.9+incompatible // indirect
-	github.com/sendgrid/sendgrid-go v3.12.0+incompatible // indirect
 	github.com/shabbyrobe/gocovmerge v0.0.0-20180507124511-f6ea450bfb63 // indirect
 	github.com/sirupsen/logrus v1.9.2 // indirect
 	github.com/stretchr/objx v0.5.0 // indirect
