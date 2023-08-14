@@ -24,7 +24,7 @@ type SendgridGoTemplatesTestSuite struct {
 
 func (suite *SendgridGoTemplatesTestSuite) SetupTest() {
 	suite.client = sendgridMock{}
-	suite.emailSender = NewSendgridEmailSender(&suite.client)
+	suite.emailSender = NewSendgridEmailSender(&suite.client, false)
 	suite.Require().NotNil(suite.emailSender)
 }
 
@@ -257,7 +257,7 @@ type SendgridDynamicTemplatesTestSuite struct {
 
 func (suite *SendgridDynamicTemplatesTestSuite) SetupTest() {
 	suite.client = sendgridMock{}
-	suite.emailSender = NewSendgridEmailSender(&suite.client)
+	suite.emailSender = NewSendgridEmailSender(&suite.client, false)
 	suite.Require().NotNil(suite.emailSender)
 }
 

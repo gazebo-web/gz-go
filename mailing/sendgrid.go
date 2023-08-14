@@ -13,7 +13,8 @@ import (
 //
 //	Reference: https://github.com/sendgrid/sendgrid-go
 type sendgridEmailService struct {
-	client sendgridSender
+	client          sendgridSender
+	onlineTemplates bool
 }
 
 func (s *sendgridEmailService) emailBuilder() sendgridEmailBuilder {
@@ -31,19 +32,23 @@ func (s *sendgridEmailService) Send(ctx context.Context, sender string, recipien
 		return err
 	}
 
-	htmlContent, err := gz.ParseHTMLTemplate(template, data)
-	if err != nil {
-		return err
-	}
-
-	m := s.emailBuilder().
+	builder := s.emailBuilder().
 		Sender(sender).
 		Recipients(recipients).
 		CC(cc).
 		BCC(bcc).
-		Subject(subject).
-		Content("text/html", htmlContent).
-		Build()
+		Subject(subject)
+
+	if s.onlineTemplates {
+		builder.Template(template, data)
+	} else {
+		htmlContent, err := gz.ParseHTMLTemplate(template, data)
+		if err != nil {
+			return err
+		}
+		builder.Content("text/html", htmlContent)
+	}
+	m := builder.Build()
 
 	res, err := s.client.SendWithContext(ctx, m)
 	if err != nil {
@@ -126,8 +131,11 @@ func parseSendgridEmails(emails []string) []*mail.Email {
 }
 
 // NewSendgridEmailSender initializes a new Sender with a sendgrid client.
-func NewSendgridEmailSender(client sendgridSender) Sender {
+// If onlineTemplates is set to false, the underlying implementation will use Go templates.
+// Otherwise it will use the online dynamic templates
+func NewSendgridEmailSender(client sendgridSender, onlineTemplates bool) Sender {
 	return &sendgridEmailService{
-		client: client,
+		client:          client,
+		onlineTemplates: onlineTemplates,
 	}
 }
