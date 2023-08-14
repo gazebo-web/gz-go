@@ -368,3 +368,18 @@ func (s *sendgridMock) SendWithContext(ctx context.Context, email *mail.SGMailV3
 	args := s.Called(ctx, email)
 	return args.Get(0).(*rest.Response), args.Error(1)
 }
+
+// prepareSendgridMailV3 prepares the input values used for sending an email.
+func prepareSendgridMailV3(sender string, recipients []string, cc []string, bcc []string, subject string, htmlContent string) *mail.SGMailV3 {
+	p := mail.NewPersonalization()
+	p.AddFrom(mail.NewEmail("", sender))
+	p.AddTos(parseSendgridEmails(recipients)...)
+	p.AddCCs(parseSendgridEmails(cc)...)
+	p.AddBCCs(parseSendgridEmails(bcc)...)
+	p.Subject = subject
+
+	m := mail.NewV3Mail()
+	m.AddPersonalizations(p)
+	m.AddContent(mail.NewContent("text/html", htmlContent))
+	return m
+}

@@ -116,21 +116,7 @@ func (b sendgridEmailBuilder) Build() *mail.SGMailV3 {
 	return b.mail
 }
 
-// prepareSendgridMailV3 prepares the input values used for sending an email.
-func prepareSendgridMailV3(sender string, recipients []string, cc []string, bcc []string, subject string, htmlContent string) *mail.SGMailV3 {
-	p := mail.NewPersonalization()
-	p.AddFrom(mail.NewEmail("", sender))
-	p.AddTos(parseSendgridEmails(recipients)...)
-	p.AddCCs(parseSendgridEmails(cc)...)
-	p.AddBCCs(parseSendgridEmails(bcc)...)
-	p.Subject = subject
-
-	m := mail.NewV3Mail()
-	m.AddPersonalizations(p)
-	m.AddContent(mail.NewContent("text/html", htmlContent))
-	return m
-}
-
+// parseSendgridEmails converts the given slice of emails to sendgrid emails.
 func parseSendgridEmails(emails []string) []*mail.Email {
 	out := make([]*mail.Email, len(emails))
 	for i := 0; i < len(emails); i++ {
