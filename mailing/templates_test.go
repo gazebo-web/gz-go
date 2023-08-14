@@ -23,7 +23,7 @@ type TemplatesTestSuite struct {
 
 func (suite *TemplatesTestSuite) SetupTest() {
 	suite.client = sendgridMock{}
-	suite.baseSender = NewSendgridEmailSender(&suite.client)
+	suite.baseSender = NewSendgridEmailSender(&suite.client, false)
 	suite.sender = NewTemplateSender(suite.baseSender, map[string]string{
 		"test": "./testdata/template.gohtml",
 	}).(*templateSender)
