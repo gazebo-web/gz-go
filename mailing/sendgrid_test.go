@@ -12,23 +12,23 @@ import (
 	"testing"
 )
 
-func TestSendgrid(t *testing.T) {
-	suite.Run(t, new(SendgridTestSuite))
+func TestSendgrid_GoTemplates(t *testing.T) {
+	suite.Run(t, new(SendgridGoTemplatesTestSuite))
 }
 
-type SendgridTestSuite struct {
+type SendgridGoTemplatesTestSuite struct {
 	suite.Suite
 	client      sendgridMock
 	emailSender Sender
 }
 
-func (suite *SendgridTestSuite) SetupTest() {
+func (suite *SendgridGoTemplatesTestSuite) SetupTest() {
 	suite.client = sendgridMock{}
 	suite.emailSender = NewSendgridEmailSender(&suite.client)
 	suite.Require().NotNil(suite.emailSender)
 }
 
-func (suite *SendgridTestSuite) TestSendEmail_NoRecipients() {
+func (suite *SendgridGoTemplatesTestSuite) TestSendEmail_NoRecipients() {
 	const sender = "test@gazebosim.org"
 	const subject = "Test email"
 	ctx := context.Background()
@@ -49,7 +49,7 @@ func (suite *SendgridTestSuite) TestSendEmail_NoRecipients() {
 	suite.client.AssertNotCalled(suite.T(), "SendWithContext", ctx, m)
 }
 
-func (suite *SendgridTestSuite) TestSendEmail_InvalidSenderEmail() {
+func (suite *SendgridGoTemplatesTestSuite) TestSendEmail_InvalidSenderEmail() {
 	const sender = "test.org"
 	const subject = "Test email"
 	ctx := context.Background()
@@ -69,7 +69,7 @@ func (suite *SendgridTestSuite) TestSendEmail_InvalidSenderEmail() {
 	suite.client.AssertNotCalled(suite.T(), "SendWithContext", ctx, m)
 }
 
-func (suite *SendgridTestSuite) TestSendEmail_RecipientEmail() {
+func (suite *SendgridGoTemplatesTestSuite) TestSendEmail_RecipientEmail() {
 	const sender = "test@gazebosim.org"
 	const subject = "Test email"
 	recipients := []string{"test.org"}
@@ -90,7 +90,7 @@ func (suite *SendgridTestSuite) TestSendEmail_RecipientEmail() {
 	suite.client.AssertNotCalled(suite.T(), "SendWithContext", ctx, m)
 }
 
-func (suite *SendgridTestSuite) TestSendEmail_CCEmail() {
+func (suite *SendgridGoTemplatesTestSuite) TestSendEmail_CCEmail() {
 	const sender = "test@gazebosim.org"
 	const subject = "Test email"
 	recipients := []string{"test@gazebosim.org"}
@@ -112,7 +112,7 @@ func (suite *SendgridTestSuite) TestSendEmail_CCEmail() {
 	suite.client.AssertNotCalled(suite.T(), "SendWithContext", ctx, m)
 }
 
-func (suite *SendgridTestSuite) TestSendEmail_BCCEmail() {
+func (suite *SendgridGoTemplatesTestSuite) TestSendEmail_BCCEmail() {
 	const sender = "test@gazebosim.org"
 	const subject = "Test email"
 	recipients := []string{"test@gazebosim.org"}
@@ -134,7 +134,7 @@ func (suite *SendgridTestSuite) TestSendEmail_BCCEmail() {
 	suite.client.AssertNotCalled(suite.T(), "SendWithContext", ctx, m)
 }
 
-func (suite *SendgridTestSuite) TestSendEmail_Error() {
+func (suite *SendgridGoTemplatesTestSuite) TestSendEmail_Error() {
 	recipients := []string{"test2@gazebosim.org"}
 	const sender = "test@gazebosim.org"
 	const subject = "Test email"
@@ -161,7 +161,7 @@ func (suite *SendgridTestSuite) TestSendEmail_Error() {
 	suite.client.AssertCalled(suite.T(), "SendWithContext", ctx, m)
 }
 
-func (suite *SendgridTestSuite) TestSendEmail_StatusCode() {
+func (suite *SendgridGoTemplatesTestSuite) TestSendEmail_StatusCode() {
 	recipients := []string{"test2@gazebosim.org"}
 	const sender = "test@gazebosim.org"
 	const subject = "Test email"
@@ -184,7 +184,7 @@ func (suite *SendgridTestSuite) TestSendEmail_StatusCode() {
 	suite.client.AssertCalled(suite.T(), "SendWithContext", ctx, m)
 }
 
-func (suite *SendgridTestSuite) TestSendEmail_Success() {
+func (suite *SendgridGoTemplatesTestSuite) TestSendEmail_Success() {
 	recipients := []string{"test2@gazebosim.org"}
 	const sender = "test@gazebosim.org"
 	const subject = "Test email"
@@ -207,7 +207,7 @@ func (suite *SendgridTestSuite) TestSendEmail_Success() {
 	suite.client.AssertCalled(suite.T(), "SendWithContext", ctx, m)
 }
 
-func (suite *SendgridTestSuite) TestSendEmail_MultipleEmails_Success() {
+func (suite *SendgridGoTemplatesTestSuite) TestSendEmail_MultipleEmails_Success() {
 	recipients := []string{"test2@gazebosim.org", "test3@gazebosim.org"}
 	cc := []string{"test4@gazebosim.org", "test5@gazebosim.org"}
 	bcc := []string{"test6@gazebosim.org", "test7@gazebosim.org"}
@@ -232,7 +232,7 @@ func (suite *SendgridTestSuite) TestSendEmail_MultipleEmails_Success() {
 	suite.client.AssertCalled(suite.T(), "SendWithContext", ctx, m)
 }
 
-func (suite *SendgridTestSuite) TestParseEmail() {
+func (suite *SendgridGoTemplatesTestSuite) TestParseEmail() {
 	recipients := []string{"test2@gazebosim.org", "test3@gazebosim.org"}
 
 	expected := []*mail.Email{
@@ -243,6 +243,121 @@ func (suite *SendgridTestSuite) TestParseEmail() {
 	result := parseSendgridEmails(recipients)
 
 	suite.Assert().Equal(expected, result)
+}
+
+func TestSendgrid_DynamicTemplates(t *testing.T) {
+	suite.Run(t, new(SendgridDynamicTemplatesTestSuite))
+}
+
+type SendgridDynamicTemplatesTestSuite struct {
+	suite.Suite
+	client      sendgridMock
+	emailSender Sender
+}
+
+func (suite *SendgridDynamicTemplatesTestSuite) SetupTest() {
+	suite.client = sendgridMock{}
+	suite.emailSender = NewSendgridEmailSender(&suite.client)
+	suite.Require().NotNil(suite.emailSender)
+}
+
+func TestSendgrid_EmailBuilder(t *testing.T) {
+	suite.Run(t, new(SendgridEmailBuilderTestSuite))
+}
+
+type SendgridEmailBuilderTestSuite struct {
+	suite.Suite
+	builder sendgridEmailBuilder
+}
+
+func (suite *SendgridEmailBuilderTestSuite) SetupTest() {
+	suite.builder = sendgridEmailBuilder{
+		personalization: mail.NewPersonalization(),
+		mail:            mail.NewV3Mail(),
+	}
+}
+
+func (suite *SendgridEmailBuilderTestSuite) TestSender() {
+	const sender = "noreply@gazebosim.org"
+	result := suite.builder.Sender(sender).personalization.From.Address
+	suite.Assert().Equal(sender, result)
+}
+
+func (suite *SendgridEmailBuilderTestSuite) TestRecipients() {
+	recipients := []string{"test1@gazebosim.org", "test2@gazebosim.org"}
+	result := suite.builder.Recipients(recipients).personalization.To
+	for _, to := range result {
+		suite.Assert().Contains(recipients, to.Address)
+	}
+}
+
+func (suite *SendgridEmailBuilderTestSuite) TestCCs() {
+	recipients := []string{"test1@gazebosim.org", "test2@gazebosim.org"}
+	result := suite.builder.CC(recipients).personalization.CC
+	for _, cc := range result {
+		suite.Assert().Contains(recipients, cc.Address)
+	}
+}
+
+func (suite *SendgridEmailBuilderTestSuite) TestBBCs() {
+	recipients := []string{"test1@gazebosim.org", "test2@gazebosim.org"}
+	result := suite.builder.BCC(recipients).personalization.BCC
+	for _, bcc := range result {
+		suite.Assert().Contains(recipients, bcc.Address)
+	}
+}
+
+func (suite *SendgridEmailBuilderTestSuite) TestSubject() {
+	const subject = "Welcome to Gazebo Sim"
+	result := suite.builder.Subject(subject).personalization.Subject
+	suite.Assert().Equal(subject, result)
+}
+
+func (suite *SendgridEmailBuilderTestSuite) TestMailContent() {
+	const htmlContent = "<h1>Welcome to Gazebo Sim</h1>"
+	const textContent = "Welcome to Gazebo Sim"
+
+	contents := []string{htmlContent, textContent}
+
+	result := suite.builder.Content("text/html", htmlContent).Content("text/plain", textContent).mail.Content
+
+	for _, content := range result {
+		suite.Assert().Contains(contents, content.Value)
+	}
+}
+
+func (suite *SendgridEmailBuilderTestSuite) TestTemplate() {
+	const key = "template-id-123456789"
+	data := struct {
+		Test string `sendgrid:"test"`
+	}{
+		Test: "test_data",
+	}
+
+	suite.builder = suite.builder.Template(key, data)
+
+	suite.Assert().Equal(key, suite.builder.mail.TemplateID)
+	suite.Assert().Contains(suite.builder.personalization.DynamicTemplateData, "test")
+	suite.Assert().Equal("test_data", suite.builder.personalization.DynamicTemplateData["test"])
+}
+
+func (suite *SendgridEmailBuilderTestSuite) TestBuild() {
+	const key = "template-id-123456789"
+	data := struct {
+		Test string `sendgrid:"test"`
+	}{
+		Test: "test_data",
+	}
+
+	m := suite.builder.
+		Sender("noreply@gazebosim.org").
+		Recipients([]string{"test@gazebosim.org"}).
+		CC([]string{"cc@gazebosim.org"}).
+		BCC([]string{"bcc@gazebosim.org"}).
+		Subject("Test email subject").
+		Template(key, data).
+		Build()
+	suite.Assert().NotNil(m)
 }
 
 type sendgridMock struct {
