@@ -18,6 +18,7 @@ type TemplatesTestSuite struct {
 	suite.Suite
 	sender     *templateSender
 	client     sendgridMock
+	builder    sendgridEmailBuilder
 	baseSender Sender
 }
 
@@ -27,10 +28,7 @@ func (suite *TemplatesTestSuite) SetupTest() {
 	suite.sender = NewTemplateSender(suite.baseSender, map[string]string{
 		"test": "./testdata/template.gohtml",
 	}).(*templateSender)
-}
-
-func (suite *TemplatesTestSuite) TearDownTest() {
-
+	suite.builder = newSendgridEmailBuilder()
 }
 
 func (suite *TemplatesTestSuite) TestSend_InvalidTemplate() {
@@ -55,7 +53,12 @@ func (suite *TemplatesTestSuite) TestSend_Fail() {
 	htmlContent, err := gz.ParseHTMLTemplate(templatePath, data)
 	suite.Require().NoError(err)
 
-	m := prepareSendgridMailV3("test@test.com", []string{"test@test.com"}, nil, nil, "Test", htmlContent)
+	m := suite.builder.
+		Sender("test@test.com").
+		Subject("Test").
+		Recipients([]string{"test@test.com"}).
+		Content("text/html", htmlContent).
+		Build()
 
 	ctx := context.Background()
 	expectedError := errors.New("sendgrid failure")
@@ -74,7 +77,12 @@ func (suite *TemplatesTestSuite) TestSend_Success() {
 	htmlContent, err := gz.ParseHTMLTemplate(templatePath, data)
 	suite.Require().NoError(err)
 
-	m := prepareSendgridMailV3("test@test.com", []string{"test@test.com"}, nil, nil, "Test", htmlContent)
+	m := suite.builder.
+		Sender("test@test.com").
+		Subject("Test").
+		Recipients([]string{"test@test.com"}).
+		Content("text/html", htmlContent).
+		Build()
 
 	ctx := context.Background()
 
