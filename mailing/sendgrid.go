@@ -13,8 +13,8 @@ import (
 //
 //	Reference: https://github.com/sendgrid/sendgrid-go
 type sendgridEmailService struct {
-	client          sendgridSender
-	onlineTemplates bool
+	client sendgridSender
+	contentInjector
 }
 
 func (s *sendgridEmailService) emailBuilder() sendgridEmailBuilder {
@@ -39,14 +39,9 @@ func (s *sendgridEmailService) Send(ctx context.Context, sender string, recipien
 		BCC(bcc).
 		Subject(subject)
 
-	if s.onlineTemplates {
-		builder.Template(template, data)
-	} else {
-		htmlContent, err := gz.ParseHTMLTemplate(template, data)
-		if err != nil {
-			return err
-		}
-		builder.Content("text/html", htmlContent)
+	builder, err = s.contentInjector(builder, template, data)
+	if err != nil {
+		return err
 	}
 	m := builder.Build()
 
@@ -107,7 +102,7 @@ func (b sendgridEmailBuilder) Content(contentType string, content string) sendgr
 // parameters.
 func (b sendgridEmailBuilder) Template(id string, data any) sendgridEmailBuilder {
 	var err error
-	b.personalization.DynamicTemplateData, err = structs.Map(data, "sendgrid")
+	b.personalization.DynamicTemplateData, err = structs.ToMap(data)
 	if err != nil {
 		return b
 	}
@@ -130,12 +125,37 @@ func parseSendgridEmails(emails []string) []*mail.Email {
 	return out
 }
 
-// NewSendgridEmailSender initializes a new Sender with a sendgrid client.
-// If onlineTemplates is set to false, the underlying implementation will use Go templates.
-// Otherwise it will use the online dynamic templates
-func NewSendgridEmailSender(client sendgridSender, onlineTemplates bool) Sender {
+// contentInjector defines the function signature that injects content injection into sendgridEmailBuilder
+type contentInjector func(b sendgridEmailBuilder, key string, data any) (sendgridEmailBuilder, error)
+
+// injectTemplateContent injects the information needed to send a Sendgrid email using dynamic templates.
+func injectTemplateContent(b sendgridEmailBuilder, id string, data any) (sendgridEmailBuilder, error) {
+	return b.Template(id, data), nil
+}
+
+// injectHTMLContent injects the actual content after parsing an HTML Go template.
+func injectHTMLContent(b sendgridEmailBuilder, path string, data any) (sendgridEmailBuilder, error) {
+	content, err := gz.ParseHTMLTemplate(path, data)
+	if err != nil {
+		return b, err
+	}
+	return b.Content("text/html", content), nil
+}
+
+// NewSendgridEmailSender initializes a new Sender with a sendgrid client. It will send emails using Go templates.
+// See NewTemplateSender for conveniently handling Go templates in your project.
+func NewSendgridEmailSender(client sendgridSender) Sender {
 	return &sendgridEmailService{
 		client:          client,
-		onlineTemplates: onlineTemplates,
+		contentInjector: injectHTMLContent,
+	}
+}
+
+// NewSendgridDynamicTemplatesEmailSender initializes a new Sender with a sendgrid client. It will send emails through
+// sendgrid using dynamic templates defined in the Sendgrid dashboard.
+func NewSendgridDynamicTemplatesEmailSender(client sendgridSender) Sender {
+	return &sendgridEmailService{
+		client:          client,
+		contentInjector: injectTemplateContent,
 	}
 }

@@ -9,10 +9,12 @@ import (
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/suite"
 	"net/http"
+	"os"
+	"path/filepath"
 	"testing"
 )
 
-func TestSendgrid_GoTemplates(t *testing.T) {
+func TestSendgrid(t *testing.T) {
 	suite.Run(t, new(SendgridGoTemplatesTestSuite))
 }
 
@@ -24,7 +26,7 @@ type SendgridGoTemplatesTestSuite struct {
 
 func (suite *SendgridGoTemplatesTestSuite) SetupTest() {
 	suite.client = sendgridMock{}
-	suite.emailSender = NewSendgridEmailSender(&suite.client, false)
+	suite.emailSender = NewSendgridEmailSender(&suite.client)
 	suite.Require().NotNil(suite.emailSender)
 }
 
@@ -245,22 +247,6 @@ func (suite *SendgridGoTemplatesTestSuite) TestParseEmail() {
 	suite.Assert().Equal(expected, result)
 }
 
-func TestSendgrid_DynamicTemplates(t *testing.T) {
-	suite.Run(t, new(SendgridDynamicTemplatesTestSuite))
-}
-
-type SendgridDynamicTemplatesTestSuite struct {
-	suite.Suite
-	client      sendgridMock
-	emailSender Sender
-}
-
-func (suite *SendgridDynamicTemplatesTestSuite) SetupTest() {
-	suite.client = sendgridMock{}
-	suite.emailSender = NewSendgridEmailSender(&suite.client, false)
-	suite.Require().NotNil(suite.emailSender)
-}
-
 func TestSendgrid_EmailBuilder(t *testing.T) {
 	suite.Run(t, new(SendgridEmailBuilderTestSuite))
 }
@@ -329,7 +315,7 @@ func (suite *SendgridEmailBuilderTestSuite) TestMailContent() {
 func (suite *SendgridEmailBuilderTestSuite) TestTemplate() {
 	const key = "template-id-123456789"
 	data := struct {
-		Test string `sendgrid:"test"`
+		Test string `structs:"test"`
 	}{
 		Test: "test_data",
 	}
@@ -358,6 +344,56 @@ func (suite *SendgridEmailBuilderTestSuite) TestBuild() {
 		Template(key, data).
 		Build()
 	suite.Assert().NotNil(m)
+}
+
+func TestSendgrid_ContentInjector(t *testing.T) {
+	suite.Run(t, new(SendgridContentInjectorTestSuite))
+}
+
+type SendgridContentInjectorTestSuite struct {
+	suite.Suite
+	builder sendgridEmailBuilder
+}
+
+func (suite *SendgridContentInjectorTestSuite) SetupTest() {
+	suite.builder = sendgridEmailBuilder{
+		personalization: mail.NewPersonalization(),
+		mail:            mail.NewV3Mail(),
+	}
+}
+
+func (suite *SendgridContentInjectorTestSuite) TestHTMLInjector() {
+	var err error
+	type emailData struct {
+		Test string
+	}
+
+	suite.builder, err = injectHTMLContent(suite.builder, templatePath, emailData{Test: templatePath})
+	suite.Assert().NoError(err)
+	suite.Assert().NotEmpty(suite.builder.mail.Content)
+	suite.Assert().Len(suite.builder.mail.Content, 1)
+	suite.Assert().Contains(suite.builder.mail.Content[0].Value, "Open Robotics Team")
+}
+
+func (suite *SendgridContentInjectorTestSuite) TestHTMLInjector_WithError() {
+	var err error
+	suite.builder, err = injectHTMLContent(suite.builder, filepath.Join(os.TempDir(), "test.gohtml"), nil)
+	suite.Assert().Error(err)
+	suite.Assert().Empty(suite.builder.mail.Content)
+}
+
+func (suite *SendgridContentInjectorTestSuite) TestTemplateInjector() {
+	var err error
+	type emailData struct {
+		Test string `structs:"test"`
+	}
+
+	templateID := "template-id-123456789"
+	suite.builder, err = injectTemplateContent(suite.builder, templateID, emailData{Test: templateID})
+	suite.Assert().NoError(err)
+	suite.Assert().NotEmpty(suite.builder.personalization.DynamicTemplateData)
+	suite.Assert().Len(suite.builder.personalization.DynamicTemplateData, 1)
+	suite.Assert().Contains(suite.builder.personalization.DynamicTemplateData["test"], templateID)
 }
 
 type sendgridMock struct {
