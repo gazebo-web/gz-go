@@ -15,6 +15,7 @@ require (
 	github.com/caarlos0/env/v6 v6.10.1
 	github.com/codegangsta/negroni v1.0.0
 	github.com/creasty/defaults v1.7.0
+	github.com/fatih/structs v1.1.0
 	github.com/fatih/structtag v1.2.0
 	github.com/form3tech-oss/jwt-go v3.2.5+incompatible
 	github.com/fsouza/fake-gcs-server v1.45.2
@@ -32,6 +33,8 @@ require (
 	github.com/rollbar/rollbar-go v1.2.0
 	github.com/rs/cors v1.9.0
 	github.com/satori/go.uuid v1.2.0
+	github.com/sendgrid/rest v2.6.9+incompatible
+	github.com/sendgrid/sendgrid-go v3.12.0+incompatible
 	github.com/stretchr/testify v1.8.4
 	github.com/urfave/negroni v1.0.0
 	gitlab.com/ignitionrobotics/web/scheduler v0.5.0
@@ -112,8 +115,6 @@ require (
 	github.com/prometheus/common v0.10.0 // indirect
 	github.com/prometheus/procfs v0.1.3 // indirect
 	github.com/ryszard/goskiplist v0.0.0-20150312221310-2dfbae5fcf46 // indirect
-	github.com/sendgrid/rest v2.6.9+incompatible // indirect
-	github.com/sendgrid/sendgrid-go v3.12.0+incompatible // indirect
 	github.com/shabbyrobe/gocovmerge v0.0.0-20180507124511-f6ea450bfb63 // indirect
 	github.com/sirupsen/logrus v1.9.2 // indirect
 	github.com/stretchr/objx v0.5.0 // indirect

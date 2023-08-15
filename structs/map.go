@@ -3,48 +3,60 @@ package structs
 import (
 	"errors"
 	"fmt"
+	"github.com/fatih/structs"
 	"reflect"
 )
 
 var (
-	// ErrTagEmpty is returned when an empty tag is passed to Map.
+	// ErrTagEmpty is returned when an empty tag is passed to ToMap.
 	ErrTagEmpty = errors.New("tag cannot be empty")
-	// ErrInvalidInputType is returned when Map receives an input that is not a struct or a pointer to a struct.
+	// ErrInvalidInputType is returned when ToMap receives an input that is not a struct or a pointer to a struct.
 	ErrInvalidInputType = errors.New("invalid input type")
 )
 
-// Map converts the given struct to a map[string]any. It uses the given tag to identify the key for each map field.
+// ToMap converts the given struct to a map[string]any. It uses the "structs" tag to identify the key for each map field.
 // If no tag is present in the Struct field, the field is omitted.
 //
-// Considering the following struct:
+// The default key string is the struct field name but can be changed in the struct field's tag value.
+// The "structs" key in the struct's field tag value is the key name. Example:
 //
-//	type Test struct {
-//		Field1 string `test:"field_1"`
-//		Field2 int `test:"field_2"`
-//		Field3 any `test:"field_3"`
-//	}
+//	// Field appears in map as key "myName".
+//	Name string `structs:"myName"`
 //
-// And the following variable:
+// A tag value with the content of "-" ignores that particular field. Example:
 //
-//	input := Test{
-//		Field1: "test",
-//		Field2: 1,
-//		Field3: nil,
-//	}
+//	// Field is ignored by this package.
+//	Field bool `structs:"-"`
 //
-// Map(input, "test") will return a map as follows:
+// A tag value with the content of "string" uses the stringer to get the value. Example:
 //
-//	map[string]any{
-//		"field_1": "test",
-//		"field_2": 1,
-//		"field_3": nil,
-//	}
+//	// The value will be output of Animal's String() func.
+//	// Map will panic if Animal does not implement String().
+//	Field *Animal `structs:"field,string"`
 //
-// If Map is called with a non-existent tag, an empty map will be returned.
+// A tag value with the option of "flatten" used in a struct field is to flatten its fields in the output map. Example:
 //
-//	m := Map(input, "not_found")
-//	len(m) == 0 (true)
-func Map(s any, tag string) (map[string]any, error) {
+//	// The FieldStruct's fields will be flattened into the output map.
+//	FieldStruct time.Time `structs:",flatten"`
+//
+// A tag value with the option of "omitnested" stops iterating further if the type
+// is a struct. Example:
+//
+//	// Field is not processed further by this package.
+//	Field time.Time     `structs:"myName,omitnested"`
+//	Field *http.Request `structs:",omitnested"`
+//
+// A tag value with the option of "omitempty" ignores that particular field if
+// the field value is empty. Example:
+//
+//	// Field appears in map as key "myName", but the field is
+//	// skipped if empty.
+//	Field string `structs:"myName,omitempty"`
+//
+//	// Field appears in map as key "Field" (the default), but
+//	// the field is skipped if empty.
+//	Field string `structs:",omitempty"`
+func ToMap(s any) (map[string]any, error) {
 	v := reflect.ValueOf(s)
 	if v.Kind() == reflect.Ptr {
 		v = v.Elem()
@@ -52,16 +64,5 @@ func Map(s any, tag string) (map[string]any, error) {
 	if v.Kind() != reflect.Struct {
 		return nil, fmt.Errorf("%w, got %T", ErrInvalidInputType, v)
 	}
-	if len(tag) == 0 {
-		return nil, ErrTagEmpty
-	}
-	t := v.Type()
-	out := make(map[string]any)
-	for i := 0; i < v.NumField(); i++ {
-		fi := t.Field(i)
-		if tagValue := fi.Tag.Get(tag); tagValue != "" {
-			out[tagValue] = v.Field(i).Interface()
-		}
-	}
-	return out, nil
+	return structs.Map(s), nil
 }
