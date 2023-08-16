@@ -15,9 +15,12 @@ var (
 )
 
 // ToMap converts the given struct to a map[string]any. It uses the "structs" tag to identify the key for each map field.
-// If no tag is present in the Struct field, the field is omitted.
 //
 // The default key string is the struct field name but can be changed in the struct field's tag value.
+//
+//	// Field appears in map as key "Name".
+//	Name string
+//
 // The "structs" key in the struct's field tag value is the key name. Example:
 //
 //	// Field appears in map as key "myName".
@@ -25,12 +28,12 @@ var (
 //
 // A tag value with the content of "-" ignores that particular field. Example:
 //
-//	// Field is ignored by this package.
+//	// Field is ignored by this function.
 //	Field bool `structs:"-"`
 //
-// A tag value with the content of "string" uses the stringer to get the value. Example:
+// A tag value with the content of "string" uses Go's Stringer interface to get the value. Example:
 //
-//	// The value will be output of Animal's String() func.
+//	// The value will be the output of Animal's String() func.
 //	// Map will panic if Animal does not implement String().
 //	Field *Animal `structs:"field,string"`
 //
