@@ -25,12 +25,12 @@ var (
 //
 // A tag value with the content of "-" ignores that particular field. Example:
 //
-//	// Field is ignored by this package.
+//	// Field is ignored by this function.
 //	Field bool `structs:"-"`
 //
-// A tag value with the content of "string" uses the stringer to get the value. Example:
+// A tag value with the content of "string" uses Go's Stringer interface to get the value. Example:
 //
-//	// The value will be output of Animal's String() func.
+//	// The value will be the output of Animal's String() func.
 //	// Map will panic if Animal does not implement String().
 //	Field *Animal `structs:"field,string"`
 //
