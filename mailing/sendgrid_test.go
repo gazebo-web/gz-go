@@ -296,7 +296,7 @@ func (suite *SendgridTestSuite) TestSendEmail_WithDynamicTemplates() {
 
 	data := emailData{Test: "Hello there!"}
 
-	suite.emailSender = newSendgridEmailSenderWithContentInjector(&suite.client, injectTemplateContent)
+	suite.emailSender = newSendgridEmailSender(&suite.client, injectTemplateContent)
 
 	m := suite.builder.
 		Sender(sender).

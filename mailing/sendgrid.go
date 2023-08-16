@@ -53,16 +53,16 @@ func (s *sendgridEmailService) Send(ctx context.Context, sender string, recipien
 // NewSendgridEmailSender initializes a new Sender with a sendgrid client. It will send emails using Go templates.
 // See NewTemplateSender for conveniently handling Go templates in your project.
 func NewSendgridEmailSender(client sendgridSender) Sender {
-	return newSendgridEmailSenderWithContentInjector(client, injectHTMLContent)
+	return newSendgridEmailSender(client, injectHTMLContent)
 }
 
 // NewSendgridDynamicTemplatesEmailSender initializes a new Sender with a sendgrid client. It will send emails through
 // sendgrid using dynamic templates defined in the Sendgrid dashboard.
 func NewSendgridDynamicTemplatesEmailSender(client sendgridSender) Sender {
-	return newSendgridEmailSenderWithContentInjector(client, injectTemplateContent)
+	return newSendgridEmailSender(client, injectTemplateContent)
 }
 
-func newSendgridEmailSenderWithContentInjector(client sendgridSender, injector contentInjector) Sender {
+func newSendgridEmailSender(client sendgridSender, injector contentInjector) Sender {
 	return &sendgridEmailService{
 		client:          client,
 		contentInjector: injector,
