@@ -15,9 +15,12 @@ var (
 )
 
 // ToMap converts the given struct to a map[string]any. It uses the "structs" tag to identify the key for each map field.
-// If no tag is present in the Struct field, the field is omitted.
 //
 // The default key string is the struct field name but can be changed in the struct field's tag value.
+//
+//	// Field appears in map as key "Name".
+//	Name string
+//
 // The "structs" key in the struct's field tag value is the key name. Example:
 //
 //	// Field appears in map as key "myName".
