@@ -45,9 +45,9 @@ func TestToMap(t *testing.T) {
 	casted, ok := result["ss"].(map[string]any)
 	assert.True(t, ok)
 	assert.Equal(t, s.TestStruct.DeepValue, casted["ss_i"])
-	
+
 	// Struct pointer
-	result, err := ToMap(&s)
+	result, err = ToMap(&s)
 	assert.NoError(t, err)
 	assert.NotEmpty(t, result)
 }
