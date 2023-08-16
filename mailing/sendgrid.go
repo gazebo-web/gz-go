@@ -3,7 +3,6 @@ package mailing
 import (
 	"context"
 	"fmt"
-	"github.com/gazebo-web/gz-go/v8"
 	"github.com/sendgrid/sendgrid-go/helpers/mail"
 	"net/http"
 )
@@ -13,6 +12,11 @@ import (
 //	Reference: https://github.com/sendgrid/sendgrid-go
 type sendgridEmailService struct {
 	client sendgridSender
+	contentInjector
+}
+
+func (s *sendgridEmailService) emailBuilder() sendgridEmailBuilder {
+	return newSendgridEmailBuilder()
 }
 
 // Send sends an email from sender to the given recipients. The email body is composed by an HTML template
@@ -23,12 +27,18 @@ func (s *sendgridEmailService) Send(ctx context.Context, sender string, recipien
 		return err
 	}
 
-	htmlContent, err := gz.ParseHTMLTemplate(template, data)
+	builder := s.emailBuilder().
+		Sender(sender).
+		Recipients(recipients).
+		CC(cc).
+		BCC(bcc).
+		Subject(subject)
+
+	builder, err = s.contentInjector(builder, template, data)
 	if err != nil {
 		return err
 	}
-
-	m := prepareSendgridMailV3(sender, recipients, cc, bcc, subject, htmlContent)
+	m := builder.Build()
 
 	res, err := s.client.SendWithContext(ctx, m)
 	if err != nil {
@@ -40,32 +50,30 @@ func (s *sendgridEmailService) Send(ctx context.Context, sender string, recipien
 	return nil
 }
 
-// prepareSendgridMailV3 prepares the input values used for sending an email.
-func prepareSendgridMailV3(sender string, recipients []string, cc []string, bcc []string, subject string, htmlContent string) *mail.SGMailV3 {
-	p := mail.NewPersonalization()
-	p.AddFrom(mail.NewEmail("", sender))
-	p.AddTos(parseSendgridEmails(recipients)...)
-	p.AddCCs(parseSendgridEmails(cc)...)
-	p.AddBCCs(parseSendgridEmails(bcc)...)
-	p.Subject = subject
-
-	m := mail.NewV3Mail()
-	m.AddPersonalizations(p)
-	m.AddContent(mail.NewContent("text/html", htmlContent))
-	return m
+// NewSendgridEmailSender initializes a new Sender with a sendgrid client. It will send emails using Go templates.
+// See NewTemplateSender for conveniently handling Go templates in your project.
+func NewSendgridEmailSender(client sendgridSender) Sender {
+	return newSendgridEmailSender(client, injectHTMLContent)
 }
 
+// NewSendgridDynamicTemplatesEmailSender initializes a new Sender with a sendgrid client. It will send emails through
+// sendgrid using dynamic templates defined in the Sendgrid dashboard.
+func NewSendgridDynamicTemplatesEmailSender(client sendgridSender) Sender {
+	return newSendgridEmailSender(client, injectTemplateContent)
+}
+
+func newSendgridEmailSender(client sendgridSender, injector contentInjector) Sender {
+	return &sendgridEmailService{
+		client:          client,
+		contentInjector: injector,
+	}
+}
+
+// parseSendgridEmails converts the given slice of emails to sendgrid emails.
 func parseSendgridEmails(emails []string) []*mail.Email {
 	out := make([]*mail.Email, len(emails))
 	for i := 0; i < len(emails); i++ {
 		out[i] = mail.NewEmail("", emails[i])
 	}
 	return out
-}
-
-// NewSendgridEmailSender initializes a new Sender with a sendgrid client.
-func NewSendgridEmailSender(client sendgridSender) Sender {
-	return &sendgridEmailService{
-		client: client,
-	}
 }
