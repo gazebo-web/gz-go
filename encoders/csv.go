@@ -12,7 +12,7 @@ func (csvEncoder) Marshal(v interface{}) ([]byte, error) {
 }
 
 // Unmarshal parses the CSV-encoded data and stores the results in the value pointed to by v.
-// NOTE: Given the nature of CSV files, v must be a not nil pointer to a slice.
+// NOTE: Given the nature of CSV files, v must be a non-nil pointer to a slice.
 func (csvEncoder) Unmarshal(data []byte, v interface{}) error {
 	return csvutil.Unmarshal(data, v)
 }
