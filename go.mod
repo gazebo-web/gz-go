@@ -27,6 +27,7 @@ require (
 	github.com/grpc-ecosystem/go-grpc-middleware/v2 v2.0.0-rc.5
 	github.com/johannesboyne/gofakes3 v0.0.0-20230108161031-df26ca44a1e9
 	github.com/jpillora/go-ogle-analytics v0.0.0-20161213085824-14b04e0594ef
+	github.com/jszwec/csvutil v1.8.0
 	github.com/mssola/user_agent v0.6.0
 	github.com/pkg/errors v0.9.1
 	github.com/prometheus/client_golang v1.7.1

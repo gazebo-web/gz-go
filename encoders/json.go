@@ -21,9 +21,9 @@ func (jsonEncoder) Marshal(v interface{}) ([]byte, error) {
 	return json.Marshal(v)
 }
 
-// Unmarshal parses the JSON-encoded data and stores the result
+// Unmarshal parses the JSON-encoded data and stores the results
 // in the value pointed to by v. If v is nil or not a pointer,
-// Unmarshal returns an InvalidUnmarshalError.
+// Unmarshal returns a json.InvalidUnmarshalError.
 func (jsonEncoder) Unmarshal(data []byte, v interface{}) error {
 	return json.Unmarshal(data, v)
 }
