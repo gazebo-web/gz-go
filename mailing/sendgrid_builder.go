@@ -13,7 +13,8 @@ type sendgridEmailBuilder struct {
 
 // Sender sets the email address where the resulting email comes from.
 func (b sendgridEmailBuilder) Sender(from string) sendgridEmailBuilder {
-	b.personalization.AddFrom(mail.NewEmail("", from))
+	e := mail.NewEmail("", from)
+	b.mail.SetFrom(e)
 	return b
 }
 

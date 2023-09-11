@@ -24,8 +24,8 @@ func (suite *SendgridEmailBuilderTestSuite) SetupTest() {
 
 func (suite *SendgridEmailBuilderTestSuite) TestSender() {
 	const sender = "noreply@gazebosim.org"
-	result := suite.builder.Sender(sender).personalization.From.Address
-	suite.Assert().Equal(sender, result)
+	builder := suite.builder.Sender(sender)
+	suite.Assert().Equal(sender, builder.mail.From.Address)
 }
 
 func (suite *SendgridEmailBuilderTestSuite) TestRecipients() {
