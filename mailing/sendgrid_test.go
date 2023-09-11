@@ -314,11 +314,11 @@ func (suite *SendgridTestSuite) TestSendEmail_WithDynamicTemplates() {
 }
 
 func (suite *SendgridTestSuite) TestParseEmail() {
-	recipients := []string{"test2@gazebosim.org", "test3@gazebosim.org"}
+	recipients := []string{"Test 2:test2@gazebosim.org", "Test 3:test3@gazebosim.org"}
 
 	expected := []*mail.Email{
-		mail.NewEmail("", recipients[0]),
-		mail.NewEmail("", recipients[1]),
+		mail.NewEmail("Test 2", "test2@gazebosim.org"),
+		mail.NewEmail("Test 3", "test3@gazebosim.org"),
 	}
 
 	result := parseSendgridEmails(recipients)

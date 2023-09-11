@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/sendgrid/sendgrid-go/helpers/mail"
 	"net/http"
+	"strings"
 )
 
 // sendgridEmailService implements the Sender interface using Sendgrid.
@@ -69,11 +70,26 @@ func newSendgridEmailSender(client sendgridSender, injector contentInjector) Sen
 	}
 }
 
-// parseSendgridEmails converts the given slice of emails to sendgrid emails.
-func parseSendgridEmails(emails []string) []*mail.Email {
-	out := make([]*mail.Email, len(emails))
-	for i := 0; i < len(emails); i++ {
-		out[i] = mail.NewEmail("", emails[i])
+// parseSendgridEmails converts the given slice of recipients to sendgrid emails.
+// Each recipient must be in the following format: "FirstName LastName:email@example.org".
+func parseSendgridEmails(recipients []string) []*mail.Email {
+	out := make([]*mail.Email, len(recipients))
+	for i := 0; i < len(recipients); i++ {
+		name, addr := parseRecipient(recipients[i])
+		if len(name) == 0 || len(addr) == 0 {
+			continue
+		}
+		out[i] = mail.NewEmail(name, addr)
 	}
 	return out
+}
+
+func parseRecipient(recipient string) (name string, address string) {
+	params := strings.Split(recipient, ":")
+	if len(params) != 2 {
+		return "", ""
+	}
+	name = params[0]
+	address = params[1]
+	return
 }
