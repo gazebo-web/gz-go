@@ -1,6 +1,7 @@
 package mailing
 
 import (
+	"fmt"
 	"github.com/sendgrid/sendgrid-go/helpers/mail"
 	"github.com/stretchr/testify/suite"
 	"testing"
@@ -23,32 +24,33 @@ func (suite *SendgridEmailBuilderTestSuite) SetupTest() {
 }
 
 func (suite *SendgridEmailBuilderTestSuite) TestSender() {
-	const sender = "noreply@gazebosim.org"
-	result := suite.builder.Sender(sender).personalization.From.Address
-	suite.Assert().Equal(sender, result)
+	const sender = "Gazebo Web:noreply@gazebosim.org"
+	from := suite.builder.Sender(sender).personalization.From
+
+	suite.Assert().Equal(sender, fmt.Sprintf("%s:%s", from.Name, from.Address))
 }
 
 func (suite *SendgridEmailBuilderTestSuite) TestRecipients() {
-	recipients := []string{"test1@gazebosim.org", "test2@gazebosim.org"}
+	recipients := []string{"Test 1:test1@gazebosim.org", "Test 2:test2@gazebosim.org"}
 	result := suite.builder.Recipients(recipients).personalization.To
 	for _, to := range result {
-		suite.Assert().Contains(recipients, to.Address)
+		suite.Assert().Contains(recipients, fmt.Sprintf("%s:%s", to.Name, to.Address))
 	}
 }
 
 func (suite *SendgridEmailBuilderTestSuite) TestCCs() {
-	recipients := []string{"test1@gazebosim.org", "test2@gazebosim.org"}
+	recipients := []string{"Test 1:test1@gazebosim.org", "Test 2:test2@gazebosim.org"}
 	result := suite.builder.CC(recipients).personalization.CC
 	for _, cc := range result {
-		suite.Assert().Contains(recipients, cc.Address)
+		suite.Assert().Contains(recipients, fmt.Sprintf("%s:%s", cc.Name, cc.Address))
 	}
 }
 
 func (suite *SendgridEmailBuilderTestSuite) TestBBCs() {
-	recipients := []string{"test1@gazebosim.org", "test2@gazebosim.org"}
+	recipients := []string{"Test 1:test1@gazebosim.org", "Test 2:test2@gazebosim.org"}
 	result := suite.builder.BCC(recipients).personalization.BCC
 	for _, bcc := range result {
-		suite.Assert().Contains(recipients, bcc.Address)
+		suite.Assert().Contains(recipients, fmt.Sprintf("%s:%s", bcc.Name, bcc.Address))
 	}
 }
 
@@ -96,9 +98,9 @@ func (suite *SendgridEmailBuilderTestSuite) TestBuild() {
 
 	m := suite.builder.
 		Sender("noreply@gazebosim.org").
-		Recipients([]string{"test@gazebosim.org"}).
-		CC([]string{"cc@gazebosim.org"}).
-		BCC([]string{"bcc@gazebosim.org"}).
+		Recipients([]string{"Test Example:test@gazebosim.org"}).
+		CC([]string{"Test CC:cc@gazebosim.org"}).
+		BCC([]string{"Test BCC:bcc@gazebosim.org"}).
 		Subject("Test email subject").
 		Template(key, data).
 		Build()
