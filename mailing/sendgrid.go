@@ -44,7 +44,7 @@ func (s *sendgridEmailService) Send(ctx context.Context, sender string, recipien
 	if err != nil {
 		return err
 	}
-	if res.StatusCode > 299 {
+	if res.StatusCode >= 300 {
 		return fmt.Errorf("failed to send email (%d) %s: %s", res.StatusCode, http.StatusText(res.StatusCode), res.Body)
 	}
 	return nil
