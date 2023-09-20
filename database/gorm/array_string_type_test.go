@@ -9,9 +9,7 @@ import (
 
 func TestArrayString_Scanner(t *testing.T) {
 	var arrstr ArrayString
-	var scanner sql.Scanner
-
-	scanner = &arrstr
+	var scanner sql.Scanner = &arrstr
 
 	assert.Error(t, scanner.Scan([]byte("test")), "Calling Scan must return an error with an invalid type")
 	assert.NoError(t, scanner.Scan("test,test"), "Calling Scan with a string must return no errors")
