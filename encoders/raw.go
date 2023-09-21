@@ -75,3 +75,6 @@ func (e rawEncoder) NewDecoder(r io.Reader) runtime.Decoder {
 func (e rawEncoder) ContentType(v interface{}) string {
 	return "application/octet-stream"
 }
+
+// RAW holds a raw encoder instance implementing Marshaller.
+var RAW = &rawEncoder{}
