@@ -62,6 +62,9 @@ func newDecoderFunc(r io.Reader, m Marshaller) runtime.DecoderFunc {
 		if err != nil {
 			return err
 		}
+		if c, ok := r.(io.Closer); ok {
+			defer c.Close()
+		}
 		return m.Unmarshal(raw, v)
 	}
 }
