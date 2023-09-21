@@ -45,28 +45,12 @@ func (e rawEncoder) Unmarshal(data []byte, v interface{}) error {
 
 // NewEncoder returns an Encoder which writes bytes sequence into "w".
 func (e rawEncoder) NewEncoder(w io.Writer) runtime.Encoder {
-	return runtime.EncoderFunc(func(v interface{}) error {
-		b, err := e.Marshal(v)
-		if err != nil {
-			return err
-		}
-		_, err = w.Write(b)
-		if err != nil {
-			return err
-		}
-		return nil
-	})
+	return newEncoderFunc(w, e)
 }
 
 // NewDecoder returns a Decoder which reads byte sequence from "r".
 func (e rawEncoder) NewDecoder(r io.Reader) runtime.Decoder {
-	return runtime.DecoderFunc(func(v interface{}) error {
-		raw, err := io.ReadAll(r)
-		if err != nil {
-			return err
-		}
-		return e.Unmarshal(raw, v)
-	})
+	return newDecoderFunc(r, e)
 }
 
 // ContentType returns the Content-Type which this marshaler is responsible for.
