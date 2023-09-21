@@ -3,6 +3,7 @@ package encoders
 import (
 	"context"
 	"github.com/gazebo-web/gz-go/v8/telemetry"
+	"github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
 	"go.opentelemetry.io/otel/codes"
 	"io"
 )
@@ -35,4 +36,35 @@ func Unmarshal[T any](ctx context.Context, m Marshaller, body []byte) (T, error)
 		return zero, err
 	}
 	return value, nil
+}
+
+// newEncoderFunc returns a new runtime.EncoderFunc that uses the given Marshaller to marshal and write bytes to the
+// given io.Writer.
+func newEncoderFunc(w io.Writer, m Marshaller) runtime.EncoderFunc {
+	return func(v interface{}) error {
+		b, err := m.Marshal(v)
+		if err != nil {
+			return err
+		}
+		_, err = w.Write(b)
+		if err != nil {
+			return err
+		}
+		return nil
+	}
+}
+
+// newDecoderFunc returns a new runtime.DecoderFunc that uses the given Marshaller to unmarshal the bytes read from
+// the given io.Reader.
+func newDecoderFunc(r io.Reader, m Marshaller) runtime.DecoderFunc {
+	return func(v interface{}) error {
+		raw, err := io.ReadAll(r)
+		if err != nil {
+			return err
+		}
+		if c, ok := r.(io.Closer); ok {
+			defer c.Close()
+		}
+		return m.Unmarshal(raw, v)
+	}
 }
