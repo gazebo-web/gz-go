@@ -4,6 +4,8 @@ import (
 	"database/sql"
 	"database/sql/driver"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
+	"gorm.io/gorm"
 	"testing"
 )
 
@@ -31,5 +33,24 @@ func TestArrayString_Valuer(t *testing.T) {
 	str, ok := v.(string)
 	assert.True(t, ok)
 	assert.Equal(t, "test,test", str)
+}
 
+func TestArrayString_DB(t *testing.T) {
+	db, err := GetTestDBFromEnvVars()
+	require.NoError(t, err)
+
+	db = db.Debug()
+
+	type Test struct {
+		gorm.Model
+		Value ArrayString
+	}
+	require.NoError(t, db.AutoMigrate(&Test{}))
+
+	entry := Test{
+		Value: ArrayString{"test", "another_test"},
+	}
+
+	assert.NoError(t, db.Model(&Test{}).Create(&entry).Error)
+	assert.NotZero(t, entry.ID)
 }
