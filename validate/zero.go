@@ -4,39 +4,39 @@ import "reflect"
 
 // IsZero checks returns true if the provided value is a zero value.
 func IsZero(value any) bool {
-	switch value.(type) {
+	switch v := value.(type) {
 	case string:
-		return value == ""
+		return v == ""
 	case int:
-		return value == 0
+		return v == 0
 	case int8:
-		return value == int8(0)
+		return v == int8(0)
 	case int16:
-		return value == int16(0)
+		return v == int16(0)
 	case int32:
-		return value == int32(0)
+		return v == int32(0)
 	case int64:
-		return value == int64(0)
+		return v == int64(0)
 	case uint:
-		return value == uint(0)
+		return v == uint(0)
 	case uint8:
-		return value == uint8(0)
+		return v == uint8(0)
 	case uint16:
-		return value == uint16(0)
+		return v == uint16(0)
 	case uint32:
-		return value == uint32(0)
+		return v == uint32(0)
 	case uint64:
-		return value == uint64(0)
+		return v == uint64(0)
 	case float32:
-		return value == float32(0)
+		return v == float32(0)
 	case float64:
-		return value == float64(0)
+		return v == float64(0)
 	case complex64:
-		return value == complex64(0)
+		return v == complex64(0)
 	case complex128:
-		return value == complex128(0)
+		return v == complex128(0)
 	case bool:
-		return !value.(bool)
+		return !v
 	default:
 		return reflect.ValueOf(value).IsZero()
 	}
