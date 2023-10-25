@@ -154,13 +154,13 @@ func TestAuthFuncGRPC(t *testing.T) {
 		InterceptorTestSuite: &grpc_test.InterceptorTestSuite{
 			TestService: auth,
 			ServerOpts: []grpc.ServerOption{
-				grpc.StreamInterceptor(grpc_auth.StreamServerInterceptor(BearerAuthFuncGRPC(auth, GroupClaimInjectors(MandatoryInjection,
-					GroupClaimInjectors(MandatoryInjection, SubjectClaimer),
-					GroupClaimInjectors(OptionalInjection, EmailClaimer),
+				grpc.StreamInterceptor(grpc_auth.StreamServerInterceptor(BearerAuthFuncGRPC(auth, groupClaimInjectors(mandatoryInjection,
+					groupClaimInjectors(mandatoryInjection, SubjectClaimer),
+					groupClaimInjectors(optionalInjection, EmailClaimer),
 				)))),
-				grpc.UnaryInterceptor(grpc_auth.UnaryServerInterceptor(BearerAuthFuncGRPC(auth, GroupClaimInjectors(MandatoryInjection,
-					GroupClaimInjectors(MandatoryInjection, SubjectClaimer),
-					GroupClaimInjectors(OptionalInjection, EmailClaimer),
+				grpc.UnaryInterceptor(grpc_auth.UnaryServerInterceptor(BearerAuthFuncGRPC(auth, groupClaimInjectors(mandatoryInjection,
+					groupClaimInjectors(mandatoryInjection, SubjectClaimer),
+					groupClaimInjectors(optionalInjection, EmailClaimer),
 				)))),
 			},
 		},
@@ -247,7 +247,7 @@ func newTestAuthentication() *testAuthService {
 
 func TestGroupClaimInjectors_Mandatory(t *testing.T) {
 	ctx := grpc_metadata.NewIncomingContext(context.Background(), nil)
-	c := GroupClaimInjectors(MandatoryInjection, SubjectClaimer)
+	c := groupClaimInjectors(mandatoryInjection, SubjectClaimer)
 
 	ctx, err := c(ctx, authentication.NewFirebaseClaims(authentication.NewFirebaseTestToken()))
 	assert.NoError(t, err)
@@ -259,7 +259,7 @@ func TestGroupClaimInjectors_Mandatory(t *testing.T) {
 
 func TestGroupClaimInjectors_Mandatory_Empty(t *testing.T) {
 	ctx := grpc_metadata.NewIncomingContext(context.Background(), nil)
-	c := GroupClaimInjectors(MandatoryInjection, SubjectClaimer)
+	c := groupClaimInjectors(mandatoryInjection, SubjectClaimer)
 
 	// If the token contains an empty subject or it doesn't exist, it must return an error.
 	ctx, err := c(ctx, jwt.MapClaims{})
@@ -272,7 +272,7 @@ func TestGroupClaimInjectors_Mandatory_Empty(t *testing.T) {
 
 func TestGroupClaimInjectors_Optional(t *testing.T) {
 	ctx := grpc_metadata.NewIncomingContext(context.Background(), nil)
-	c := GroupClaimInjectors(OptionalInjection, SubjectClaimer)
+	c := groupClaimInjectors(optionalInjection, SubjectClaimer)
 
 	ctx, err := c(ctx, authentication.NewFirebaseClaims(authentication.NewFirebaseTestToken()))
 	assert.NoError(t, err)
@@ -284,7 +284,7 @@ func TestGroupClaimInjectors_Optional(t *testing.T) {
 
 func TestGroupClaimInjectors_Optional_Empty(t *testing.T) {
 	ctx := grpc_metadata.NewIncomingContext(context.Background(), nil)
-	c := GroupClaimInjectors(OptionalInjection, SubjectClaimer)
+	c := groupClaimInjectors(optionalInjection, SubjectClaimer)
 
 	ctx, err := c(ctx, jwt.MapClaims{})
 	assert.NoError(t, err)
@@ -296,9 +296,9 @@ func TestGroupClaimInjectors_Optional_Empty(t *testing.T) {
 
 func TestGroupClaimInjectors_Combined(t *testing.T) {
 	ctx := grpc_metadata.NewIncomingContext(context.Background(), nil)
-	c := GroupClaimInjectors(MandatoryInjection,
-		GroupClaimInjectors(MandatoryInjection, SubjectClaimer),
-		GroupClaimInjectors(OptionalInjection, EmailClaimer),
+	c := GroupMandatoryClaimInjectors(
+		GroupMandatoryClaimInjectors(SubjectClaimer),
+		GroupOptionalClaimInjectors(EmailClaimer),
 	)
 
 	ctx, err := c(ctx, authentication.NewFirebaseClaims(authentication.NewFirebaseTestToken()))
@@ -314,9 +314,9 @@ func TestGroupClaimInjectors_Combined(t *testing.T) {
 
 func TestGroupClaimInjectors_Combined_NoEmail(t *testing.T) {
 	ctx := grpc_metadata.NewIncomingContext(context.Background(), nil)
-	c := GroupClaimInjectors(MandatoryInjection,
-		GroupClaimInjectors(MandatoryInjection, SubjectClaimer),
-		GroupClaimInjectors(OptionalInjection, EmailClaimer),
+	c := GroupMandatoryClaimInjectors(
+		GroupMandatoryClaimInjectors(SubjectClaimer),
+		GroupOptionalClaimInjectors(EmailClaimer),
 	)
 
 	ctx, err := c(ctx, jwt.MapClaims{"sub": "gazebo-web"})
