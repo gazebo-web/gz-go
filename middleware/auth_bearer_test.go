@@ -6,6 +6,13 @@ import (
 	"encoding/pem"
 	"errors"
 	"fmt"
+	"net/http"
+	"net/http/httptest"
+	"os"
+	"strings"
+	"testing"
+	"time"
+
 	"github.com/gazebo-web/auth/pkg/authentication"
 	"github.com/golang-jwt/jwt/v5"
 	grpc_auth "github.com/grpc-ecosystem/go-grpc-middleware/v2/interceptors/auth"
@@ -17,12 +24,6 @@ import (
 	"github.com/stretchr/testify/suite"
 	"google.golang.org/grpc"
 	grpc_metadata "google.golang.org/grpc/metadata"
-	"net/http"
-	"net/http/httptest"
-	"os"
-	"strings"
-	"testing"
-	"time"
 )
 
 func TestBearerToken_NoAuthorizationHeader(t *testing.T) {
@@ -153,8 +154,14 @@ func TestAuthFuncGRPC(t *testing.T) {
 		InterceptorTestSuite: &grpc_test.InterceptorTestSuite{
 			TestService: auth,
 			ServerOpts: []grpc.ServerOption{
-				grpc.StreamInterceptor(grpc_auth.StreamServerInterceptor(BearerAuthFuncGRPC(auth))),
-				grpc.UnaryInterceptor(grpc_auth.UnaryServerInterceptor(BearerAuthFuncGRPC(auth))),
+				grpc.StreamInterceptor(grpc_auth.StreamServerInterceptor(BearerAuthFuncGRPC(auth, groupClaimInjectors(mandatoryInjection,
+					groupClaimInjectors(mandatoryInjection, SubjectClaimer),
+					groupClaimInjectors(optionalInjection, EmailClaimer),
+				)))),
+				grpc.UnaryInterceptor(grpc_auth.UnaryServerInterceptor(BearerAuthFuncGRPC(auth, groupClaimInjectors(mandatoryInjection,
+					groupClaimInjectors(mandatoryInjection, SubjectClaimer),
+					groupClaimInjectors(optionalInjection, EmailClaimer),
+				)))),
 			},
 		},
 	}
@@ -236,4 +243,89 @@ func (s *testAuthService) VerifyJWT(ctx context.Context, token string) (jwt.Clai
 
 func newTestAuthentication() *testAuthService {
 	return &testAuthService{}
+}
+
+func TestGroupClaimInjectors_Mandatory(t *testing.T) {
+	ctx := grpc_metadata.NewIncomingContext(context.Background(), nil)
+	c := groupClaimInjectors(mandatoryInjection, SubjectClaimer)
+
+	ctx, err := c(ctx, authentication.NewFirebaseClaims(authentication.NewFirebaseTestToken()))
+	assert.NoError(t, err)
+	assert.NotNil(t, ctx)
+
+	subs := grpc_metadata.ValueFromIncomingContext(ctx, metadataSubjectKey)
+	assert.Equal(t, "gazebo-web", subs[0])
+}
+
+func TestGroupClaimInjectors_Mandatory_Empty(t *testing.T) {
+	ctx := grpc_metadata.NewIncomingContext(context.Background(), nil)
+	c := groupClaimInjectors(mandatoryInjection, SubjectClaimer)
+
+	// If the token contains an empty subject or it doesn't exist, it must return an error.
+	ctx, err := c(ctx, jwt.MapClaims{})
+	assert.Error(t, err)
+	assert.NotNil(t, ctx)
+
+	subs := grpc_metadata.ValueFromIncomingContext(ctx, metadataSubjectKey)
+	assert.Len(t, subs, 0)
+}
+
+func TestGroupClaimInjectors_Optional(t *testing.T) {
+	ctx := grpc_metadata.NewIncomingContext(context.Background(), nil)
+	c := groupClaimInjectors(optionalInjection, SubjectClaimer)
+
+	ctx, err := c(ctx, authentication.NewFirebaseClaims(authentication.NewFirebaseTestToken()))
+	assert.NoError(t, err)
+	assert.NotNil(t, ctx)
+
+	subs := grpc_metadata.ValueFromIncomingContext(ctx, metadataSubjectKey)
+	assert.Equal(t, "gazebo-web", subs[0])
+}
+
+func TestGroupClaimInjectors_Optional_Empty(t *testing.T) {
+	ctx := grpc_metadata.NewIncomingContext(context.Background(), nil)
+	c := groupClaimInjectors(optionalInjection, SubjectClaimer)
+
+	ctx, err := c(ctx, jwt.MapClaims{})
+	assert.NoError(t, err)
+	assert.NotNil(t, ctx)
+
+	subs := grpc_metadata.ValueFromIncomingContext(ctx, metadataSubjectKey)
+	assert.Len(t, subs, 0)
+}
+
+func TestGroupClaimInjectors_Combined(t *testing.T) {
+	ctx := grpc_metadata.NewIncomingContext(context.Background(), nil)
+	c := GroupMandatoryClaimInjectors(
+		GroupMandatoryClaimInjectors(SubjectClaimer),
+		GroupOptionalClaimInjectors(EmailClaimer),
+	)
+
+	ctx, err := c(ctx, authentication.NewFirebaseClaims(authentication.NewFirebaseTestToken()))
+	assert.NoError(t, err)
+	assert.NotNil(t, ctx)
+
+	subs := grpc_metadata.ValueFromIncomingContext(ctx, metadataSubjectKey)
+	assert.Equal(t, "gazebo-web", subs[0])
+
+	emails := grpc_metadata.ValueFromIncomingContext(ctx, metadataEmailKey)
+	assert.Equal(t, "test@gazebosim.org", emails[0])
+}
+
+func TestGroupClaimInjectors_Combined_NoEmail(t *testing.T) {
+	ctx := grpc_metadata.NewIncomingContext(context.Background(), nil)
+	c := GroupMandatoryClaimInjectors(
+		GroupMandatoryClaimInjectors(SubjectClaimer),
+		GroupOptionalClaimInjectors(EmailClaimer),
+	)
+
+	ctx, err := c(ctx, jwt.MapClaims{"sub": "gazebo-web"})
+	assert.NoError(t, err)
+	assert.NotNil(t, ctx)
+
+	subs := grpc_metadata.ValueFromIncomingContext(ctx, metadataSubjectKey)
+	assert.Equal(t, "gazebo-web", subs[0])
+
+	emails := grpc_metadata.ValueFromIncomingContext(ctx, metadataEmailKey)
+	assert.Empty(t, emails)
 }

@@ -4,11 +4,12 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"net/http"
+
 	"github.com/gazebo-web/auth/pkg/authentication"
 	"github.com/golang-jwt/jwt/v5/request"
 	"github.com/grpc-ecosystem/go-grpc-middleware/v2/metadata"
 	grpc_metadata "google.golang.org/grpc/metadata"
-	"net/http"
 )
 
 // Extractor extracts a string value from an HTTP request. It's usually used to extract a header from an HTTP request,
@@ -64,13 +65,13 @@ const (
 // This function only works with gRPC requests. It returns an error if the metadata couldn't be parsed or the subject
 // is not present.
 func ExtractGRPCAuthSubject(ctx context.Context) (string, error) {
-	return extractGRPCMetadata(ctx, metadataSubjectKey)
+	return ExtractGRPCMetadata(ctx, metadataSubjectKey)
 }
 
 // InjectGRPCAuthSubject injects the authentication subject (sub) claim into the given context metadata.
 // See ExtractGRPCAuthSubject for information on how to extract this value.
 func InjectGRPCAuthSubject(ctx context.Context, sub string) context.Context {
-	return injectGRPCMetadata(ctx, metadataSubjectKey, sub)
+	return InjectGRPCMetadata(ctx, metadataSubjectKey, sub)
 }
 
 // ExtractGRPCAuthEmail extracts the custom email (email) claim from the context metadata. This claim is
@@ -82,17 +83,17 @@ func InjectGRPCAuthSubject(ctx context.Context, sub string) context.Context {
 // This function only works with gRPC requests. It returns an error if the metadata couldn't be parsed or the email
 // is not present.
 func ExtractGRPCAuthEmail(ctx context.Context) (string, error) {
-	return extractGRPCMetadata(ctx, metadataEmailKey)
+	return ExtractGRPCMetadata(ctx, metadataEmailKey)
 }
 
 // InjectGRPCAuthEmail injects the custom email (email) claim into the given context metadata.
 // See ExtractGRPCAuthSubject for information on how to extract this value.
 func InjectGRPCAuthEmail(ctx context.Context, email string) context.Context {
-	return injectGRPCMetadata(ctx, metadataEmailKey, email)
+	return InjectGRPCMetadata(ctx, metadataEmailKey, email)
 }
 
-// extractGRPCMetadata extracts the first value of the given key. This only works for gRPC servers, not clients.
-func extractGRPCMetadata(ctx context.Context, key string) (string, error) {
+// ExtractGRPCMetadata extracts the first value of the given key. This only works for gRPC servers, not clients.
+func ExtractGRPCMetadata(ctx context.Context, key string) (string, error) {
 	md, ok := grpc_metadata.FromIncomingContext(ctx)
 	if !ok {
 		return "", errors.New("failed to get context metadata")
@@ -106,9 +107,9 @@ func extractGRPCMetadata(ctx context.Context, key string) (string, error) {
 	return value, nil
 }
 
-// injectGRPCMetadata injects the given key and value into a context using grpc metadata. This only works for
+// InjectGRPCMetadata injects the given key and value into a context using grpc metadata. This only works for
 // gRPC servers, not clients.
-func injectGRPCMetadata(ctx context.Context, key string, value string) context.Context {
+func InjectGRPCMetadata(ctx context.Context, key string, value string) context.Context {
 	md, ok := grpc_metadata.FromIncomingContext(ctx)
 	if !ok {
 		return ctx
