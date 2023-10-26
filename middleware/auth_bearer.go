@@ -52,7 +52,8 @@ type ClaimInjectorJWT func(ctx context.Context, token jwt.Claims) (context.Conte
 // different claim injectors by using GroupClaimInjectors.
 type ClaimInjectorBehavior func(ctx context.Context, err error) (context.Context, error)
 
-// groupClaimInjectors treats all the given injectors as a single one.
+// groupClaimInjectors returns a ClaimInjectorJWT that wraps and calls all provided injectors.
+// This is useful to configure multiple claim injectors for servers with a single function call.
 //
 // By setting a mandatoryInjection, the resulting injector will early return
 // if an error is found at any point during the claim injection.
@@ -106,13 +107,14 @@ func GroupMandatoryClaimInjectors(injectors ...ClaimInjectorJWT) ClaimInjectorJW
 	return groupClaimInjectors(mandatoryInjection, injectors...)
 }
 
-// GroupOptionalClaimInjectors allows injecting optional ClaimInjectors as a single one.
+// GroupOptionalClaimInjectors returns an optional ClaimInjectorJWT that wraps and calls all provided injectors.
+// This is useful to configure multiple optional claim injectors for servers with a single function call.
 // Check groupClaimInjectors to understand how grouping works.
 func GroupOptionalClaimInjectors(injectors ...ClaimInjectorJWT) ClaimInjectorJWT {
 	return groupClaimInjectors(optionalInjection, injectors...)
 }
 
-// SubjectClaimer is a ClaimInjectorJWT for the "sub" claim.
+// SubjectClaimer is a ClaimInjectorJWT that extracts the "sub" claim from an incoming JWT token and stores it in the request context.
 func SubjectClaimer(ctx context.Context, token jwt.Claims) (context.Context, error) {
 	sub, err := token.GetSubject()
 	if err != nil {
@@ -124,7 +126,7 @@ func SubjectClaimer(ctx context.Context, token jwt.Claims) (context.Context, err
 	return InjectGRPCAuthSubject(ctx, sub), nil
 }
 
-// EmailClaimer is a ClaimInjectorJWT for the "email" custom claim.
+// EmailClaimer is a ClaimInjectorJWT that extracts the "email" custom claim from an incoming JWT token and stores it in the request context.
 func EmailClaimer(ctx context.Context, token jwt.Claims) (context.Context, error) {
 	emailClaim, ok := token.(authentication.EmailClaimer)
 	if !ok {
