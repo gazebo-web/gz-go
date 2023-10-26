@@ -5,7 +5,7 @@ go 1.19
 require (
 	cloud.google.com/go/firestore v1.11.0
 	cloud.google.com/go/storage v1.32.0
-	firebase.google.com/go/v4 v4.12.0
+	firebase.google.com/go/v4 v4.12.1
 	github.com/auth0/go-jwt-middleware v1.0.1
 	github.com/aws/aws-sdk-go v1.44.332
 	github.com/aws/aws-sdk-go-v2 v1.21.0
@@ -19,7 +19,7 @@ require (
 	github.com/fatih/structtag v1.2.0
 	github.com/form3tech-oss/jwt-go v3.2.5+incompatible
 	github.com/fsouza/fake-gcs-server v1.45.2
-	github.com/gazebo-web/auth v0.7.0
+	github.com/gazebo-web/auth v0.8.0
 	github.com/go-chi/chi/v5 v5.0.8
 	github.com/go-chi/render v1.0.2
 	github.com/golang-jwt/jwt/v5 v5.0.0
