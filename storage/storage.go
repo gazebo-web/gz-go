@@ -9,6 +9,7 @@ import (
 	"path/filepath"
 	"strconv"
 
+	"github.com/gazebo-web/gz-go/v9"
 	"github.com/pkg/errors"
 )
 

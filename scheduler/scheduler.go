@@ -4,6 +4,7 @@ import (
 	"sync"
 	"time"
 
+	"github.com/gazebo-web/gz-go/v9"
 	sch "gitlab.com/ignitionrobotics/web/scheduler"
 )
 

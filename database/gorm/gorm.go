@@ -4,6 +4,7 @@ import (
 	"errors"
 	"log"
 
+	"github.com/gazebo-web/gz-go/v9"
 	"gorm.io/gorm"
 )
 
