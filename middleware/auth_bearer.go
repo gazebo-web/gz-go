@@ -101,7 +101,8 @@ func optionalInjection(ctx context.Context, _ error) (context.Context, error) {
 	return ctx, nil
 }
 
-// GroupMandatoryClaimInjectors allows injecting mandatory ClaimInjectors as a single one.
+// GroupMandatoryClaimInjectors returns a mandatory ClaimInjectorJWT that wraps and calls all provided injectors.
+// This is useful to configure multiple mandatory claim injectors for servers with a single function call.
 // Check groupClaimInjectors to understand how grouping works.
 func GroupMandatoryClaimInjectors(injectors ...ClaimInjectorJWT) ClaimInjectorJWT {
 	return groupClaimInjectors(mandatoryInjection, injectors...)
