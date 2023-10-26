@@ -3,13 +3,13 @@ package mailing
 import (
 	"context"
 	"errors"
-	"github.com/gazebo-web/gz-go/v8"
+	"net/http"
+	"testing"
+
 	"github.com/sendgrid/rest"
 	"github.com/sendgrid/sendgrid-go/helpers/mail"
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/suite"
-	"net/http"
-	"testing"
 )
 
 func TestSendgrid(t *testing.T) {

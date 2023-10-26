@@ -1,10 +1,10 @@
 package scheduler
 
 import (
-	"github.com/gazebo-web/gz-go/v8"
-	sch "gitlab.com/ignitionrobotics/web/scheduler"
 	"sync"
 	"time"
+
+	sch "gitlab.com/ignitionrobotics/web/scheduler"
 )
 
 // Scheduler represents a generic Scheduler

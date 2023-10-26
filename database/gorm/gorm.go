@@ -2,9 +2,9 @@ package gorm
 
 import (
 	"errors"
-	"github.com/gazebo-web/gz-go/v8"
-	"gorm.io/gorm"
 	"log"
+
+	"gorm.io/gorm"
 )
 
 var (

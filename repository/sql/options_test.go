@@ -3,11 +3,12 @@ package sql
 import (
 	"context"
 	"fmt"
-	utilsgorm "github.com/gazebo-web/gz-go/v8/database/gorm"
-	"github.com/gazebo-web/gz-go/v8/repository"
+	"testing"
+
+	utilsgorm "github.com/gazebo-web/gz-go/v9/database/gorm"
+	"github.com/gazebo-web/gz-go/v9/repository"
 	"github.com/stretchr/testify/suite"
 	"gorm.io/gorm"
-	"testing"
 )
 
 type SQLOptionsReferenceModel struct {
