@@ -2,10 +2,11 @@ package encoders
 
 import (
 	"context"
-	"github.com/gazebo-web/gz-go/v8/telemetry"
+	"io"
+
+	"github.com/gazebo-web/gz-go/v9/telemetry"
 	"github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
 	"go.opentelemetry.io/otel/codes"
-	"io"
 )
 
 // WriterEncoder encodes and writes data to a Writer.

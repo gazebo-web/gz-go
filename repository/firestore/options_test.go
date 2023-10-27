@@ -1,9 +1,10 @@
 package firestore
 
 import (
-	"github.com/gazebo-web/gz-go/v8/repository"
-	"github.com/stretchr/testify/assert"
 	"testing"
+
+	"github.com/gazebo-web/gz-go/v9/repository"
+	"github.com/stretchr/testify/assert"
 )
 
 func TestSetMaxResults(t *testing.T) {

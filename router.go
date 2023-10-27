@@ -3,13 +3,14 @@ package gz
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/codegangsta/negroni"
-	"github.com/gazebo-web/gz-go/v8/monitoring"
-	"github.com/gorilla/mux"
 	"net/http"
 	"regexp"
 	"sort"
 	"strings"
+
+	"github.com/codegangsta/negroni"
+	"github.com/gazebo-web/gz-go/v9/monitoring"
+	"github.com/gorilla/mux"
 )
 
 // NewRouter just creates a new Gorilla/mux router

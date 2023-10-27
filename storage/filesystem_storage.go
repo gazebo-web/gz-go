@@ -2,10 +2,11 @@ package storage
 
 import (
 	"context"
-	"github.com/gazebo-web/gz-go/v8"
-	"github.com/pkg/errors"
 	"io"
 	"os"
+
+	"github.com/gazebo-web/gz-go/v9"
+	"github.com/pkg/errors"
 )
 
 // fileSys is a Storage implementation that uses the host filesystem to store resources.

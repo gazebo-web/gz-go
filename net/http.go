@@ -4,14 +4,15 @@ import (
 	"bytes"
 	"context"
 	"errors"
-	"github.com/gazebo-web/gz-go/v8/encoders"
-	"github.com/gazebo-web/gz-go/v8/telemetry"
-	"go.opentelemetry.io/otel/codes"
 	"io"
 	"net/http"
 	"net/url"
 	"strings"
 	"time"
+
+	"github.com/gazebo-web/gz-go/v9/encoders"
+	"github.com/gazebo-web/gz-go/v9/telemetry"
+	"go.opentelemetry.io/otel/codes"
 )
 
 // httpCaller is a Caller implementation using HTTP as transport layer.

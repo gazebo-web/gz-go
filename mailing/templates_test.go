@@ -3,11 +3,12 @@ package mailing
 import (
 	"context"
 	"errors"
-	"github.com/gazebo-web/gz-go/v8"
-	"github.com/sendgrid/rest"
-	"github.com/stretchr/testify/suite"
 	"net/http"
 	"testing"
+
+	"github.com/gazebo-web/gz-go/v9"
+	"github.com/sendgrid/rest"
+	"github.com/stretchr/testify/suite"
 )
 
 func TestWithTemplates(t *testing.T) {

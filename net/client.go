@@ -3,8 +3,9 @@ package net
 import (
 	"context"
 	"errors"
-	"github.com/gazebo-web/gz-go/v8/encoders"
 	"reflect"
+
+	"github.com/gazebo-web/gz-go/v9/encoders"
 )
 
 var (

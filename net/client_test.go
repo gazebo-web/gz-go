@@ -2,15 +2,16 @@ package net
 
 import (
 	"context"
-	"github.com/gazebo-web/gz-go/v8/encoders"
-	"github.com/stretchr/testify/assert"
-	"github.com/stretchr/testify/require"
 	"io"
 	"net/http"
 	"net/http/httptest"
 	"net/url"
 	"testing"
 	"time"
+
+	"github.com/gazebo-web/gz-go/v9/encoders"
+	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 type inputTest struct {
