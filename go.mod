@@ -24,7 +24,7 @@ require (
 	github.com/go-chi/render v1.0.2
 	github.com/golang-jwt/jwt/v5 v5.0.0
 	github.com/gorilla/mux v1.8.0
-	github.com/grpc-ecosystem/go-grpc-middleware/v2 v2.0.0-rc.5
+	github.com/grpc-ecosystem/go-grpc-middleware/v2 v2.0.1
 	github.com/grpc-ecosystem/grpc-gateway/v2 v2.18.0
 	github.com/johannesboyne/gofakes3 v0.0.0-20230108161031-df26ca44a1e9
 	github.com/jpillora/go-ogle-analytics v0.0.0-20161213085824-14b04e0594ef
