@@ -2,9 +2,10 @@ package sql
 
 import (
 	"fmt"
-	"github.com/gazebo-web/gz-go/v8/repository"
-	"gorm.io/gorm"
 	"strings"
+
+	"github.com/gazebo-web/gz-go/v9/repository"
+	"gorm.io/gorm"
 )
 
 // Option is a SQL-specific repository.Option implementation.

@@ -1,7 +1,7 @@
 package mailing
 
 import (
-	"github.com/gazebo-web/gz-go/v8/structs"
+	"github.com/gazebo-web/gz-go/v9/structs"
 	"github.com/sendgrid/sendgrid-go/helpers/mail"
 )
 

@@ -1,13 +1,14 @@
 package main
 
 import (
-	"github.com/gazebo-web/auth/pkg/authentication"
-	"github.com/gazebo-web/gz-go/v8/middleware"
-	"github.com/rs/cors"
 	"log"
 	"net/http"
 	"os"
 	"time"
+
+	"github.com/gazebo-web/auth/pkg/authentication"
+	"github.com/gazebo-web/gz-go/v9/middleware"
+	"github.com/rs/cors"
 )
 
 func main() {

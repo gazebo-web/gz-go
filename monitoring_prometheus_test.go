@@ -1,14 +1,15 @@
 package gz
 
 import (
-	"github.com/gazebo-web/gz-go/v8/monitoring"
-	"github.com/gazebo-web/gz-go/v8/monitoring/prometheus"
-	"github.com/gorilla/mux"
-	"github.com/stretchr/testify/suite"
-	"gorm.io/gorm"
 	"net/http"
 	"net/http/httptest"
 	"testing"
+
+	"github.com/gazebo-web/gz-go/v9/monitoring"
+	"github.com/gazebo-web/gz-go/v9/monitoring/prometheus"
+	"github.com/gorilla/mux"
+	"github.com/stretchr/testify/suite"
+	"gorm.io/gorm"
 )
 
 func TestMonitoringPrometheusTestSuite(t *testing.T) {

@@ -5,11 +5,6 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
-	"github.com/gazebo-web/gz-go/v8/monitoring"
-	"github.com/gorilla/mux"
-	"github.com/rollbar/rollbar-go"
-	"gorm.io/driver/mysql"
-	"gorm.io/gorm"
 	"log"
 	"net/http"
 	"os"
@@ -19,6 +14,12 @@ import (
 	"strconv"
 	"strings"
 	"time"
+
+	"github.com/gazebo-web/gz-go/v9/monitoring"
+	"github.com/gorilla/mux"
+	"github.com/rollbar/rollbar-go"
+	"gorm.io/driver/mysql"
+	"gorm.io/gorm"
 )
 
 // Server encapsulates information needed by a downstream application

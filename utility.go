@@ -5,8 +5,6 @@ import (
 	"bytes"
 	"errors"
 	"fmt"
-	"github.com/form3tech-oss/jwt-go"
-	gzerrors "github.com/gazebo-web/gz-go/v8/errors"
 	htmlTemplate "html/template"
 	"io"
 	"log"
@@ -21,6 +19,9 @@ import (
 	"strings"
 	"text/template"
 	"time"
+
+	"github.com/form3tech-oss/jwt-go"
+	gzerrors "github.com/gazebo-web/gz-go/v9/errors"
 )
 
 // GetUserIdentity returns the user identity found in the http request's JWT

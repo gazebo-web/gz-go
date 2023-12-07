@@ -3,13 +3,14 @@ package storage
 import (
 	"context"
 	"fmt"
-	"github.com/gazebo-web/gz-go/v8"
-	"github.com/pkg/errors"
 	"io"
 	"io/fs"
 	"os"
 	"path/filepath"
 	"strconv"
+
+	"github.com/gazebo-web/gz-go/v9"
+	"github.com/pkg/errors"
 )
 
 // Storage holds the methods to interact with a Cloud provider storage.
