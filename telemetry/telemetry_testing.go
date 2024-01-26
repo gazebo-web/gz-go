@@ -5,11 +5,13 @@ import (
 	"go.opentelemetry.io/otel/attribute"
 	"go.opentelemetry.io/otel/codes"
 	"go.opentelemetry.io/otel/trace"
+	"go.opentelemetry.io/otel/trace/noop"
 )
 
 // TestSpan is a trace.Span used for testing.
 type TestSpan struct {
 	mock.Mock
+	noop.Span
 }
 
 // End mocks the End method.
