@@ -28,11 +28,15 @@ type TracingConfig struct {
 	// must be set.
 	CollectorURL string `env:"COLLECTOR_URL" envDefault:"http://localhost:14268/api/traces"`
 
-	// AgentHost defines the address this service should send traces to. If Enabled is true, this value
+	// Deprecated: AgentHost defines the address this service should send traces to. If Enabled is true, this value
 	// must be set.
+	// This field was deprecated since the agent strategy is no longer supported
+	// after upgrading a newer Open Telemetry SDK version.
 	AgentHost string `env:"AGENT_HOST" envDefault:"localhost"`
 
-	// AgentPort defines the port used alongside AgentHost. If Enabled is true, this value must be set.
+	// Deprecated: AgentPort defines the port used alongside AgentHost. If Enabled is true, this value must be set.
+	// This field was deprecated since the agent strategy is no longer supported
+	// after upgrading a newer Open Telemetry SDK version.
 	AgentPort string `env:"AGENT_PORT" envDefault:"6831"`
 }
 
