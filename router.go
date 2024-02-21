@@ -9,7 +9,7 @@ import (
 	"strings"
 
 	"github.com/codegangsta/negroni"
-	"github.com/gazebo-web/gz-go/v9/monitoring"
+	"github.com/gazebo-web/gz-go/v10/monitoring"
 	"github.com/gorilla/mux"
 )
 

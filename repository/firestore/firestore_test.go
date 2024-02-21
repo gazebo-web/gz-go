@@ -9,8 +9,8 @@ import (
 
 	"cloud.google.com/go/firestore"
 	firebase "firebase.google.com/go/v4"
-	"github.com/gazebo-web/gz-go/v9/errors"
-	"github.com/gazebo-web/gz-go/v9/repository"
+	"github.com/gazebo-web/gz-go/v10/errors"
+	"github.com/gazebo-web/gz-go/v10/repository"
 	"github.com/stretchr/testify/suite"
 )
 

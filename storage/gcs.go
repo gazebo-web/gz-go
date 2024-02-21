@@ -8,7 +8,7 @@ import (
 	"time"
 
 	"cloud.google.com/go/storage"
-	"github.com/gazebo-web/gz-go/v9"
+	"github.com/gazebo-web/gz-go/v10"
 )
 
 // gcs implements Storage using the Google Cloud Storage (GCS) service.

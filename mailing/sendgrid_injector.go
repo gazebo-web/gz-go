@@ -1,6 +1,6 @@
 package mailing
 
-import "github.com/gazebo-web/gz-go/v9"
+import "github.com/gazebo-web/gz-go/v10"
 
 // contentInjector is a function that prepares and configures email content to be sent by sendgridEmailService.
 type contentInjector func(b sendgridEmailBuilder, key string, data any) (sendgridEmailBuilder, error)

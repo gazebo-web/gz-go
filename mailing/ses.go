@@ -9,7 +9,7 @@ import (
 	"github.com/aws/aws-sdk-go/aws/awserr"
 	"github.com/aws/aws-sdk-go/service/ses"
 	"github.com/aws/aws-sdk-go/service/ses/sesiface"
-	"github.com/gazebo-web/gz-go/v9"
+	"github.com/gazebo-web/gz-go/v10"
 )
 
 // awsSimpleEmailService implements the Sender interface using AWS Simple Email Service API.
