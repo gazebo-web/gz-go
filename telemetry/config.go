@@ -1,7 +1,6 @@
 package telemetry
 
 import (
-	"errors"
 	"github.com/caarlos0/env/v6"
 	"go.opentelemetry.io/otel/propagation"
 	"go.opentelemetry.io/otel/trace"
@@ -19,19 +18,27 @@ type TracingConfig struct {
 	// Enabled defines if tracing should be enabled.
 	Enabled bool `env:"ENABLED" envDefault:"false"`
 
-	// ExportingStrategy contains the name of the strategy used to export traces. Defaults to collector.
+	// Deprecated: ExportingStrategy contains the name of the strategy used to export traces. Defaults to collector.
 	// Possible values: collector, agent.
+	// This field was deprecated since the agent strategy is no longer supported
+	// after upgrading a newer Open Telemetry SDK version.
 	ExportingStrategy string `env:"EXPORTING_STRATEGY" envDefault:"collector"`
 
 	// CollectorURL defines the URL traces should be sent to. If Enabled is true, this value
 	// must be set.
 	CollectorURL string `env:"COLLECTOR_URL" envDefault:"http://localhost:14268/api/traces"`
 
-	// AgentHost defines the address this service should send traces to. If Enabled is true, this value
+	// Deprecated: AgentHost defines the address this service should send traces to. If Enabled is true, this value
 	// must be set.
+	// This field was deprecated since the agent strategy is no longer supported
+	// after upgrading a newer Open Telemetry SDK version.
+	// Use CollectorURL instead.
 	AgentHost string `env:"AGENT_HOST" envDefault:"localhost"`
 
-	// AgentPort defines the port used alongside AgentHost. If Enabled is true, this value must be set.
+	// Deprecated: AgentPort defines the port used alongside AgentHost. If Enabled is true, this value must be set.
+	// This field was deprecated since the agent strategy is no longer supported
+	// after upgrading a newer Open Telemetry SDK version.
+	// Use CollectorURL instead.
 	AgentPort string `env:"AGENT_PORT" envDefault:"6831"`
 }
 
@@ -56,17 +63,7 @@ func InitializeTracing(cfg TracingConfig) (propagation.TextMapPropagator, trace.
 
 	propagator := NewJaegerPropagator()
 
-	var tracerProvider trace.TracerProvider
-	var err error
-	switch cfg.ExportingStrategy {
-	case "collector":
-		tracerProvider, err = NewJaegerTracerProviderCollector(cfg.Service, cfg.CollectorURL, cfg.Environment)
-	case "agent":
-		tracerProvider, err = NewJaegerTracerProviderAgent(cfg.Service, cfg.AgentHost, cfg.AgentPort, cfg.Environment)
-	default:
-		return nil, nil, errors.New("invalid exporting strategy")
-	}
-
+	tracerProvider, err := NewTracerProviderCollector(cfg.Service, cfg.CollectorURL, cfg.Environment)
 	if err != nil {
 		return nil, nil, err
 	}

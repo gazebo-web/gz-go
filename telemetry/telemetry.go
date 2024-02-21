@@ -3,64 +3,43 @@ package telemetry
 import (
 	"context"
 	"fmt"
+	"net/http"
+
 	grpc_otel "go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc"
 	"go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp"
 	jaegerPropagator "go.opentelemetry.io/contrib/propagators/jaeger"
 	"go.opentelemetry.io/otel/attribute"
-	jaegerExporter "go.opentelemetry.io/otel/exporters/jaeger"
+	"go.opentelemetry.io/otel/exporters/otlp/otlptrace"
+	otlptracegrpc "go.opentelemetry.io/otel/exporters/otlp/otlptrace/otlptracegrpc"
 	"go.opentelemetry.io/otel/propagation"
 	"go.opentelemetry.io/otel/sdk/resource"
 	tracesdk "go.opentelemetry.io/otel/sdk/trace"
 	semconv "go.opentelemetry.io/otel/semconv/v1.10.0"
 	"go.opentelemetry.io/otel/trace"
 	"google.golang.org/grpc"
-	"net/http"
 )
 
-// NewJaegerTracerProviderCollector initializes a new Open Telemetry tracer provider for Jaeger using a Jaeger Collector.
+// NewTracerProviderCollector initializes a new Open Telemetry tracer provider using a Jaeger Collector.
 //
-//	service: Describes the service that will be exporting traces into Jaeger. Usually contains the service name.
-//	url: Contains the endpoint where to publish traces to. For Jaeger, it's the collector's endpoint.
+//	service: Describes the service that will be exporting traces. Usually contains the service name.
+//	url: Contains the endpoint where to publish traces to.
 //	environment: Used to identify the environment that a certain service is publishing traces from. Defaults to "development".
-func NewJaegerTracerProviderCollector(service, url, environment string) (trace.TracerProvider, error) {
+func NewTracerProviderCollector(service, url, environment string) (trace.TracerProvider, error) {
 	// Define where traces will be exported to.
 	// This block defines the endpoint to collect traces.
-	exporter, err := jaegerExporter.New(
-		jaegerExporter.WithCollectorEndpoint(
-			jaegerExporter.WithEndpoint(url),
-		),
+	exporter, err := otlptracegrpc.New(
+		context.Background(),
+		otlptracegrpc.WithEndpoint(url),
 	)
 	if err != nil {
 		return nil, err
 	}
 
-	return newJaegerTracerProvider(service, environment, exporter)
+	return newTracerProvider(service, environment, exporter)
 }
 
-// NewJaegerTracerProviderAgent initializes a new Open Telemetry tracer provider for Jaeger using a Jaeger Agent.
-//
-//	service: Describes the service that will be exporting traces into Jaeger. Usually contains the service name.
-//	host: Contains the address where to publish traces to. For Jaeger, it's the agent's endpoint.
-//	port: Contains the port used alongside host to publish traces to. For Jaeger, it's the agent's port.
-//	environment: Used to identify the environment that a certain service is publishing traces from. Defaults to "development".
-func NewJaegerTracerProviderAgent(service, host, port, environment string) (trace.TracerProvider, error) {
-	// Define where traces will be exported to.
-	// This block defines the endpoint to collect traces.
-	exporter, err := jaegerExporter.New(
-		jaegerExporter.WithAgentEndpoint(
-			jaegerExporter.WithAgentHost(host),
-			jaegerExporter.WithAgentPort(port),
-		),
-	)
-	if err != nil {
-		return nil, err
-	}
-
-	return newJaegerTracerProvider(service, environment, exporter)
-}
-
-// newJaegerTracerProvider initializes a generic tracer provider with the given jaeger exporter.
-func newJaegerTracerProvider(service string, environment string, exporter *jaegerExporter.Exporter) (trace.TracerProvider, error) {
+// newTracerProvider initializes a generic tracer provider with the given otel exporter.
+func newTracerProvider(service string, environment string, exporter *otlptrace.Exporter) (trace.TracerProvider, error) {
 	// Set a default environment if no environment is provided.
 	if environment == "" {
 		environment = "development"
@@ -114,50 +93,40 @@ func NewChildSpan(ctx context.Context, name string) (context.Context, trace.Span
 	return span.TracerProvider().Tracer("").Start(ctx, name)
 }
 
-// NewClientInterceptor initializes a new client interceptor for gRPC using the given propagator and tracer provider.
-func NewClientInterceptor(p propagation.TextMapPropagator, tp trace.TracerProvider) (grpc.UnaryClientInterceptor, grpc.StreamClientInterceptor) {
-	return grpc_otel.UnaryClientInterceptor(
-			grpc_otel.WithPropagators(p),
+// NewClientStatsHandler initializes a new dial option for gRPC using the given propagator and tracer provider.
+func NewClientStatsHandler(p propagation.TextMapPropagator, tp trace.TracerProvider) grpc.DialOption {
+	return grpc.WithStatsHandler(
+		grpc_otel.NewClientHandler(
 			grpc_otel.WithTracerProvider(tp),
+			grpc_otel.WithPropagators(p),
 		),
-		grpc_otel.StreamClientInterceptor(
-			grpc_otel.WithPropagators(p),
-			grpc_otel.WithTracerProvider(tp),
-		)
+	)
 }
 
-// NewServerInterceptor initializes a new server interceptor for gRPC using the given propagator and tracer provider.
-func NewServerInterceptor(p propagation.TextMapPropagator, tp trace.TracerProvider) (grpc.UnaryServerInterceptor, grpc.StreamServerInterceptor) {
-	return grpc_otel.UnaryServerInterceptor(
-			grpc_otel.WithPropagators(p),
-			grpc_otel.WithTracerProvider(tp),
-		),
-		grpc_otel.StreamServerInterceptor(
-			grpc_otel.WithPropagators(p),
-			grpc_otel.WithTracerProvider(tp),
-		)
+// NewServerStatsHandler initializes a new server option using the given propagator and tracer provider.
+func NewServerStatsHandler(p propagation.TextMapPropagator, tp trace.TracerProvider) grpc.ServerOption {
+	return grpc.StatsHandler(grpc_otel.NewServerHandler(
+		grpc_otel.WithPropagators(p),
+		grpc_otel.WithTracerProvider(tp),
+	))
 }
 
-// AppendDialOptions appends unary and stream interceptors using the given propagator and tracer provider.
+// AppendDialOptions appends dial options using the given propagator and tracer provider.
 // If either propagator or tracerProvider are nil, this function returns the given opts as they were provided.
 func AppendDialOptions(opts []grpc.DialOption, propagator propagation.TextMapPropagator, tracerProvider trace.TracerProvider) []grpc.DialOption {
 	if propagator != nil && tracerProvider != nil {
-		unaryInterceptor, streamInterceptor := NewClientInterceptor(propagator, tracerProvider)
-		opts = append(opts, grpc.WithUnaryInterceptor(unaryInterceptor), grpc.WithStreamInterceptor(streamInterceptor))
+		opts = append(opts, NewClientStatsHandler(propagator, tracerProvider))
 	}
 	return opts
 }
 
-// AppendServerInterceptors appends unary and stream interceptors using the given propagator and tracer provider.
-// If either propagator or tracerProvider are nil, this function returns the given streams and unaries as they were provided.
-func AppendServerInterceptors(unaries []grpc.UnaryServerInterceptor, streams []grpc.StreamServerInterceptor,
-	p propagation.TextMapPropagator, tp trace.TracerProvider) ([]grpc.UnaryServerInterceptor, []grpc.StreamServerInterceptor) {
-	if p != nil && tp != nil {
-		unaryInterceptor, streamInterceptor := NewServerInterceptor(p, tp)
-		streams = append(streams, streamInterceptor)
-		unaries = append(unaries, unaryInterceptor)
+// AppendServerOptions appends server options using the given propagator and tracer provider.
+// If either propagator or tracerProvider are nil, this function returns the given opts as they were provided.
+func AppendServerOptions(opts []grpc.ServerOption, propagator propagation.TextMapPropagator, tracerProvider trace.TracerProvider) []grpc.ServerOption {
+	if propagator != nil && tracerProvider != nil {
+		opts = append(opts, NewServerStatsHandler(propagator, tracerProvider))
 	}
-	return unaries, streams
+	return opts
 }
 
 // setupHTTPServerOptions initializes the server options for HTTP handlers.
