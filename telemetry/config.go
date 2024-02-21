@@ -20,8 +20,8 @@ type TracingConfig struct {
 
 	// Deprecated: ExportingStrategy contains the name of the strategy used to export traces. Defaults to collector.
 	// Possible values: collector, agent.
-	// This field was deprecated given that exporting strategies are no longer using
-	// Jaeger but just OpenTelemetry, and it defaults to a collector strategy.
+	// This field was deprecated since the agent strategy is no longer supported
+	// after upgrading a newer Open Telemetry SDK version.
 	ExportingStrategy string `env:"EXPORTING_STRATEGY" envDefault:"collector"`
 
 	// CollectorURL defines the URL traces should be sent to. If Enabled is true, this value
