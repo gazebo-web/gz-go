@@ -4,14 +4,14 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	grpc_recovery "github.com/grpc-ecosystem/go-grpc-middleware/v2/interceptors/recovery"
-	grpc_validator "github.com/grpc-ecosystem/go-grpc-middleware/v2/interceptors/validator"
-	grpc_tracing "go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc"
-	"google.golang.org/grpc"
 	"log"
 	"net"
 	"net/http"
 	"time"
+
+	grpc_recovery "github.com/grpc-ecosystem/go-grpc-middleware/v2/interceptors/recovery"
+	grpc_validator "github.com/grpc-ecosystem/go-grpc-middleware/v2/interceptors/validator"
+	"google.golang.org/grpc"
 )
 
 // Server is a web server to listen to incoming requests. It supports different types of transport mechanisms used through Gazebo projects.
@@ -106,7 +106,6 @@ func GRPC(register func(s grpc.ServiceRegistrar), streams []grpc.StreamServerInt
 // DefaultStreamInterceptorsGRPC defines the base streams interceptors we usually use for our gRPC servers.
 func DefaultStreamInterceptorsGRPC() []grpc.StreamServerInterceptor {
 	return []grpc.StreamServerInterceptor{
-		grpc_tracing.StreamServerInterceptor(),
 		grpc_recovery.StreamServerInterceptor(),
 		grpc_validator.StreamServerInterceptor(),
 	}
@@ -121,7 +120,6 @@ func GenerateStreamServerInterceptorsChainWithBase(interceptors ...grpc.StreamSe
 // DefaultUnaryInterceptorsGRPC defines the base streams interceptors we usually use for our gRPC servers.
 func DefaultUnaryInterceptorsGRPC() []grpc.UnaryServerInterceptor {
 	return []grpc.UnaryServerInterceptor{
-		grpc_tracing.UnaryServerInterceptor(),
 		grpc_recovery.UnaryServerInterceptor(),
 		grpc_validator.UnaryServerInterceptor(),
 	}

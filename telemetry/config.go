@@ -1,7 +1,6 @@
 package telemetry
 
 import (
-	"errors"
 	"github.com/caarlos0/env/v6"
 	"go.opentelemetry.io/otel/propagation"
 	"go.opentelemetry.io/otel/trace"
@@ -19,7 +18,7 @@ type TracingConfig struct {
 	// Enabled defines if tracing should be enabled.
 	Enabled bool `env:"ENABLED" envDefault:"false"`
 
-	// ExportingStrategy contains the name of the strategy used to export traces. Defaults to collector.
+	// Deprecated: ExportingStrategy contains the name of the strategy used to export traces. Defaults to collector.
 	// Possible values: collector, agent.
 	ExportingStrategy string `env:"EXPORTING_STRATEGY" envDefault:"collector"`
 
@@ -56,17 +55,7 @@ func InitializeTracing(cfg TracingConfig) (propagation.TextMapPropagator, trace.
 
 	propagator := NewJaegerPropagator()
 
-	var tracerProvider trace.TracerProvider
-	var err error
-	switch cfg.ExportingStrategy {
-	case "collector":
-		tracerProvider, err = NewJaegerTracerProviderCollector(cfg.Service, cfg.CollectorURL, cfg.Environment)
-	case "agent":
-		tracerProvider, err = NewJaegerTracerProviderAgent(cfg.Service, cfg.AgentHost, cfg.AgentPort, cfg.Environment)
-	default:
-		return nil, nil, errors.New("invalid exporting strategy")
-	}
-
+	tracerProvider, err := NewJaegerTracerProviderCollector(cfg.Service, cfg.CollectorURL, cfg.Environment)
 	if err != nil {
 		return nil, nil, err
 	}

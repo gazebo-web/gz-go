@@ -18,7 +18,6 @@ import (
 	"sort"
 	"strings"
 	"text/template"
-	"time"
 
 	"github.com/form3tech-oss/jwt-go"
 	gzerrors "github.com/gazebo-web/gz-go/v9/errors"
@@ -141,7 +140,6 @@ func Trace(skip int) string {
 // RandomString creates a random string of a given length.
 // Ref: https://siongui.github.io/2015/04/13/go-generate-random-string/
 func RandomString(strlen int) string {
-	rand.Seed(time.Now().UTC().UnixNano())
 	const chars = "abcdefghijklmnopqrstuvwxyz"
 	result := make([]byte, strlen)
 	for i := 0; i < strlen; i++ {
