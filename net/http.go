@@ -10,8 +10,8 @@ import (
 	"strings"
 	"time"
 
-	"github.com/gazebo-web/gz-go/v9/encoders"
-	"github.com/gazebo-web/gz-go/v9/telemetry"
+	"github.com/gazebo-web/gz-go/v10/encoders"
+	"github.com/gazebo-web/gz-go/v10/telemetry"
 	"go.opentelemetry.io/otel/codes"
 )
 

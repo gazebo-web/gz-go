@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/gazebo-web/gz-go/v9/repository"
+	"github.com/gazebo-web/gz-go/v10/repository"
 	"gorm.io/gorm"
 )
 

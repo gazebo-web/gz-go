@@ -3,7 +3,7 @@ package firestore
 import (
 	"testing"
 
-	"github.com/gazebo-web/gz-go/v9/repository"
+	"github.com/gazebo-web/gz-go/v10/repository"
 	"github.com/stretchr/testify/assert"
 )
 

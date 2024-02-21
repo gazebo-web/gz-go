@@ -7,7 +7,7 @@ import (
 	"time"
 
 	"github.com/gazebo-web/auth/pkg/authentication"
-	"github.com/gazebo-web/gz-go/v9/middleware"
+	"github.com/gazebo-web/gz-go/v10/middleware"
 	"github.com/rs/cors"
 )
 

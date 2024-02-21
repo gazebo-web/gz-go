@@ -15,7 +15,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/gazebo-web/gz-go/v9/monitoring"
+	"github.com/gazebo-web/gz-go/v10/monitoring"
 	"github.com/gorilla/mux"
 	"github.com/rollbar/rollbar-go"
 	"gorm.io/driver/mysql"

@@ -5,8 +5,8 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"github.com/gazebo-web/gz-go/v9/monitoring"
-	"github.com/gazebo-web/gz-go/v9/monitoring/prometheus"
+	"github.com/gazebo-web/gz-go/v10/monitoring"
+	"github.com/gazebo-web/gz-go/v10/monitoring/prometheus"
 	"github.com/gorilla/mux"
 	"github.com/stretchr/testify/suite"
 	"gorm.io/gorm"

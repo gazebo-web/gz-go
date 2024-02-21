@@ -9,7 +9,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/gazebo-web/gz-go/v9/encoders"
+	"github.com/gazebo-web/gz-go/v10/encoders"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )

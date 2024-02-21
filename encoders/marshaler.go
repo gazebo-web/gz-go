@@ -4,7 +4,7 @@ import (
 	"context"
 	"io"
 
-	"github.com/gazebo-web/gz-go/v9/telemetry"
+	"github.com/gazebo-web/gz-go/v10/telemetry"
 	"github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
 	"go.opentelemetry.io/otel/codes"
 )

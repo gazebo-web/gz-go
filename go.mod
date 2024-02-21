@@ -1,4 +1,4 @@
-module github.com/gazebo-web/gz-go/v9
+module github.com/gazebo-web/gz-go/v10
 
 go 1.21
 

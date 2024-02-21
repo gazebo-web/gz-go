@@ -5,7 +5,7 @@ import (
 	"errors"
 	"reflect"
 
-	"github.com/gazebo-web/gz-go/v9/encoders"
+	"github.com/gazebo-web/gz-go/v10/encoders"
 )
 
 var (
