@@ -57,7 +57,7 @@ func InitializeTracing(cfg TracingConfig) (propagation.TextMapPropagator, trace.
 
 	propagator := NewJaegerPropagator()
 
-	tracerProvider, err := NewJaegerTracerProviderCollector(cfg.Service, cfg.CollectorURL, cfg.Environment)
+	tracerProvider, err := NewTracerProviderCollector(cfg.Service, cfg.CollectorURL, cfg.Environment)
 	if err != nil {
 		return nil, nil, err
 	}

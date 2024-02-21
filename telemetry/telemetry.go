@@ -19,12 +19,12 @@ import (
 	"google.golang.org/grpc"
 )
 
-// NewJaegerTracerProviderCollector initializes a new Open Telemetry tracer provider for Jaeger using a Jaeger Collector.
+// NewTracerProviderCollector initializes a new Open Telemetry tracer provider using a Jaeger Collector.
 //
-//	service: Describes the service that will be exporting traces into Jaeger. Usually contains the service name.
-//	url: Contains the endpoint where to publish traces to. For Jaeger, it's the collector's endpoint.
+//	service: Describes the service that will be exporting traces. Usually contains the service name.
+//	url: Contains the endpoint where to publish traces to.
 //	environment: Used to identify the environment that a certain service is publishing traces from. Defaults to "development".
-func NewJaegerTracerProviderCollector(service, url, environment string) (trace.TracerProvider, error) {
+func NewTracerProviderCollector(service, url, environment string) (trace.TracerProvider, error) {
 	// Define where traces will be exported to.
 	// This block defines the endpoint to collect traces.
 	exporter, err := otlptracegrpc.New(
