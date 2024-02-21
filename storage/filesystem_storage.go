@@ -5,6 +5,7 @@ import (
 	"io"
 	"os"
 
+	"github.com/gazebo-web/gz-go/v10"
 	"github.com/pkg/errors"
 )
 
