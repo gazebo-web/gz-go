@@ -38,7 +38,7 @@ func NewJaegerTracerProviderCollector(service, url, environment string) (trace.T
 	return newTracerProvider(service, environment, exporter)
 }
 
-// newJaegerTracerProvider initializes a generic tracer provider with the given jaeger exporter.
+// newTracerProvider initializes a generic tracer provider with the given otel exporter.
 func newTracerProvider(service string, environment string, exporter *otlptrace.Exporter) (trace.TracerProvider, error) {
 	// Set a default environment if no environment is provided.
 	if environment == "" {
