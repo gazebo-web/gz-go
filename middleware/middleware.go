@@ -24,7 +24,7 @@ type Middleware func(http.Handler) http.Handler
 
 // newTokenMiddleware initializes a generic middleware that uses token authentication. It attempts to extract the tokens from
 // the HTTP request, and verifies the access token is valid to continue to the next element in the middleware chain.
-func newTokenMiddleware(verify authentication.TokenAuthentication, extractors ...Extractor) Middleware {
+func newTokenMiddleware(verify authentication.JsonWebTokenAuthentication, extractors ...Extractor) Middleware {
 	e := request.MultiExtractor(extractors)
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -53,7 +53,7 @@ const (
 )
 
 // ExtractGRPCAuthSubject extracts the authentication subject (sub) claim from the context metadata. This claim is
-// usually injected in a middleware such as BearerToken or BearerAuthFuncGRPC, if present.
+// usually injected in a middleware such as BearerJWT or BearerJWTAuthFuncGRPC, if present.
 //
 // From the RFC7519, section 4.1.2: https://datatracker.ietf.org/doc/html/rfc7519#section-4.1.2
 //
@@ -75,7 +75,7 @@ func InjectGRPCAuthSubject(ctx context.Context, sub string) context.Context {
 }
 
 // ExtractGRPCAuthEmail extracts the custom email (email) claim from the context metadata. This claim is
-// usually injected in a middleware such as BearerToken or BearerAuthFuncGRPC, if present.
+// usually injected in a middleware such as BearerJWT or BearerJWTAuthFuncGRPC, if present.
 //
 // This claim is expected in those provider that inject an email address in their JWT. Not all providers
 // do such thing.

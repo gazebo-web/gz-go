@@ -27,7 +27,7 @@ import (
 )
 
 func TestBearerToken_NoAuthorizationHeader(t *testing.T) {
-	handler := setupBearerTokenTest(t)
+	handler := setupJWTTokenTest(t)
 
 	wr := httptest.NewRecorder()
 	r := httptest.NewRequest("GET", "https://gazebosim.org", nil)
@@ -37,7 +37,7 @@ func TestBearerToken_NoAuthorizationHeader(t *testing.T) {
 }
 
 func TestBearerToken_EmptyAuthorizationHeader(t *testing.T) {
-	handler := setupBearerTokenTest(t)
+	handler := setupJWTTokenTest(t)
 
 	wr := httptest.NewRecorder()
 	r := httptest.NewRequest("GET", "https://gazebosim.org", nil)
@@ -48,7 +48,7 @@ func TestBearerToken_EmptyAuthorizationHeader(t *testing.T) {
 }
 
 func TestBearerToken_InvalidAuthorizationHeader(t *testing.T) {
-	handler := setupBearerTokenTest(t)
+	handler := setupJWTTokenTest(t)
 
 	wr := httptest.NewRecorder()
 	r := httptest.NewRequest("GET", "https://gazebosim.org", nil)
@@ -59,7 +59,7 @@ func TestBearerToken_InvalidAuthorizationHeader(t *testing.T) {
 }
 
 func TestBearerToken_EmptyBearerToken(t *testing.T) {
-	handler := setupBearerTokenTest(t)
+	handler := setupJWTTokenTest(t)
 
 	wr := httptest.NewRecorder()
 	r := httptest.NewRequest("GET", "https://gazebosim.org", nil)
@@ -70,7 +70,7 @@ func TestBearerToken_EmptyBearerToken(t *testing.T) {
 }
 
 func TestBearerToken_InvalidBearerTokenRandomString(t *testing.T) {
-	handler := setupBearerTokenTest(t)
+	handler := setupJWTTokenTest(t)
 
 	wr := httptest.NewRecorder()
 	r := httptest.NewRequest("GET", "https://gazebosim.org", nil)
@@ -81,7 +81,7 @@ func TestBearerToken_InvalidBearerTokenRandomString(t *testing.T) {
 }
 
 func TestBearerToken_InvalidBearerTokenSignedByAnother(t *testing.T) {
-	handler := setupBearerTokenTest(t)
+	handler := setupJWTTokenTest(t)
 
 	wr := httptest.NewRecorder()
 	r := httptest.NewRequest("GET", "https://gazebosim.org", nil)
@@ -92,7 +92,7 @@ func TestBearerToken_InvalidBearerTokenSignedByAnother(t *testing.T) {
 }
 
 func TestBearerToken(t *testing.T) {
-	handler := setupBearerTokenTest(t)
+	handler := setupJWTTokenTest(t)
 
 	token := jwt.NewWithClaims(jwt.SigningMethodRS256, jwt.MapClaims(map[string]interface{}{
 		"sub": "gazebo-web",
@@ -128,13 +128,13 @@ func TestBearerToken(t *testing.T) {
 	assert.Equal(t, http.StatusOK, wr.Code)
 }
 
-func setupBearerTokenTest(t *testing.T) http.Handler {
+func setupJWTTokenTest(t *testing.T) http.Handler {
 	// Set up public key for Authentication service
 	publicKey, err := os.ReadFile("./testdata/key.pem")
 	require.NoError(t, err)
 
 	// Set up a Bearer token middleware
-	mw := BearerToken(authentication.NewAuth0(publicKey))
+	mw := BearerJWT(authentication.NewAuth0(publicKey))
 
 	// Define handler that will be wrapped by the middleware
 	handler := mw(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -147,18 +147,18 @@ func setupBearerTokenTest(t *testing.T) http.Handler {
 	return handler
 }
 
-func TestAuthFuncGRPC(t *testing.T) {
-	auth := newTestAuthentication()
-	ss := &TestAuthSuite{
+func TestAuthFuncGRPC_JWT(t *testing.T) {
+	auth := newTestAuthenticationJWT()
+	ss := &TestAuthJWTSuite{
 		auth: auth,
 		InterceptorTestSuite: &grpc_test.InterceptorTestSuite{
 			TestService: auth,
 			ServerOpts: []grpc.ServerOption{
-				grpc.StreamInterceptor(grpc_auth.StreamServerInterceptor(BearerAuthFuncGRPC(auth, groupClaimInjectors(mandatoryInjection,
+				grpc.StreamInterceptor(grpc_auth.StreamServerInterceptor(BearerJWTAuthFuncGRPC(auth, groupClaimInjectors(mandatoryInjection,
 					groupClaimInjectors(mandatoryInjection, SubjectClaimer),
 					groupClaimInjectors(optionalInjection, EmailClaimer),
 				)))),
-				grpc.UnaryInterceptor(grpc_auth.UnaryServerInterceptor(BearerAuthFuncGRPC(auth, groupClaimInjectors(mandatoryInjection,
+				grpc.UnaryInterceptor(grpc_auth.UnaryServerInterceptor(BearerJWTAuthFuncGRPC(auth, groupClaimInjectors(mandatoryInjection,
 					groupClaimInjectors(mandatoryInjection, SubjectClaimer),
 					groupClaimInjectors(optionalInjection, EmailClaimer),
 				)))),
@@ -168,12 +168,12 @@ func TestAuthFuncGRPC(t *testing.T) {
 	suite.Run(t, ss)
 }
 
-type TestAuthSuite struct {
+type TestAuthJWTSuite struct {
 	*grpc_test.InterceptorTestSuite
-	auth *testAuthService
+	auth *testAuthJWTService
 }
 
-func (suite *TestAuthSuite) TestVerifyJWT_FailsNoBearer() {
+func (suite *TestAuthJWTSuite) TestVerifyJWT_FailsNoBearer() {
 	ctx := context.Background()
 
 	client := suite.NewClient()
@@ -183,7 +183,7 @@ func (suite *TestAuthSuite) TestVerifyJWT_FailsNoBearer() {
 	suite.Assert().Nil(res)
 }
 
-func (suite *TestAuthSuite) TestVerifyJWT_FailsVerifyJWTError() {
+func (suite *TestAuthJWTSuite) TestVerifyJWT_FailsVerifyJWTError() {
 	ctx := ctxWithToken(context.Background(), "bearer", "1234")
 	expectedError := errors.New("failed to verify token")
 
@@ -197,7 +197,7 @@ func (suite *TestAuthSuite) TestVerifyJWT_FailsVerifyJWTError() {
 	suite.Assert().Nil(res)
 }
 
-func (suite *TestAuthSuite) TestVerifyJWT_Success() {
+func (suite *TestAuthJWTSuite) TestVerifyJWT_Success() {
 	ctx := ctxWithToken(context.Background(), "bearer", "1234")
 
 	expectedCtx := mock.AnythingOfType("*context.valueCtx")
@@ -215,34 +215,6 @@ func (suite *TestAuthSuite) TestVerifyJWT_Success() {
 func ctxWithToken(ctx context.Context, scheme string, token string) context.Context {
 	md := grpc_metadata.Pairs("authorization", fmt.Sprintf("%s %v", scheme, token))
 	return metadata.MD(md).ToOutgoing(ctx)
-}
-
-type testAuthService struct {
-	grpc_test.UnimplementedTestServiceServer
-	mock.Mock
-}
-
-func (s *testAuthService) Ping(ctx context.Context, _ *grpc_test.PingRequest) (*grpc_test.PingResponse, error) {
-	sub, err := ExtractGRPCAuthSubject(ctx)
-	if err != nil {
-		return nil, err
-	}
-	email, err := ExtractGRPCAuthEmail(ctx)
-	if err != nil {
-		return nil, err
-	}
-	return &grpc_test.PingResponse{
-		Value: strings.Join([]string{sub, email}, ";"),
-	}, nil
-}
-
-func (s *testAuthService) VerifyJWT(ctx context.Context, token string) (jwt.Claims, error) {
-	args := s.Called(ctx, token)
-	return args.Get(0).(jwt.Claims), args.Error(1)
-}
-
-func newTestAuthentication() *testAuthService {
-	return &testAuthService{}
 }
 
 func TestGroupClaimInjectors_Mandatory(t *testing.T) {
@@ -328,4 +300,32 @@ func TestGroupClaimInjectors_Combined_NoEmail(t *testing.T) {
 
 	emails := grpc_metadata.ValueFromIncomingContext(ctx, metadataEmailKey)
 	assert.Empty(t, emails)
+}
+
+type testAuthJWTService struct {
+	grpc_test.UnimplementedTestServiceServer
+	mock.Mock
+}
+
+func (s *testAuthJWTService) Ping(ctx context.Context, _ *grpc_test.PingRequest) (*grpc_test.PingResponse, error) {
+	sub, err := ExtractGRPCAuthSubject(ctx)
+	if err != nil {
+		return nil, err
+	}
+	email, err := ExtractGRPCAuthEmail(ctx)
+	if err != nil {
+		return nil, err
+	}
+	return &grpc_test.PingResponse{
+		Value: strings.Join([]string{sub, email}, ";"),
+	}, nil
+}
+
+func (s *testAuthJWTService) VerifyJWT(ctx context.Context, token string) (jwt.Claims, error) {
+	args := s.Called(ctx, token)
+	return args.Get(0).(jwt.Claims), args.Error(1)
+}
+
+func newTestAuthenticationJWT() *testAuthJWTService {
+	return &testAuthJWTService{}
 }

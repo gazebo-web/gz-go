@@ -106,6 +106,8 @@ github.com/fsouza/fake-gcs-server v1.47.7 h1:56/U4rKY081TaNbq0gHWi7/71UxC2KROqcn
 github.com/fsouza/fake-gcs-server v1.47.7/go.mod h1:4vPUynN8/zZlxk5Jpy6LvvTTxItdTAObK4DYnp89Jys=
 github.com/gazebo-web/auth v0.8.0 h1:TwpFAX9RyZ0uthZ2ubj/svAl7/RzwbxAZIbqim2+OYQ=
 github.com/gazebo-web/auth v0.8.0/go.mod h1:uvecK4glAnlhq+HIKafL/nJdRbrVtw9TKUVQcXhYYJY=
+github.com/gazebo-web/auth v0.8.1-0.20240304193427-135e58a101d6 h1:WPw3pren4cv+Hh1Ivfkqisr1kToT8aFnpUoeKWtii6c=
+github.com/gazebo-web/auth v0.8.1-0.20240304193427-135e58a101d6/go.mod h1:uvecK4glAnlhq+HIKafL/nJdRbrVtw9TKUVQcXhYYJY=
 github.com/go-chi/chi/v5 v5.0.11 h1:BnpYbFZ3T3S1WMpD79r7R5ThWX40TaFB7L31Y8xqSwA=
 github.com/go-chi/chi/v5 v5.0.11/go.mod h1:DslCQbL2OYiznFReuXYUmQ2hGd1aDpCnlMNITLSKoi8=
 github.com/go-chi/render v1.0.3 h1:AsXqd2a1/INaIfUSKq3G5uA8weYx20FOsM7uSoCyyt4=

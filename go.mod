@@ -19,7 +19,7 @@ require (
 	github.com/fatih/structtag v1.2.0
 	github.com/form3tech-oss/jwt-go v3.2.5+incompatible
 	github.com/fsouza/fake-gcs-server v1.47.7
-	github.com/gazebo-web/auth v0.8.0
+	github.com/gazebo-web/auth v0.8.1-0.20240304193427-135e58a101d6
 	github.com/go-chi/chi/v5 v5.0.11
 	github.com/go-chi/render v1.0.3
 	github.com/golang-jwt/jwt/v5 v5.2.0
