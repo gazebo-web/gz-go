@@ -11,12 +11,12 @@ import (
 	"google.golang.org/grpc/status"
 )
 
-// BearerToken returns a Middleware for authenticating users using Bearer Tokens in JWT format.
-func BearerToken(authentication authentication.Authentication) Middleware {
+// BearerJWT returns a Middleware for authenticating users using Bearer Tokens in JWT format.
+func BearerJWT(authentication authentication.Authentication) Middleware {
 	return newTokenMiddleware(authentication.VerifyJWT, request.BearerExtractor{})
 }
 
-// BearerAuthFuncGRPC returns a new grpc_auth.AuthFunc to use with the gazebo-web authentication library.
+// BearerJWTAuthFuncGRPC returns a new grpc_auth.AuthFunc to use with the gazebo-web authentication library.
 //
 // The passed in context.Context will contain the gRPC metadata.MD object (for header-based authentication) and
 // the peer.Peer information that can contain transport-based credentials (e.g. `credentials.AuthInfo`).
@@ -24,10 +24,10 @@ func BearerToken(authentication authentication.Authentication) Middleware {
 //	auth := authentication.New[...]()
 //
 //	srv := grpc.NewServer(
-//		grpc.StreamInterceptor(grpc_auth.StreamServerInterceptor(BearerAuthFuncGRPC(auth))),
-//		grpc.UnaryInterceptor(grpc_auth.UnaryServerInterceptor(BearerAuthFuncGRPC(auth))),
+//		grpc.StreamInterceptor(grpc_auth.StreamServerInterceptor(BearerJWTAuthFuncGRPC(auth))),
+//		grpc.UnaryInterceptor(grpc_auth.UnaryServerInterceptor(BearerJWTAuthFuncGRPC(auth))),
 //	)
-func BearerAuthFuncGRPC(auth authentication.Authentication, claimInjector ClaimInjectorJWT) grpc_auth.AuthFunc {
+func BearerJWTAuthFuncGRPC(auth authentication.Authentication, claimInjector ClaimInjectorJWT) grpc_auth.AuthFunc {
 	return func(ctx context.Context) (context.Context, error) {
 		raw, err := grpc_auth.AuthFromMD(ctx, "bearer")
 		if err != nil {

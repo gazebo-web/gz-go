@@ -25,7 +25,7 @@ func main() {
 	auth := authentication.NewAuth0(f)
 
 	// Set up bearer token middleware
-	bearer := middleware.BearerToken(auth)
+	bearer := middleware.BearerJWT(auth)
 
 	// Define HTTP handler
 	h := http.Handler(http.HandlerFunc(handler))
