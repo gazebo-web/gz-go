@@ -15,23 +15,17 @@ import (
 )
 
 func TestAuthFuncGRPC_AccessToken(t *testing.T) {
-	ss := &TestAuthAccessTokenSuite{
+	var ss TestAuthAccessTokenSuite
+	ss = TestAuthAccessTokenSuite{
 		InterceptorTestSuite: &grpc_test.InterceptorTestSuite{
 			TestService: newTestAuthenticationAccessToken(),
 			ServerOpts: []grpc.ServerOption{
-				grpc.StreamInterceptor(grpc_auth.StreamServerInterceptor(BearerAccessTokenAuthFuncGRPC(validateAccessToken))),
-				grpc.UnaryInterceptor(grpc_auth.UnaryServerInterceptor(BearerAccessTokenAuthFuncGRPC(validateAccessToken))),
+				grpc.StreamInterceptor(grpc_auth.StreamServerInterceptor(BearerAccessTokenAuthFuncGRPC(ss.validateAccessToken))),
+				grpc.UnaryInterceptor(grpc_auth.UnaryServerInterceptor(BearerAccessTokenAuthFuncGRPC(ss.validateAccessToken))),
 			},
 		},
 	}
-	suite.Run(t, ss)
-}
-
-func validateAccessToken(ctx context.Context, token string) error {
-	if token != "ey.LfexACqSU5qgYgp9EXSdR4rtnD7BJ0oOCNi8BKIkZ4vt25jRxyu6AXAKVNrtItb1" {
-		return status.Error(codes.Unauthenticated, "Invalid access token")
-	}
-	return nil
+	suite.Run(t, &ss)
 }
 
 type TestAuthAccessTokenSuite struct {
@@ -89,6 +83,13 @@ func (suite *TestAuthAccessTokenSuite) TestValidToken() {
 	res, err := client.Ping(ctx, &grpc_test.PingRequest{})
 	suite.Assert().NoError(err)
 	suite.Assert().NotNil(res)
+}
+
+func (suite *TestAuthAccessTokenSuite) validateAccessToken(ctx context.Context, token string) error {
+	if token != "ey.LfexACqSU5qgYgp9EXSdR4rtnD7BJ0oOCNi8BKIkZ4vt25jRxyu6AXAKVNrtItb1" {
+		return status.Error(codes.Unauthenticated, "Invalid access token")
+	}
+	return nil
 }
 
 type testAuthAccessToken struct {
