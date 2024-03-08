@@ -17,6 +17,7 @@ import (
 func TestAuthFuncGRPC_AccessToken(t *testing.T) {
 	var ss TestAuthAccessTokenSuite
 	ss = TestAuthAccessTokenSuite{
+		token: "ey.LfexACqSU5qgYgp9EXSdR4rtnD7BJ0oOCNi8BKIkZ4vt25jRxyu6AXAKVNrtItb1",
 		InterceptorTestSuite: &grpc_test.InterceptorTestSuite{
 			TestService: newTestAuthenticationAccessToken(),
 			ServerOpts: []grpc.ServerOption{
@@ -30,6 +31,7 @@ func TestAuthFuncGRPC_AccessToken(t *testing.T) {
 
 type TestAuthAccessTokenSuite struct {
 	*grpc_test.InterceptorTestSuite
+	token string
 }
 
 func (suite *TestAuthAccessTokenSuite) TestNoBearer() {
@@ -86,7 +88,7 @@ func (suite *TestAuthAccessTokenSuite) TestValidToken() {
 }
 
 func (suite *TestAuthAccessTokenSuite) validateAccessToken(ctx context.Context, token string) error {
-	if token != "ey.LfexACqSU5qgYgp9EXSdR4rtnD7BJ0oOCNi8BKIkZ4vt25jRxyu6AXAKVNrtItb1" {
+	if token != suite.token {
 		return status.Error(codes.Unauthenticated, "Invalid access token")
 	}
 	return nil
