@@ -20,7 +20,6 @@ import (
 	"sort"
 	"strings"
 	"text/template"
-	"time"
 )
 
 // GetUserIdentity returns the user identity found in the http request's JWT
@@ -140,7 +139,6 @@ func Trace(skip int64) string {
 // RandomString creates a random string of a given length.
 // Ref: https://siongui.github.io/2015/04/13/go-generate-random-string/
 func RandomString(strlen int) string {
-	rand.Seed(time.Now().UTC().UnixNano())
 	const chars = "abcdefghijklmnopqrstuvwxyz"
 	result := make([]byte, strlen)
 	for i := 0; i < strlen; i++ {

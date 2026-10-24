@@ -1,6 +1,6 @@
 module github.com/gazebo-web/gz-go/v7
 
-go 1.19
+go 1.21
 
 require (
 	cloud.google.com/go/firestore v1.9.0
