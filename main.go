@@ -12,7 +12,7 @@ import (
 	"path"
 	"runtime"
 	"strconv"
-	"strings"
+	"testing"
 	"time"
 
 	"github.com/gazebo-web/gz-go/v10/monitoring"
@@ -130,8 +130,9 @@ func Init(auth0RSAPublicKey string, dbNameSuffix string, monitoring monitoring.P
 
 	gServer = server
 
-	// Testing
-	server.IsTest = strings.Contains(strings.ToLower(os.Args[0]), "test")
+	// Testing. Test mode trusts TEST_RSA256_PUBLIC_KEY instead of the Auth0
+	// key, so only enable it in binaries built by go test, whatever their name.
+	server.IsTest = testing.Testing()
 
 	if server.IsTest {
 		// Let's use a separate DB name if under test mode.
